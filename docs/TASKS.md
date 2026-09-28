@@ -40,7 +40,7 @@ logic in `app/services/`, migrations in `db/migrate/`.
 
 Prerequisites: none (the codebase is the bare scaffold today).
 
-- [ ] T0.1 Get local dev running: `airway db:create && airway db:migrate && go run .`, confirm the homepage renders
+- [x] T0.1 Get local dev running: `airway db:create && airway db:migrate && go run .`, confirm the homepage renders — done 2026-09-28: local Postgres on 127.0.0.1:5432, DB `airshop` created, migrations OK (`db/schema.json` written), homepage HTTP 200 (`/health` 200). DSN passed via `AIRWAY_DSN` (process env wins over `.env`); to make it permanent, set `DSN` in `.env`
 - [ ] T0.2 ❓ Set shared column conventions: primary key type, `created_at`/`updated_at`, soft deletes or not — write them down here or in CONTRIBUTING
 - [ ] T0.3 Split storefront and admin layouts: add both under `app/views/layouts/` (header, nav, footer skeletons)
 - [ ] T0.4 Route groups: storefront routes vs `/admin` routes, plus 404/403 fallback pages
