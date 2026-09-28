@@ -66,7 +66,7 @@ Prerequisites: M0.
 
 ### Storefront
 
-- [ ] T1.8 Rework the homepage: product section (featured or latest items)
+- [x] T1.8 Rework the homepage: product section (featured or latest items) — done 2026-09-29: storefront homepage replaces the scaffold welcome page; latest 8 active products as cards (main-image thumb or placeholder, formatted price, link to `/products/<slug>`); `services.LatestProducts` verified by an env-gated integration test (`AIRWAY_PG_TEST_DSN`, runs the real migrations on a scratch DB); homepage E2E verified (empty state, active-only, newest first, formatted prices)
 - [ ] T1.9 Product listing page: category filter, pagination
 - [ ] T1.10 Product detail page: images, price, stock, description, add-to-cart button (placeholder until M4)
 

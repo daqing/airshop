@@ -31,3 +31,14 @@ func ProductSellable(product *models.Product) bool {
 func VariantSellable(variant *models.ProductVariant) bool {
 	return variant.Active && variant.Stock > 0
 }
+
+// LatestProducts returns up to limit active products, newest first, for the
+// storefront homepage section.
+func LatestProducts(limit int) ([]*models.Product, error) {
+	b := sql.Select("*").
+		From("products").
+		Where(sql.Eq("active", true)).
+		OrderBy("id DESC").
+		Limit(limit)
+	return repo.Find[models.Product](repo.CurrentDB(), b)
+}

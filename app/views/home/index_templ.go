@@ -8,10 +8,13 @@ package home
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/daqing/airshop/app/views/layouts"
+import (
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/services"
+	"github.com/daqing/airshop/app/views/layouts"
+)
 
-// Index renders the welcome page without a database dependency.
-func Index() templ.Component {
+func Index(products []*models.Product) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -44,7 +47,138 @@ func Index() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t\t.welcome-page {\n\t\t\t\t--bg: #101319; --ink: #f3f4ef; --muted: #9a9eaa; --line: #2b303a;\n\t\t\t\t--lime: #c2f16b; --code-bg: #171b23;\n\t\t\t\tcolor-scheme: dark;\n\t\t\t\tmin-height: 100vh; display: flex; align-items: center; justify-content: center;\n\t\t\t\tbackground: var(--bg); color: var(--ink);\n\t\t\t\tfont-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;\n\t\t\t\t-webkit-font-smoothing: antialiased;\n\t\t\t}\n\t\t\t@media (prefers-color-scheme: light) {\n\t\t\t\t.welcome-page {\n\t\t\t\t\t--bg: #fafaf7; --ink: #232820; --muted: #6d7369; --line: #dfe2d7;\n\t\t\t\t\t--lime: #5d763c; --code-bg: #f0f2ea;\n\t\t\t\t\tcolor-scheme: light;\n\t\t\t\t}\n\t\t\t}\n\t\t\t.welcome-page * { box-sizing: border-box; margin: 0; }\n\t\t\t.welcome { width: min(680px, calc(100% - 48px)); padding-block: 64px; }\n\t\t\t.welcome h1 { font-size: clamp(40px, 7vw, 64px); font-weight: 650; letter-spacing: -2.5px; }\n\t\t\t.welcome h1 .accent { color: var(--lime); }\n\t\t\t.welcome .lead { margin-top: 14px; font-size: 16px; line-height: 1.7; color: var(--muted); }\n\t\t\t.welcome code {\n\t\t\t\tfont-family: \"SFMono-Regular\", Consolas, \"Liberation Mono\", monospace;\n\t\t\t\tfont-size: .9em; background: var(--code-bg); border: 1px solid var(--line);\n\t\t\t\tborder-radius: 4px; padding: 2px 6px;\n\t\t\t}\n\t\t\t.welcome .next { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 28px; }\n\t\t\t.welcome h2 { font-size: 11px; font-weight: 650; letter-spacing: 1.6px; color: var(--lime); text-transform: uppercase; }\n\t\t\t.welcome .commands { margin-top: 18px; display: grid; gap: 10px; }\n\t\t\t.welcome .command { display: grid; grid-template-columns: minmax(0, auto) 1fr; gap: 16px; align-items: baseline; }\n\t\t\t.welcome .command span { font-size: 12px; color: var(--muted); }\n\t\t\t.welcome .footer { margin-top: 40px; font-size: 12px; line-height: 1.6; color: var(--muted); }\n\t\t\t@media (max-width: 560px) {\n\t\t\t\t.welcome .command { grid-template-columns: 1fr; gap: 3px; }\n\t\t\t}\n\t\t</style> <main class=\"welcome-page\"><div class=\"welcome\"><h1>Airway works<span class=\"accent\">.</span></h1><p class=\"lead\">Your new Airway application is up and running. This page is served by <code>app/api/home_api/index_action.go</code> and rendered from <code>app/views/home/index.templ</code> — replace them with your own.</p><section class=\"next\"><h2>Keep building</h2><div class=\"commands\"><div class=\"command\"><code>just dev</code><span>start the dev server with live reload</span></div><div class=\"command\"><code>airway generate api posts</code><span>scaffold an API namespace under app/api/</span></div><div class=\"command\"><code>airway generate action posts show</code><span>add an action to an existing API module</span></div><div class=\"command\"><code>airway generate model post</code><span>scaffold a model in app/models/</span></div><div class=\"command\"><code>airway generate service post title:string</code><span>scaffold a CRUD service</span></div><div class=\"command\"><code>airway generate migration create_posts</code><span>new .up.sql / .down.sql pair in db/migrate/</span></div><div class=\"command\"><code>airway db:migrate</code><span>apply pending migrations</span></div><div class=\"command\"><code>go run . repl</code><span>explore your models interactively</span></div></div></section><p class=\"footer\">Serving on <code>http://localhost:1905</code> — change <code>LISTEN</code> in <code>.env</code> to bind another address.<br>Read the docs at <a href=\"https://github.com/daqing/airway#readme\">github.com/daqing/airway</a></p></div></main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t\t.home-hero { padding: 48px 24px 32px; text-align: center; }\n\t\t\t.home-hero h1 { font-size: clamp(28px, 5vw, 40px); letter-spacing: -1px; margin: 0; }\n\t\t\t.home-hero p { margin: 10px 0 0; color: var(--sf-muted); }\n\t\t\t.home-section { max-width: 1080px; margin: 0 auto; padding: 0 24px 64px; }\n\t\t\t.home-section h2 { font-size: 18px; margin: 0 0 16px; }\n\t\t\t.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 18px; }\n\t\t\t.product-card { border: 1px solid var(--sf-line); border-radius: 10px; overflow: hidden; background: var(--sf-bg); display: block; color: inherit; text-decoration: none; }\n\t\t\t.product-card:hover { border-color: var(--sf-muted); }\n\t\t\t.product-card .thumb { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: var(--sf-line); }\n\t\t\t.product-card .body { padding: 10px 12px 14px; }\n\t\t\t.product-card .name { font-size: 14px; font-weight: 600; line-height: 1.4; }\n\t\t\t.product-card .price { margin-top: 6px; font-size: 15px; font-weight: 700; }\n\t\t\t.home-empty { color: var(--sf-muted); padding: 32px 0; text-align: center; }\n\t\t</style> <section class=\"home-hero\"><h1>AirShop</h1><p>Fresh picks from the store</p></section><section class=\"home-section\"><h2>Latest products</h2>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if len(products) == 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<p class=\"home-empty\">No products yet. Check back soon.</p>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"product-grid\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				for _, p := range products {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<a class=\"product-card\" href=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var3 templ.SafeURL
+					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("/products/" + p.Slug))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `home/index.templ`, Line: 37, Col: 69}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if p.MainImage != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<img class=\"thumb\" src=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var4 string
+						templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.URL(services.ProductImageURL(p.MainImage)))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `home/index.templ`, Line: 39, Col: 81}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" alt=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var5 string
+						templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Name)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `home/index.templ`, Line: 39, Col: 96}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<img class=\"thumb\" src=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var6 string
+						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.URL(placeholderImage()))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `home/index.templ`, Line: 41, Col: 62}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" alt=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var7 string
+						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Name)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `home/index.templ`, Line: 41, Col: 77}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"body\"><div class=\"name\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var8 string
+					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `home/index.templ`, Line: 44, Col: 34}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div class=\"price\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var9 string
+					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(services.FormatCents(p.PriceCents))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `home/index.templ`, Line: 45, Col: 63}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></div></a>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</section>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -56,6 +190,10 @@ func Index() templ.Component {
 		}
 		return nil
 	})
+}
+
+func placeholderImage() string {
+	return ("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='200' height='200' fill='%23d8dae0'/></svg>")
 }
 
 var _ = templruntime.GeneratedTemplate
