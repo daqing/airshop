@@ -81,6 +81,19 @@ repo 层不会自动维护 `updated_at`,脚手架生成的 `UpdateAction` 也不
 - 展示格式化(分 → "¥12.34")收敛在一个共享小工具里,首个 UI 需要时
   (M1)创建;禁止在调用点内联格式化。
 
+## 商品变体
+
+- 变体从第一天就支持(T1.3,2026-09-28 定)。商品在 `product_variants` 里
+  有至少一行启用的变体时,**通过变体销售**;否则商品行本身即可售单元
+  (其 `price_cents`/`stock` 就是默认价与默认库存)。
+- 可售单元的判定**只在 Product 服务层**(T1.4);购物车、结算、后台
+  一律不直接查 `product_variants`。
+- 每个变体即可售 SKU:`product_id`、组合的展示名 `name`(如 "红色 / M")、
+  独立 `price_cents`、独立 `stock`、`active`、`sort_order`。结构化多轴
+  选项(options/option-values 表族)刻意后置;将来引入时只负责给变体
+  打标签,不改变价格库存的读取路径。
+- 已被购物车或订单引用的变体永不删除:置 `active = FALSE`,保住历史。
+
 ## 决策记录
 
 - 2026-09-28 —— T0.2 由 David Zhang 拍板:硬删除 + 状态字段替代,
@@ -88,3 +101,6 @@ repo 层不会自动维护 `updated_at`,脚手架生成的 `UpdateAction` 也不
 - 2026-09-28 —— T0.5 由 David Zhang 拍板:金额用 BIGINT 最小货币单位
   (`_cents` 后缀,Go 侧 int64),单一门店货币,库存为非负 INTEGER,
   百分比为整数 0–100。
+- 2026-09-28 —— T1.3 由 David Zhang 拍板:现在就支持变体
+  (`product_variants` 表);可售单元判定收在 Product 服务层;结构化
+  选项轴后置;被引用的变体停用而非删除。
