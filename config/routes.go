@@ -55,6 +55,24 @@ func AdminRoutes(r *gin.Engine) {
 	admin := r.Group("/admin")
 	{
 		admin.GET("", admin_api.DashboardAction)
+
+		admin.GET("/categories", admin_api.CategoriesIndexAction)
+		admin.GET("/categories/new", admin_api.NewCategoryAction)
+		admin.POST("/categories", admin_api.CreateCategoryAction)
+		admin.GET("/categories/:id/edit", admin_api.EditCategoryAction)
+		admin.POST("/categories/:id/update", admin_api.UpdateCategoryAction)
+		admin.POST("/categories/:id/delete", admin_api.DestroyCategoryAction)
+
+		admin.GET("/products", admin_api.ProductsIndexAction)
+		admin.GET("/products/new", admin_api.NewProductAction)
+		admin.POST("/products", admin_api.CreateProductAction)
+		admin.GET("/products/:id/edit", admin_api.EditProductAction)
+		admin.POST("/products/:id/update", admin_api.UpdateProductAction)
+		admin.POST("/products/:id/activate", admin_api.ActivateProductAction)
+		admin.POST("/products/:id/deactivate", admin_api.DeactivateProductAction)
+		admin.POST("/products/:id/images/upload", admin_api.UploadProductImagesAction)
+		admin.POST("/products/:id/images/:imageId/delete", admin_api.DeleteProductImageAction)
+		admin.POST("/products/:id/images/:imageId/main", admin_api.MakeProductImageMainAction)
 	}
 }
 
