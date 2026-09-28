@@ -3,6 +3,8 @@ package products
 import (
 	"strconv"
 
+	airwaysql "github.com/daqing/airway/lib/sql"
+
 	"github.com/daqing/airshop/app/models"
 	"github.com/daqing/airshop/app/services"
 	"github.com/daqing/airshop/app/views/layouts"
@@ -140,7 +142,7 @@ templ Index(data IndexData) {
 	}
 }
 
-templ Form(title string, action string, p *models.Product, cats []*models.Category, errMsg string) {
+templ Form(title string, action string, p *models.Product, cats []*models.Category, images []services.ProductImageEntry, errMsg string) {
 	@layouts.Admin(title) {
 		<style>
 			.adm-form { max-width: 520px; display: grid; gap: 14px; }
@@ -151,10 +153,48 @@ templ Form(title string, action string, p *models.Product, cats []*models.Catego
 			.adm-form .check { display: flex; align-items: center; gap: 8px; }
 			.adm-error { padding: 10px 14px; border-radius: 6px; background: #f3e6e5; color: #8f2f28; }
 			.adm-button { display: inline-block; padding: 8px 16px; border: 1px solid #8a8f9c; border-radius: 6px; background: transparent; color: inherit; font-size: 14px; cursor: pointer; text-decoration: none; }
+			.adm-images { display: flex; gap: 12px; flex-wrap: wrap; margin: 8px 0 16px; }
+			.adm-image { width: 120px; display: grid; gap: 6px; justify-items: center; }
+			.adm-image img { width: 120px; height: 120px; object-fit: cover; border-radius: 6px; border: 1px solid #d8dae0; }
+			.adm-image .row { display: flex; gap: 6px; }
+			.adm-image .adm-button { padding: 3px 8px; font-size: 12px; }
+			.adm-main-badge { font-size: 11px; letter-spacing: 1px; color: #2f6b2f; }
+			.adm-upload { max-width: 520px; display: flex; gap: 10px; align-items: center; margin-bottom: 24px; }
 		</style>
 		<h1>{ title }</h1>
 		if errMsg != "" {
 			<p class="adm-error">{ errMsg }</p>
+		}
+		if p != nil {
+			<h2>Images</h2>
+			if len(images) == 0 {
+				<p>No images yet — the first uploaded image becomes the main one.</p>
+			} else {
+				<div class="adm-images">
+					for _, entry := range images {
+						<div class="adm-image">
+							<img src={ templ.URL(entry.URL) } alt="product image"/>
+							if entry.IsMain {
+								<span class="adm-main-badge">MAIN</span>
+							}
+							<div class="row">
+								if !entry.IsMain {
+									<form method="post" action={ templ.URL(productAction(p.ID, entry.Image.ID, "main")) }>
+										<button class="adm-button" type="submit">Make main</button>
+									</form>
+								}
+								<form method="post" action={ templ.URL(productAction(p.ID, entry.Image.ID, "delete")) }>
+									<button class="adm-button adm-button-danger" type="submit">Delete</button>
+								</form>
+							</div>
+						</div>
+					}
+				</div>
+			}
+			<form class="adm-upload" method="post" encType="multipart/form-data" action={ templ.URL(productAction(p.ID, 0, "upload")) }>
+				<input type="file" name="images" multiple accept="image/jpeg,image/png,image/webp,image/gif"/>
+				<button class="adm-button" type="submit">Upload</button>
+			</form>
 		}
 		<form class="adm-form" method="post" action={ templ.URL(action) }>
 			<label>
@@ -189,10 +229,6 @@ templ Form(title string, action string, p *models.Product, cats []*models.Catego
 			<label>
 				Description
 				<textarea name="description" rows="4">{ productDescription(p) }</textarea>
-			</label>
-			<label>
-				Main image (storage key, upload arrives in T1.7)
-				<input type="text" name="main_image" value={ productMainImage(p) }/>
 			</label>
 			<label class="check">
 				<input type="checkbox" name="active" value="true" checked?={ p == nil || p.Active }/>
@@ -246,4 +282,12 @@ func productMainImage(p *models.Product) string {
 		return ""
 	}
 	return p.MainImage
+}
+
+func productAction(productID, imageID airwaysql.IdType, verb string) string {
+	base := "/admin/products/" + strconv.FormatInt(int64(productID), 10) + "/images"
+	if imageID == 0 {
+		return base + "/upload"
+	}
+	return base + "/" + strconv.FormatInt(int64(imageID), 10) + "/" + verb
 }

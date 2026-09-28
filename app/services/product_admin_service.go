@@ -21,6 +21,7 @@ var (
 	ErrProductPriceInvalid    = errors.New("price must be zero or positive")
 	ErrProductStockInvalid    = errors.New("stock must be zero or positive")
 	ErrProductCategoryMissing = errors.New("category does not exist")
+	ErrProductNotFound        = errors.New("product not found")
 )
 
 type ProductInput struct {
@@ -31,7 +32,6 @@ type ProductInput struct {
 	PriceCents  int64
 	Stock       int
 	Active      bool
-	MainImage   string
 }
 
 func (in ProductInput) normalizeSlug() string {
@@ -153,7 +153,7 @@ func CreateProduct(in ProductInput) (*models.Product, error) {
 		"price_cents": in.PriceCents,
 		"stock":       in.Stock,
 		"active":      in.Active,
-		"main_image":  in.MainImage,
+		"main_image":  "",
 	})
 }
 
@@ -168,6 +168,16 @@ func UpdateProduct(id sql.IdType, in ProductInput) error {
 		return ErrProductSlugTaken
 	}
 
+	existing, err := repo.FindByID[models.Product](id)
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return ErrProductNotFound
+	}
+
+	// main_image is owned by the image list (see product_image_service);
+	// a plain product save must preserve it.
 	return repo.UpdateByID[models.Product](id, sql.H{
 		"category_id": in.CategoryID,
 		"name":        in.Name,
@@ -176,7 +186,7 @@ func UpdateProduct(id sql.IdType, in ProductInput) error {
 		"price_cents": in.PriceCents,
 		"stock":       in.Stock,
 		"active":      in.Active,
-		"main_image":  in.MainImage,
+		"main_image":  existing.MainImage,
 		"updated_at":  time.Now(),
 	})
 }

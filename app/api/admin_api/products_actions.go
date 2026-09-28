@@ -2,7 +2,6 @@ package admin_api
 
 import (
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -52,7 +51,7 @@ func NewProductAction(c *gin.Context) {
 		return
 	}
 
-	render.HTML(c, productsviews.Form("New product", "/admin/products", nil, cats, ""))
+	render.HTML(c, productsviews.Form("New product", "/admin/products", nil, cats, nil, ""))
 }
 
 func CreateProductAction(c *gin.Context) {
@@ -91,7 +90,14 @@ func EditProductAction(c *gin.Context) {
 	}
 
 	action := "/admin/products/" + strconv.FormatInt(int64(id), 10) + "/update"
-	render.HTML(c, productsviews.Form("Edit product", action, p, cats, ""))
+
+	entries, err := services.ProductImageEntries(int64(id))
+	if err != nil {
+		render.ErrorMessage(c, err.Error())
+		return
+	}
+
+	render.HTML(c, productsviews.Form("Edit product", action, p, cats, entries, ""))
 }
 
 func UpdateProductAction(c *gin.Context) {
@@ -106,7 +112,7 @@ func UpdateProductAction(c *gin.Context) {
 		display := &models.Product{
 			ID: id, CategoryID: in.CategoryID, Name: in.Name, Slug: in.Slug,
 			Description: in.Description, PriceCents: in.PriceCents, Stock: in.Stock,
-			Active: in.Active, MainImage: in.MainImage,
+			Active: in.Active,
 		}
 		action := "/admin/products/" + strconv.FormatInt(int64(id), 10) + "/update"
 		renderProductFormError(c, "Edit product", action, display, in, err.Error())
@@ -163,7 +169,6 @@ func productInputFromForm(c *gin.Context) services.ProductInput {
 		Name:        c.PostForm("name"),
 		Slug:        c.PostForm("slug"),
 		Description: c.PostForm("description"),
-		MainImage:   strings.TrimSpace(c.PostForm("main_image")),
 		Active:      c.PostForm("active") == "true",
 	}
 
@@ -200,9 +205,60 @@ func renderProductFormError(c *gin.Context, title, action string, p *models.Prod
 		display = &models.Product{
 			CategoryID: in.CategoryID, Name: in.Name, Slug: in.Slug,
 			Description: in.Description, PriceCents: in.PriceCents, Stock: in.Stock,
-			Active: in.Active, MainImage: in.MainImage,
+			Active: in.Active,
 		}
 	}
 
-	render.HTMLStatus(c, 422, productsviews.Form(title, action, display, cats, msg))
+	render.HTMLStatus(c, 422, productsviews.Form(title, action, display, cats, nil, msg))
+}
+
+func UploadProductImagesAction(c *gin.Context) {
+	id, err := parseID(c)
+	if err != nil {
+		render.ErrorMessage(c, "invalid id")
+		return
+	}
+
+	form, err := c.MultipartForm()
+	if err != nil {
+		render.Found(c, "/admin/products/"+strconv.FormatInt(int64(id), 10)+"/edit?error=upload+failed")
+		return
+	}
+
+	if err := services.AddProductImages(int64(id), form.File["images"]); err != nil {
+		render.Found(c, "/admin/products/"+strconv.FormatInt(int64(id), 10)+"/edit?error="+err.Error())
+		return
+	}
+
+	render.Found(c, "/admin/products/"+strconv.FormatInt(int64(id), 10)+"/edit")
+}
+
+func DeleteProductImageAction(c *gin.Context) {
+	productImageAction(c, services.DeleteProductImage)
+}
+
+func MakeProductImageMainAction(c *gin.Context) {
+	productImageAction(c, services.MakeProductImageMain)
+}
+
+func productImageAction(c *gin.Context, apply func(productID, imageID int64) error) {
+	id, err := parseID(c)
+	if err != nil {
+		render.ErrorMessage(c, "invalid id")
+		return
+	}
+
+	imageID, err := strconv.ParseInt(c.Param("imageId"), 10, 64)
+	if err != nil {
+		render.ErrorMessage(c, "invalid image id")
+		return
+	}
+
+	editURL := "/admin/products/" + strconv.FormatInt(int64(id), 10) + "/edit"
+	if err := apply(int64(id), imageID); err != nil {
+		render.Found(c, editURL+"?error="+err.Error())
+		return
+	}
+
+	render.Found(c, editURL)
 }

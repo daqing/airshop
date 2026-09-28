@@ -70,6 +70,9 @@ func AdminRoutes(r *gin.Engine) {
 		admin.POST("/products/:id/update", admin_api.UpdateProductAction)
 		admin.POST("/products/:id/activate", admin_api.ActivateProductAction)
 		admin.POST("/products/:id/deactivate", admin_api.DeactivateProductAction)
+		admin.POST("/products/:id/images/upload", admin_api.UploadProductImagesAction)
+		admin.POST("/products/:id/images/:imageId/delete", admin_api.DeleteProductImageAction)
+		admin.POST("/products/:id/images/:imageId/main", admin_api.MakeProductImageMainAction)
 	}
 }
 
