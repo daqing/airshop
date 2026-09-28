@@ -44,7 +44,7 @@ go run . repl                      # 带项目模型的 REPL
 ### 数据层
 
 - [x] T1.1 迁移:`categories` 表(名称、slug、父分类、排序、启用)—— 2026-09-28 完成:首个按 T0.2/T0.5 约定写的迁移(`BIGSERIAL` 主键、`slug` UNIQUE、`parent_id` 可空 BIGINT 不带外键、`sort_order` INTEGER、`enabled` BOOLEAN、标准时间戳);用 `db:migrate` + `db:rollback` 在本机 Postgres 上完成 up/down 往返验证
-- [ ] T1.2 迁移:`products` 表(名称、slug、描述、价格、库存、状态:上架/下架、主图)
+- [x] T1.2 迁移:`products` 表(名称、slug、描述、价格、库存、状态:上架/下架、主图)—— 2026-09-28 完成:遵循 T0.2/T0.5(`price_cents` BIGINT、`stock` INTEGER、`active` BOOLEAN 对齐 categories.enabled、`main_image` VARCHAR 存储键、`description` TEXT NOT NULL DEFAULT '');另加可空带索引的 `category_id`(供 T1.9 分类筛选);up/down 往返已在本机 Postgres 验证
 - [ ] T1.3 ❓ 是否需要 SKU 变体(`product_variants`:规格、独立价格库存)?先定,影响表结构
 - [ ] T1.4 模型与 REPL 注册:`Category`、`Product`(及变体)
 
