@@ -59,7 +59,7 @@ Prerequisites: M0.
 
 ### Admin
 
-- [ ] T1.5 Category management: list, create, edit, delete
+- [x] T1.5 Category management: list, create, edit, delete — done 2026-09-28: `services/category_service.go` (validation: required name, slug format/uniqueness, parent exists, no self-parent, delete blocked while children exist; `updated_at` maintained per T0.2); server-rendered admin pages under `/admin/categories` in the admin layout; verified end-to-end with live server (create parent+child, edit form prefill, update, duplicate-slug 422, self-parent 422, delete-protection redirect, delete)
 - [ ] T1.6 Product management: list (paged, filter by name/status), create, edit, activate/deactivate
 - [ ] T1.7 Product image upload (on top of the existing storage; multiple images, first one is the main image)
 

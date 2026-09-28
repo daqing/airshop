@@ -55,6 +55,13 @@ func AdminRoutes(r *gin.Engine) {
 	admin := r.Group("/admin")
 	{
 		admin.GET("", admin_api.DashboardAction)
+
+		admin.GET("/categories", admin_api.CategoriesIndexAction)
+		admin.GET("/categories/new", admin_api.NewCategoryAction)
+		admin.POST("/categories", admin_api.CreateCategoryAction)
+		admin.GET("/categories/:id/edit", admin_api.EditCategoryAction)
+		admin.POST("/categories/:id/update", admin_api.UpdateCategoryAction)
+		admin.POST("/categories/:id/delete", admin_api.DestroyCategoryAction)
 	}
 }
 
