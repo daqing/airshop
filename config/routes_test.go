@@ -1,6 +1,9 @@
 package config
 
 import (
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -19,6 +22,7 @@ func TestRoutesRegistersCoreEndpoints(t *testing.T) {
 
 	expected := []string{
 		"GET /",
+		"GET /admin",
 		"GET /health",
 		"GET /openapi.json",
 		"GET /ws",
@@ -31,6 +35,50 @@ func TestRoutesRegistersCoreEndpoints(t *testing.T) {
 	for _, route := range expected {
 		if !registered[route] {
 			t.Fatalf("expected route %s to be registered, got %#v", route, registered)
+		}
+	}
+}
+
+func TestNoRouteRenders404Page(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	r := gin.New()
+	Routes(r)
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/definitely-missing", nil)
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("expected status 404, got %d", w.Code)
+	}
+
+	body := w.Body.String()
+	for _, want := range []string{"404", "does not exist", "aw-storefront-header"} {
+		if !strings.Contains(body, want) {
+			t.Fatalf("expected 404 body to contain %q, got %q", want, body)
+		}
+	}
+}
+
+func TestForbiddenHandlerRenders403Page(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	r := gin.New()
+	r.GET("/private", ForbiddenHandler)
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/private", nil)
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusForbidden {
+		t.Fatalf("expected status 403, got %d", w.Code)
+	}
+
+	body := w.Body.String()
+	for _, want := range []string{"403", "permission", "aw-storefront-header"} {
+		if !strings.Contains(body, want) {
+			t.Fatalf("expected 403 body to contain %q, got %q", want, body)
 		}
 	}
 }

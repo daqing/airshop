@@ -4,10 +4,13 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/daqing/airshop/app/assets"
+	"github.com/daqing/airshop/app/views/errors"
 	"github.com/daqing/airway/lib/jsbuild"
 	"github.com/daqing/airway/lib/openapi"
+	"github.com/daqing/airway/lib/render"
 	"github.com/daqing/airway/lib/utils"
 
+	"github.com/daqing/airshop/app/api/admin_api"
 	"github.com/daqing/airshop/app/api/health_api"
 	"github.com/daqing/airshop/app/api/home_api"
 	"github.com/daqing/airshop/app/api/openapi_api"
@@ -26,12 +29,14 @@ func init() {
 // is the full router used when the app is served without a URL_PREFIX.
 func Routes(r *gin.Engine) {
 	PublicRoutes(r)
+	AdminRoutes(r)
 	HealthRoutes(r)
+	FallbackRoutes(r)
 }
 
-// PublicRoutes registers the user-facing routes: the home page, the WebSocket,
-// and the API. When a URL_PREFIX is configured these answer only under the
-// prefix; see App.Handler.
+// PublicRoutes registers the customer-facing routes: the home page, the
+// WebSocket, and the API. When a URL_PREFIX is configured these answer only
+// under the prefix; see App.Handler.
 func PublicRoutes(r *gin.Engine) {
 	r.GET("/", home_api.IndexAction)
 
@@ -41,6 +46,30 @@ func PublicRoutes(r *gin.Engine) {
 	openapiRoutes(r)
 
 	plugin.MountAll(r)
+}
+
+// AdminRoutes registers the back-office routes under /admin. Admin pages
+// render inside the admin layout; access control arrives with the admin
+// auth work (T9.1).
+func AdminRoutes(r *gin.Engine) {
+	admin := r.Group("/admin")
+	{
+		admin.GET("", admin_api.DashboardAction)
+	}
+}
+
+// FallbackRoutes registers the no-route handler so unknown paths get the
+// storefront 404 page instead of gin's plain-text default.
+func FallbackRoutes(r *gin.Engine) {
+	r.NoRoute(func(c *gin.Context) {
+		render.HTMLStatus(c, 404, errors.NotFound())
+	})
+}
+
+// ForbiddenHandler renders the 403 page. Future auth middleware (admin
+// accounts, T9.1) calls this to deny access.
+func ForbiddenHandler(c *gin.Context) {
+	render.HTMLStatus(c, 403, errors.Forbidden())
 }
 
 // HealthRoutes registers the internal health-check route. It stays reachable at

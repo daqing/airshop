@@ -31,11 +31,11 @@ go run . repl                      # 带项目模型的 REPL
 
 前置依赖:无(当前代码为脚手架基线)。
 
-- [ ] T0.1 本地环境跑通:`airway db:create && airway db:migrate && go run .`,确认首页可访问
-- [ ] T0.2 ❓ 定公共字段约定:主键类型、`created_at`/`updated_at`、软删除与否,写成一段说明放进本文档或 CONTRIBUTING
-- [ ] T0.3 前后台布局分离:`app/views/layouts/` 增加 storefront 与 admin 两套布局(顶栏、导航、页脚骨架)
-- [ ] T0.4 路由分区:前台路由与 `/admin` 后台路由分组,404/403 兜底页面
-- [ ] T0.5 ❓ 金额与库存的存储口径定版(建议金额用最小货币单位的整数,如"分"),后续所有表统一
+- [x] T0.1 本地环境跑通:`airway db:create && airway db:migrate && go run .`,确认首页可访问 —— 2026-09-28 完成:本机 Postgres(127.0.0.1:5432),创建数据库 `airshop`,迁移通过(生成 `db/schema.json`),首页 HTTP 200(`/health` 200)。DSN 通过 `AIRWAY_DSN` 环境变量传入(进程环境优先于 `.env`);要长期生效请在 `.env` 里设置 `DSN`
+- [x] T0.2 ❓ 定公共字段约定:主键类型、`created_at`/`updated_at`、软删除与否 —— 2026-09-28 已定,详见[CONVENTIONS.zh-CN.md](CONVENTIONS.zh-CN.md):自增整数 `id`(int64)、脚手架标准时间戳、显式维护 `updated_at`、硬删除 + 状态字段替代、不做数据库级外键
+- [x] T0.3 前后台布局分离:`app/views/layouts/` 增加 storefront 与 admin 两套布局(顶栏、导航、页脚骨架)—— 2026-09-28 完成:`storefront.templ`(品牌顶栏、导航、页脚)和 `admin.templ`(后台顶栏、导航)均套在 `Base` 之上;首页已接入 Storefront;覆盖测试见 `app/views/layouts/layouts_test.go`
+- [x] T0.4 路由分区:前台路由与 `/admin` 后台路由分组,404/403 兜底页面 —— 2026-09-28 完成:`AdminRoutes` 组挂在 `/admin`(仪表盘占位页,套 admin 布局);`NoRoute` 渲染 storefront 风格 404 页;导出 `ForbiddenHandler` 渲染 403 页,供后续鉴权中间件使用;覆盖测试见 `config/routes_test.go`
+- [x] T0.5 ❓ 金额与库存的存储口径定版(建议金额用最小货币单位的整数,如"分"),后续所有表统一 —— 2026-09-28 已定,详见[CONVENTIONS.zh-CN.md](CONVENTIONS.zh-CN.md):金额用 BIGINT 最小货币单位(`_cents` 后缀,Go 侧 int64),单一门店货币,库存为非负 INTEGER,百分比为整数 0–100
 
 ## M1 商品目录
 
