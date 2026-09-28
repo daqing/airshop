@@ -1,0 +1,72 @@
+package products
+
+import (
+	"strconv"
+
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/views/catalog"
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+type ListingData struct {
+	Products   []*models.Product
+	Categories []*models.Category
+	// CategorySlug is the active category filter; empty means all.
+	CategorySlug string
+	Page         int
+	TotalPages   int
+	Total        int64
+}
+
+func pageURL(categorySlug string, page int) string {
+	u := "/products?page=" + strconv.Itoa(page)
+	if categorySlug != "" {
+		u += "&category=" + categorySlug
+	}
+	return u
+}
+
+templ Listing(data ListingData) {
+	@layouts.Storefront("Products", "Browse the full catalog.") {
+		<style>
+			.listing { max-width: 1080px; margin: 0 auto; padding: 32px 24px 64px; }
+			.listing h1 { font-size: 24px; margin: 0 0 16px; }
+			.cat-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+			.cat-chip { padding: 6px 14px; border: 1px solid var(--sf-line); border-radius: 999px; font-size: 13px; color: var(--sf-muted); text-decoration: none; }
+			.cat-chip:hover { color: inherit; }
+			.cat-chip.active { background: var(--sf-ink); border-color: var(--sf-ink); color: var(--sf-bg); }
+			.pager { display: flex; gap: 12px; align-items: center; margin-top: 24px; font-size: 13px; color: var(--sf-muted); }
+			.pager a { padding: 6px 14px; border: 1px solid var(--sf-line); border-radius: 6px; color: inherit; text-decoration: none; }
+			.pager a:hover { border-color: var(--sf-muted); }
+			.listing-empty { color: var(--sf-muted); padding: 32px 0; text-align: center; }
+		</style>
+		<section class="listing">
+			<h1>Products</h1>
+			<nav class="cat-chips" aria-label="Categories">
+				<a class="cat-chip" href="/products">All</a>
+				for _, c := range data.Categories {
+					if c.Slug == data.CategorySlug {
+						<a class="cat-chip active" href={ templ.URL("/products?category=" + c.Slug) }>{ c.Name }</a>
+					} else {
+						<a class="cat-chip" href={ templ.URL("/products?category=" + c.Slug) }>{ c.Name }</a>
+					}
+				}
+			</nav>
+			if len(data.Products) == 0 {
+				<p class="listing-empty">No products in this view.</p>
+			} else {
+				@catalog.Grid(data.Products)
+				<div class="pager">
+					<span>{ strconv.FormatInt(data.Total, 10) } product(s)</span>
+					if data.Page > 1 {
+						<a href={ templ.URL(pageURL(data.CategorySlug, data.Page-1)) }>Prev</a>
+					}
+					<span>Page { strconv.Itoa(data.Page) } of { strconv.Itoa(data.TotalPages) }</span>
+					if data.Page < data.TotalPages {
+						<a href={ templ.URL(pageURL(data.CategorySlug, data.Page+1)) }>Next</a>
+					}
+				</div>
+			}
+		</section>
+	}
+}

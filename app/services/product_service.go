@@ -42,3 +42,44 @@ func LatestProducts(limit int) ([]*models.Product, error) {
 		Limit(limit)
 	return repo.Find[models.Product](repo.CurrentDB(), b)
 }
+
+const StorefrontPageSize = 12
+
+// StorefrontListProducts returns one page of active products for the public
+// catalog, newest first, optionally scoped to a category slug. The resolved
+// category is nil when no filter is set or the slug is unknown.
+func StorefrontListProducts(categorySlug string, page, size int) ([]*models.Product, *models.Category, int64, error) {
+	var category *models.Category
+	if categorySlug != "" {
+		cat, err := repo.FindOneBy[models.Category](sql.H{"slug": categorySlug, "enabled": true})
+		if err != nil {
+			return nil, nil, 0, err
+		}
+		category = cat
+	}
+
+	conds := []sql.CondBuilder{sql.Eq("active", true)}
+	if category != nil {
+		conds = append(conds, sql.Eq("category_id", int64(category.ID)))
+	}
+	cond := sql.AllOf(conds...)
+
+	b := sql.Select("*").
+		From("products").
+		Where(cond).
+		OrderBy("id DESC").
+		Limit(size).
+		Offset((page - 1) * size)
+	products, err := repo.Find[models.Product](repo.CurrentDB(), b)
+	if err != nil {
+		return nil, nil, 0, err
+	}
+
+	cb := sql.SelectColumns("count(*)").From("products").Where(cond)
+	total, err := repo.Count(repo.CurrentDB(), cb)
+	if err != nil {
+		return nil, nil, 0, err
+	}
+
+	return products, category, total, nil
+}

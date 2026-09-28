@@ -14,6 +14,7 @@ import (
 	"github.com/daqing/airshop/app/api/health_api"
 	"github.com/daqing/airshop/app/api/home_api"
 	"github.com/daqing/airshop/app/api/openapi_api"
+	"github.com/daqing/airshop/app/api/products_api"
 	"github.com/daqing/airshop/app/api/storage_api"
 	"github.com/daqing/airway/app/websocket"
 	"github.com/daqing/airway/lib/plugin"
@@ -39,6 +40,7 @@ func Routes(r *gin.Engine) {
 // under the prefix; see App.Handler.
 func PublicRoutes(r *gin.Engine) {
 	r.GET("/", home_api.IndexAction)
+	r.GET("/products", products_api.ListAction)
 
 	assetRoutes(r)
 	websocketRoutes(r)
