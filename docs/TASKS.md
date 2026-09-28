@@ -43,7 +43,7 @@ Prerequisites: none (the codebase is the bare scaffold today).
 - [x] T0.1 Get local dev running: `airway db:create && airway db:migrate && go run .`, confirm the homepage renders — done 2026-09-28: local Postgres on 127.0.0.1:5432, DB `airshop` created, migrations OK (`db/schema.json` written), homepage HTTP 200 (`/health` 200). DSN passed via `AIRWAY_DSN` (process env wins over `.env`); to make it permanent, set `DSN` in `.env`
 - [x] T0.2 ❓ Set shared column conventions: primary key type, `created_at`/`updated_at`, soft deletes or not — settled 2026-09-28, written up in [CONVENTIONS.md](CONVENTIONS.md): auto-increment integer `id` (int64), scaffold-standard timestamps, explicit `updated_at` maintenance, hard delete with status fields as substitute, no DB-level foreign keys
 - [x] T0.3 Split storefront and admin layouts: add both under `app/views/layouts/` (header, nav, footer skeletons) — done 2026-09-28: `storefront.templ` (brand header, nav, footer) and `admin.templ` (admin topbar, nav) wrap `Base`; homepage now uses Storefront; covered by `app/views/layouts/layouts_test.go`
-- [ ] T0.4 Route groups: storefront routes vs `/admin` routes, plus 404/403 fallback pages
+- [x] T0.4 Route groups: storefront routes vs `/admin` routes, plus 404/403 fallback pages — done 2026-09-28: `AdminRoutes` group at `/admin` (dashboard placeholder in the admin layout), `NoRoute` renders the storefront 404 page, exported `ForbiddenHandler` renders the 403 page for future auth middleware; covered by `config/routes_test.go`
 - [ ] T0.5 Fix the money and stock storage format ❓ (recommend storing money as the smallest currency unit, e.g. cents) and apply it to every table from here on
 
 ## M1 Catalog

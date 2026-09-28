@@ -1,0 +1,35 @@
+package errors
+
+import "github.com/daqing/airshop/app/views/layouts"
+
+// NotFound renders the 404 page inside the storefront shell.
+templ NotFound() {
+	@layouts.Storefront("Page not found") {
+		<section class="aw-error">
+			<h1>404</h1>
+			<p>The page you are looking for does not exist.</p>
+			<p><a href="/">Back to the store</a></p>
+		</section>
+		<style>
+			.aw-error { max-width: 560px; margin: 0 auto; padding: 80px 24px; text-align: center; }
+			.aw-error h1 { font-size: 56px; letter-spacing: -2px; margin: 0; }
+			.aw-error p { margin: 12px 0 0; }
+		</style>
+	}
+}
+
+// Forbidden renders the 403 page inside the storefront shell.
+templ Forbidden() {
+	@layouts.Storefront("Access denied") {
+		<section class="aw-error">
+			<h1>403</h1>
+			<p>You do not have permission to view this page.</p>
+			<p><a href="/">Back to the store</a></p>
+		</section>
+		<style>
+			.aw-error { max-width: 560px; margin: 0 auto; padding: 80px 24px; text-align: center; }
+			.aw-error h1 { font-size: 56px; letter-spacing: -2px; margin: 0; }
+			.aw-error p { margin: 12px 0 0; }
+		</style>
+	}
+}
