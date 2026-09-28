@@ -1,8 +1,57 @@
-# github.com/daqing/airshop
+# AirShop
 
-An [Airway](https://github.com/daqing/airway) application.
+A complete open-source e-commerce platform built in Go, on top of the
+[Airway](https://github.com/daqing/airway) framework.
+For the Chinese edition, see [README.zh-CN.md](README.zh-CN.md).
 
-## Setup
+## About
+
+AirShop implements a complete e-commerce system in Go — server-rendered,
+database-backed, and packageable as a native desktop application. It is
+under active development.
+
+The current scope is the classic commerce essentials; AI-powered features
+will follow in a third phase (yet to be planned).
+
+## Roadmap
+
+- **Phase 1 — Core commerce** *(current)*: implement the complete core
+  commerce feature set.
+- **Phase 2 — Beyond core**: once the core system is complete, development
+  shifts to AirShop-specific features.
+- **Phase 3 — AI features** *(to be planned)*: AI-powered capabilities will
+  be provided in this phase.
+
+## Feature scope
+
+Storefront:
+
+- Homepage
+- Product catalog and details
+- Shopping cart
+- Orders and checkout
+- Payments
+- Coupons
+- Account center
+- Sign-up and login via phone number
+- Address book
+- Shipment tracking
+
+Admin:
+
+- Admin panel for managing the store
+
+## Tech stack
+
+- **Go** with the [Airway](https://github.com/daqing/airway) framework — a
+  server-rendered web app with a CLI for migrations, scaffolding and a
+  project REPL.
+- **Databases**: PostgreSQL, MySQL or SQLite; optional Redis.
+- **File storage**: local disk, Amazon S3, Cloudflare R2 or Tencent COS.
+- **Desktop**: the same app packages as a native macOS / Windows / Linux
+  application via Wails v3.
+
+## Getting started
 
 `.env` is created for you at scaffold time — open it and set `AIRWAY_ENV`
 (e.g. `local`), a `DSN` and the `LISTEN` address (`host:port`, e.g. `:1900`):
@@ -133,3 +182,12 @@ After adding migrations or plugins to the project, re-run
 
 The framework's [desktop guide](https://github.com/daqing/airway/blob/main/docs/desktop.md)
 has the full background and troubleshooting notes.
+
+## Acknowledgments
+
+- [Airway](https://github.com/daqing/airway) — the Go web framework this
+  project is built on.
+
+## License
+
+AirShop is released under the [MIT license](LICENSE).
