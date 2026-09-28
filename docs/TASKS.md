@@ -52,10 +52,10 @@ Prerequisites: M0.
 
 ### Data layer
 
-- [ ] T1.1 Migration: `categories` (name, slug, parent, sort order, enabled)
-- [ ] T1.2 Migration: `products` (name, slug, description, price, stock, status: active/inactive, main image)
-- [ ] T1.3 ❓ Decide whether SKU variants are needed (`product_variants`: options, own price and stock) — this shapes the schema
-- [ ] T1.4 Models and REPL registration: `Category`, `Product` (and variants)
+- [x] T1.1 Migration: `categories` (name, slug, parent, sort order, enabled) — done 2026-09-28: first migration under the T0.2/T0.5 conventions (`BIGSERIAL` id, `slug` UNIQUE, nullable `parent_id` BIGINT with no FK, `sort_order` INTEGER, `enabled` BOOLEAN, standard timestamps); up/down roundtrip verified against local Postgres via `db:migrate` + `db:rollback`
+- [x] T1.2 Migration: `products` (name, slug, description, price, stock, status: active/inactive, main image) — done 2026-09-28: follows T0.2/T0.5 (`price_cents` BIGINT, `stock` INTEGER, `active` BOOLEAN like categories.enabled, `main_image` VARCHAR storage key, `description` TEXT NOT NULL DEFAULT ''); also added nullable indexed `category_id` for T1.9 category filtering; up/down roundtrip verified on local Postgres
+- [x] T1.3 ❓ Decide whether SKU variants are needed (`product_variants`: options, own price and stock) — this shapes the schema — settled 2026-09-28 by David Zhang: **variants now**; `product_variants` migration created and verified (own `price_cents`/`stock`, combination `name`, active flag); sellable-unit rule (variants if any active, else the product) lives in the Product service; structured option axes deferred; see [CONVENTIONS.md](CONVENTIONS.md) "Product variants"
+- [x] T1.4 Models and REPL registration: `Category`, `Product` (and variants) — done 2026-09-28: three models in `app/models/` following the scaffold style (db/json tags, `TableName()`, REPL registration); nullable `parent_id`/`category_id` as `*int64`; sellable-unit helpers in `app/services/product_service.go` per the T1.3 rule; blank import in main.go wires model registration into the binary; verified end-to-end via `go run . repl` round-tripping sample rows through all three models
 
 ### Admin
 

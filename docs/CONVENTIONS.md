@@ -91,6 +91,22 @@ does not set it either — left alone the column goes stale. Therefore:
 - Display formatting (cents → "¥12.34") lives in one small shared helper
   when the first UI needs it (M1), never inline at call sites.
 
+## Product variants
+
+- Variants are supported from day one (settled in T1.3, 2026-09-28). A
+  product sells through **variants** when it has at least one active row in
+  `product_variants`; otherwise the product row itself is the sellable unit
+  (its `price_cents`/`stock` are the default price and stock).
+- Which unit is sellable is decided **only in the Product service layer**
+  (T1.4); cart, checkout and admin never query `product_variants` directly.
+- Each variant is one sellable SKU: `product_id`, display `name` for the
+  combination (e.g. "Red / M"), own `price_cents`, own `stock`, `active`,
+  `sort_order`. Structured multi-axis options (an options/option-values
+  table family) are deliberately deferred; when they arrive they only label
+  variants and never change price/stock lookup paths.
+- A variant is never deleted once referenced by a cart or order: it gets
+  `active = FALSE` instead, keeping history intact.
+
 ## Decision log
 
 - 2026-09-28 — T0.2 settled by David Zhang: hard delete with status fields
@@ -99,3 +115,7 @@ does not set it either — left alone the column goes stale. Therefore:
 - 2026-09-28 — T0.5 settled by David Zhang: money as BIGINT minor units
   (`_cents` suffix, int64 in Go), single store currency, stock as
   non-negative INTEGER, percentages as integers 0–100.
+- 2026-09-28 — T1.3 settled by David Zhang: variants are supported now
+  (`product_variants` table); sellable-unit decision lives in the Product
+  service; structured option axes deferred; referenced variants deactivate
+  instead of deleting.

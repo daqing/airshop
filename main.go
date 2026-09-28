@@ -17,6 +17,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
+	// Blank import so app/models init() runs and every model registers
+	// itself for the REPL regardless of other import chains.
+	_ "github.com/daqing/airshop/app/models"
+
 	"github.com/daqing/airshop/config"
 )
 

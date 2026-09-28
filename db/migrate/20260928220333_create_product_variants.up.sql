@@ -1,0 +1,13 @@
+CREATE TABLE product_variants (
+	id BIGSERIAL PRIMARY KEY,
+	product_id BIGINT NOT NULL,
+	name VARCHAR(255) NOT NULL,
+	price_cents BIGINT NOT NULL,
+	stock INTEGER NOT NULL DEFAULT 0,
+	active BOOLEAN NOT NULL DEFAULT TRUE,
+	sort_order INTEGER NOT NULL DEFAULT 0,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_product_variants_product_id ON product_variants (product_id);
