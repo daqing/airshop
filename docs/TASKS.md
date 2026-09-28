@@ -52,7 +52,7 @@ Prerequisites: M0.
 
 ### Data layer
 
-- [ ] T1.1 Migration: `categories` (name, slug, parent, sort order, enabled)
+- [x] T1.1 Migration: `categories` (name, slug, parent, sort order, enabled) — done 2026-09-28: first migration under the T0.2/T0.5 conventions (`BIGSERIAL` id, `slug` UNIQUE, nullable `parent_id` BIGINT with no FK, `sort_order` INTEGER, `enabled` BOOLEAN, standard timestamps); up/down roundtrip verified against local Postgres via `db:migrate` + `db:rollback`
 - [ ] T1.2 Migration: `products` (name, slug, description, price, stock, status: active/inactive, main image)
 - [ ] T1.3 ❓ Decide whether SKU variants are needed (`product_variants`: options, own price and stock) — this shapes the schema
 - [ ] T1.4 Models and REPL registration: `Category`, `Product` (and variants)
