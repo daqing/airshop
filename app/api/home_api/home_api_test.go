@@ -29,12 +29,14 @@ func TestIndexActionRendersHomePage(t *testing.T) {
 
 	body := w.Body.String()
 	for _, want := range []string{
-		"<title>Airway Works</title>",
+		"<title>AirShop</title>",
 		"Airway works",
 		"Keep building",
 		"airway generate api posts",
 		"airway db:migrate",
 		"go run . repl",
+		"aw-storefront-header",
+		"aw-storefront-footer",
 	} {
 		if !strings.Contains(body, want) {
 			t.Fatalf("expected body to contain %q, got %q", want, body)
