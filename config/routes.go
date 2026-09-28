@@ -62,6 +62,14 @@ func AdminRoutes(r *gin.Engine) {
 		admin.GET("/categories/:id/edit", admin_api.EditCategoryAction)
 		admin.POST("/categories/:id/update", admin_api.UpdateCategoryAction)
 		admin.POST("/categories/:id/delete", admin_api.DestroyCategoryAction)
+
+		admin.GET("/products", admin_api.ProductsIndexAction)
+		admin.GET("/products/new", admin_api.NewProductAction)
+		admin.POST("/products", admin_api.CreateProductAction)
+		admin.GET("/products/:id/edit", admin_api.EditProductAction)
+		admin.POST("/products/:id/update", admin_api.UpdateProductAction)
+		admin.POST("/products/:id/activate", admin_api.ActivateProductAction)
+		admin.POST("/products/:id/deactivate", admin_api.DeactivateProductAction)
 	}
 }
 

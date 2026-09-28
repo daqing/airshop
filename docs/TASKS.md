@@ -60,7 +60,8 @@ Prerequisites: M0.
 ### Admin
 
 - [x] T1.5 Category management: list, create, edit, delete — done 2026-09-28: `services/category_service.go` (validation: required name, slug format/uniqueness, parent exists, no self-parent, delete blocked while children exist; `updated_at` maintained per T0.2); server-rendered admin pages under `/admin/categories` in the admin layout; verified end-to-end with live server (create parent+child, edit form prefill, update, duplicate-slug 422, self-parent 422, delete-protection redirect, delete)
-- [ ] T1.6 Product management: list (paged, filter by name/status), create, edit, activate/deactivate
+- [x] T1.6 Product management: list (paged, filter by name/status), create, edit, activate/deactivate — done 2026-09-28: `services/product_admin_service.go` (name/slug validation with auto-slug from name, category existence, non-negative price/stock; `updated_at` per T0.2) plus `services/money.go` shared price formatting (T0.5); admin pages under `/admin/products` in the admin layout; verified end-to-end (create with auto slug, edit prefill, price update, ILIKE name search, status filter, combined filter, deactivate/activate, duplicate-slug/bad-price/missing-name 422s, pagination with 21 products)
+- [ ] T1.6a Variant management: edit variants on the product form (add/remove rows: name, price, stock, active, sort order) — added during T1.6: required by the T1.3 variants decision but missing from the original list
 - [ ] T1.7 Product image upload (on top of the existing storage; multiple images, first one is the main image)
 
 ### Storefront
