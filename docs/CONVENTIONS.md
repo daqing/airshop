@@ -70,8 +70,32 @@ does not set it either — left alone the column goes stale. Therefore:
   portable across Postgres / MySQL / SQLite, and keeps up/down migrations
   free of dependency ordering.
 
+## Money and stock
+
+- **Money is `BIGINT` in minor units** of the store's single currency — cents
+  for USD, 分 for CNY. Columns carry an explicit `_cents` suffix
+  (`price_cents`, `subtotal_cents`, `discount_cents`, `shipping_fee_cents`,
+  `total_cents`); the Go type is `int64`. Never floats, never
+  `NUMERIC`/`DECIMAL`: integer minor units are exact, portable across all
+  three supported databases, and safe to add and compare in SQL and Go.
+- **Single store currency.** The currency is a store-wide setting, not a
+  per-row column; per-row currency codes only enter the schema if
+  multi-currency support is ever added (out of core scope).
+- **Money math happens once, in int64.** Discounts apply to the subtotal and
+  round half-up to the whole cent in a single final step; no intermediate
+  rounding. Totals are always recomputed server-side.
+- **Stock is `INTEGER NOT NULL DEFAULT 0`**, never negative, never
+  fractional. Deduction/restock strategy is settled with T5.4.
+- Percentage values (e.g. percent-off coupons) are plain integers 0–100;
+  switch to basis points only if sub-percent precision is ever needed.
+- Display formatting (cents → "¥12.34") lives in one small shared helper
+  when the first UI needs it (M1), never inline at call sites.
+
 ## Decision log
 
 - 2026-09-28 — T0.2 settled by David Zhang: hard delete with status fields
   as the substitute, no DB-level foreign keys, explicit `updated_at`
   maintenance.
+- 2026-09-28 — T0.5 settled by David Zhang: money as BIGINT minor units
+  (`_cents` suffix, int64 in Go), single store currency, stock as
+  non-negative INTEGER, percentages as integers 0–100.
