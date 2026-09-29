@@ -103,4 +103,12 @@ func TestConsumeSignInCode(t *testing.T) {
 	if err := ConsumeSignInCode(phone, "123456"); err == nil {
 		t.Fatal("expected an expired code to be rejected")
 	}
+
+	// Blank codes get their own message before any store lookup.
+	if _, err := SendSignInCode(phone); err != nil {
+		t.Fatalf("send code: %v", err)
+	}
+	if err := ConsumeSignInCode(phone, "   "); err != ErrCodeRequired {
+		t.Fatalf("expected ErrCodeRequired for a blank code, got %v", err)
+	}
 }

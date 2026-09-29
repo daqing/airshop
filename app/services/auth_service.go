@@ -28,6 +28,7 @@ var phoneNumberPattern = regexp.MustCompile(`^\d{7,15}$`)
 
 var (
 	ErrPhoneInvalid    = errors.New("enter a valid phone number")
+	ErrCodeRequired    = errors.New("enter the verification code")
 	ErrCodeInvalid     = errors.New("verification code is invalid or expired")
 	ErrAccountDisabled = errors.New("this account is disabled")
 )
@@ -95,8 +96,13 @@ func ConsumeSignInCode(input, code string) error {
 		return err
 	}
 
+	trimmed := strings.TrimSpace(code)
+	if trimmed == "" {
+		return ErrCodeRequired
+	}
+
 	entry, ok := takeCodeEntry(phone)
-	if !ok || time.Now().After(entry.expiresAt) || entry.code != strings.TrimSpace(code) {
+	if !ok || time.Now().After(entry.expiresAt) || entry.code != trimmed {
 		return ErrCodeInvalid
 	}
 	return nil
