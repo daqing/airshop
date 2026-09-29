@@ -1,0 +1,273 @@
+package coupons
+
+import (
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/services"
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+type ListData struct {
+	Coupons []*models.Coupon
+	Usage   map[int64]int64
+	Flash   string
+}
+
+func couponID(id int64) string {
+	return strconv.FormatInt(id, 10)
+}
+
+func couponDiscount(c *models.Coupon) string {
+	if c.Type == services.CouponTypePercent {
+		return "-" + strconv.Itoa(c.PercentOff) + "%"
+	}
+	return "-" + services.FormatCents(c.ValueCents)
+}
+
+func couponWindow(c *models.Coupon) string {
+	format := "2006-01-02 15:04"
+	from := "—"
+	to := "—"
+	if c.StartsAt != nil {
+		from = c.StartsAt.Format(format)
+	}
+	if c.ExpiresAt != nil {
+		to = c.ExpiresAt.Format(format)
+	}
+	return from + " → " + to
+}
+
+func couponLimit(c *models.Coupon, usage int64) string {
+	if c.TotalCount == 0 {
+		return strconv.FormatInt(usage, 10) + " / ∞"
+	}
+	return strconv.FormatInt(usage, 10) + " / " + strconv.Itoa(c.TotalCount)
+}
+
+func formTime(t *time.Time) string {
+	if t == nil {
+		return ""
+	}
+	return t.Format("2006-01-02T15:04")
+}
+
+func couponValue(c *models.Coupon) string {
+	if c == nil {
+		return ""
+	}
+	if c.Type == services.CouponTypePercent {
+		return strconv.Itoa(c.PercentOff)
+	}
+	return services.FormatCents(c.ValueCents)
+}
+
+func couponThreshold(c *models.Coupon) string {
+	if c == nil || c.ThresholdCents == 0 {
+		return "0"
+	}
+	return services.FormatCents(c.ThresholdCents)
+}
+
+func couponTotal(c *models.Coupon) string {
+	if c == nil || c.TotalCount == 0 {
+		return "0"
+	}
+	return strconv.Itoa(c.TotalCount)
+}
+
+func couponType(c *models.Coupon) string {
+	if c == nil {
+		return services.CouponTypeFixed
+	}
+	return c.Type
+}
+
+func couponEnabled(c *models.Coupon) bool {
+	return c != nil && c.Enabled
+}
+
+templ List(data ListData) {
+	@layouts.Admin("Coupons") {
+		<style>
+			.cpn-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+			.cpn-table th, .cpn-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8dae0; }
+			.cpn-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+			.cpn-head h1 { margin: 0; font-size: 22px; }
+			.cpn-button { display: inline-block; padding: 5px 12px; border: 1px solid #8a8f9c; border-radius: 6px; background: transparent; color: inherit; font-size: 13px; cursor: pointer; text-decoration: none; }
+			.cpn-button-danger { border-color: #b3423a; color: #b3423a; }
+			.cpn-badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; }
+			.cpn-on { background: #e7f0e7; color: #2f6b2f; }
+			.cpn-off { background: #f3e6e5; color: #8f2f28; }
+			.cpn-flash { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; font-size: 13px; margin-bottom: 14px; }
+			.cpn-actions { display: flex; gap: 8px; }
+			.cpn-actions form { display: contents; }
+			.cpn-code { font-weight: 600; }
+		</style>
+		<div class="cpn-head">
+			<h1>Coupons</h1>
+			<a class="cpn-button" href="/admin/coupons/new">New coupon</a>
+		</div>
+		if data.Flash != "" {
+			<div class="cpn-flash">{ data.Flash }</div>
+		}
+		if len(data.Coupons) == 0 {
+			<p>No coupons yet.</p>
+		} else {
+			<table class="cpn-table">
+				<thead>
+					<tr><th>Code</th><th>Discount</th><th>Min spend</th><th>Usage</th><th>Window</th><th>Status</th><th></th></tr>
+				</thead>
+				<tbody>
+					for _, c := range data.Coupons {
+						<tr>
+							<td class="cpn-code">{ c.Code }</td>
+							<td>{ couponDiscount(c) }</td>
+							<td>{ couponThreshold(c) }</td>
+							<td>{ couponLimit(c, data.Usage[int64(c.ID)]) }</td>
+							<td>{ couponWindow(c) }</td>
+							<td>
+								if c.Enabled {
+									<span class="cpn-badge cpn-on">enabled</span>
+								} else {
+									<span class="cpn-badge cpn-off">disabled</span>
+								}
+							</td>
+							<td>
+								<div class="cpn-actions">
+									<a class="cpn-button" href={ templ.URL("/admin/coupons/" + couponID(int64(c.ID)) + "/edit") }>Edit</a>
+									<form method="post" action={ templ.URL("/admin/coupons/" + couponID(int64(c.ID)) + "/" + toggleVerb(c.Enabled)) }>
+										<button class="cpn-button" type="submit">{ toggleLabel(c.Enabled) }</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
+	}
+}
+
+templ CouponForm(title string, action string, c *models.Coupon, errMsg string) {
+	@layouts.Admin(title) {
+		<style>
+			.cpn-form { max-width: 520px; display: grid; gap: 12px; }
+			.cpn-form h1 { font-size: 20px; margin: 0 0 4px; }
+			.cpn-form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
+			.cpn-form input[type="text"], .cpn-form input[type="number"], .cpn-form input[type="datetime-local"], .cpn-form select {
+				padding: 8px 10px; border: 1px solid #b8bcc6; border-radius: 6px; font-size: 14px; font-weight: 400;
+			}
+			.cpn-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+			.cpn-form .check { display: flex; gap: 8px; align-items: center; }
+			.cpn-error { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; }
+			.cpn-submit { padding: 10px 18px; border-radius: 8px; border: 1px solid #101319; background: #101319; color: #f3f4ef; font-size: 14px; font-weight: 600; cursor: pointer; }
+			.cpn-cancel { padding: 10px 18px; border-radius: 8px; border: 1px solid #8a8f9c; color: inherit; font-size: 14px; text-decoration: none; text-align: center; }
+			.cpn-buttons { display: flex; gap: 10px; }
+			.cpn-hint { font-size: 12px; color: #6b7280; font-weight: 400; }
+		</style>
+		<h1>{ title }</h1>
+		if errMsg != "" {
+			<p class="cpn-error">{ errMsg }</p>
+		}
+		<form class="cpn-form" method="post" action={ templ.URL(action) }>
+			<label>
+				Code (auto-generated when left blank)
+				<input type="text" name="code" value={ strings.TrimSpace(codeOf(c)) }/>
+			</label>
+			<label>
+				Type
+				<select name="type">
+					if couponType(c) == "percent" {
+						<option value="fixed">Fixed amount off</option>
+						<option value="percent" selected>Percentage off</option>
+					} else {
+						<option value="fixed" selected>Fixed amount off</option>
+						<option value="percent">Percentage off</option>
+					}
+				</select>
+			</label>
+			<div class="row">
+				<label>
+					Amount off (¥) — fixed type
+					<input type="text" name="value" value={ couponValue(c) }/>
+				</label>
+				<label>
+					Percent off (1-100) — percent type
+					<input type="number" name="percent_off" value={ percentOf(c) } min="1" max="100"/>
+				</label>
+			</div>
+			<label>
+				Minimum spend (¥, 0 = none)
+				<input type="text" name="threshold" value={ couponThreshold(c) }/>
+			</label>
+			<label>
+				Total redemptions allowed (0 = unlimited)
+				<input type="number" name="total_count" value={ couponTotal(c) } min="0"/>
+			</label>
+			<div class="row">
+				<label>
+					Starts at (optional)
+					<input type="datetime-local" name="starts_at" value={ formTime(startTime(c)) }/>
+				</label>
+				<label>
+					Expires at (optional)
+					<input type="datetime-local" name="expires_at" value={ formTime(expiryTime(c)) }/>
+				</label>
+			</div>
+			<label class="check">
+				<input type="checkbox" name="enabled" value="true" checked?={ couponEnabled(c) }/>
+				Enabled
+			</label>
+			<p class="cpn-hint">Fill only the field matching the chosen type; the other stays 0.</p>
+			<div class="cpn-buttons">
+				<button class="cpn-submit" type="submit">Save</button>
+				<a class="cpn-cancel" href="/admin/coupons">Cancel</a>
+			</div>
+		</form>
+	}
+}
+
+func codeOf(c *models.Coupon) string {
+	if c == nil {
+		return ""
+	}
+	return c.Code
+}
+
+func percentOf(c *models.Coupon) string {
+	if c == nil || c.PercentOff == 0 {
+		return ""
+	}
+	return strconv.Itoa(c.PercentOff)
+}
+
+func startTime(c *models.Coupon) *time.Time {
+	if c == nil {
+		return nil
+	}
+	return c.StartsAt
+}
+
+func expiryTime(c *models.Coupon) *time.Time {
+	if c == nil {
+		return nil
+	}
+	return c.ExpiresAt
+}
+
+func toggleVerb(enabled bool) string {
+	if enabled {
+		return "disable"
+	}
+	return "enable"
+}
+
+func toggleLabel(enabled bool) string {
+	if enabled {
+		return "Disable"
+	}
+	return "Enable"
+}

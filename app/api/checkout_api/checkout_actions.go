@@ -30,12 +30,20 @@ func PageAction(c *gin.Context) {
 		return
 	}
 
+	applicable, err := services.ApplicableCouponsFor(int64(user.ID), subtotal)
+	if err != nil {
+		render.ErrorMessage(c, err.Error())
+		return
+	}
+
 	render.HTML(c, checkout.Page(checkout.PageData{
 		User:      user,
 		Lines:     lines,
 		Subtotal:  services.FormatCents(subtotal),
 		Addresses: addresses,
 		Gateways:  services.GatewayNames(),
+		Coupons:   applicable,
+		Code:      c.Query("code"),
 		Error:     c.Query("error"),
 	}))
 }
@@ -49,7 +57,7 @@ func PlaceOrderAction(c *gin.Context) {
 		return
 	}
 
-	order, err := services.PlaceOrder(int64(user.ID), addressID, c.PostForm("payment_method"))
+	order, err := services.PlaceOrder(int64(user.ID), addressID, c.PostForm("payment_method"), c.PostForm("coupon_code"))
 	if err != nil {
 		render.Found(c, "/checkout?error="+err.Error())
 		return

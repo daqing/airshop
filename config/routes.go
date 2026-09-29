@@ -16,6 +16,7 @@ import (
 	"github.com/daqing/airshop/app/api/auth_api"
 	"github.com/daqing/airshop/app/api/cart_api"
 	"github.com/daqing/airshop/app/api/checkout_api"
+	"github.com/daqing/airshop/app/api/couponscenter_api"
 	"github.com/daqing/airshop/app/api/health_api"
 	"github.com/daqing/airshop/app/api/home_api"
 	"github.com/daqing/airshop/app/api/openapi_api"
@@ -67,6 +68,8 @@ func PublicRoutes(r *gin.Engine) {
 	r.GET("/orders/:orderNo", middlewares.RequireUser(), orders_api.DetailAction)
 	r.POST("/orders/:orderNo/cancel", middlewares.RequireUser(), orders_api.CancelAction)
 	r.GET("/orders", middlewares.RequireUser(), orders_api.ListAction)
+	r.GET("/coupons", middlewares.RequireUser(), couponscenter_api.CenterAction)
+	r.POST("/coupons/claim", middlewares.RequireUser(), couponscenter_api.ClaimAction)
 	r.GET("/pay/fake", middlewares.RequireUser(), payment_api.FakeCashierAction)
 	r.POST("/pay/fake/confirm", middlewares.RequireUser(), payment_api.FakeConfirmAction)
 	r.GET("/account/addresses", middlewares.RequireUser(), account_api.AddressesPageAction)
@@ -110,6 +113,14 @@ func AdminRoutes(r *gin.Engine) {
 		admin.POST("/products/:id/images/upload", admin_api.UploadProductImagesAction)
 		admin.POST("/products/:id/images/:imageId/delete", admin_api.DeleteProductImageAction)
 		admin.POST("/products/:id/images/:imageId/main", admin_api.MakeProductImageMainAction)
+
+		admin.GET("/coupons", admin_api.CouponsPageAction)
+		admin.GET("/coupons/new", admin_api.NewCouponAction)
+		admin.POST("/coupons", admin_api.CreateCouponAction)
+		admin.GET("/coupons/:id/edit", admin_api.EditCouponAction)
+		admin.POST("/coupons/:id/update", admin_api.UpdateCouponAction)
+		admin.POST("/coupons/:id/enable", admin_api.EnableCouponAction)
+		admin.POST("/coupons/:id/disable", admin_api.DisableCouponAction)
 	}
 }
 
