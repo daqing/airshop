@@ -94,7 +94,14 @@ func TransitionOrder(orderID int64, to string) error {
 		case OrderStatusPaid:
 			return adjustOrderItemsStock(items, -1)
 		case OrderStatusRefunded:
-			return adjustOrderItemsStock(items, +1)
+			if err := adjustOrderItemsStock(items, +1); err != nil {
+				return err
+			}
+			return restoreOrderCoupon(tx, orderID)
+		case OrderStatusCancelled:
+			// Stock was never deducted for pending orders, but the coupon
+			// redemption is returned so the user can use it again.
+			return restoreOrderCoupon(tx, orderID)
 		}
 		return nil
 	})
@@ -102,6 +109,13 @@ func TransitionOrder(orderID int64, to string) error {
 		return err
 	}
 	return nil
+}
+
+// restoreOrderCoupon returns a redeemed coupon to the user after a
+// cancellation or refund, per the T7.4 policy.
+func restoreOrderCoupon(tx *repo.Tx, orderID int64) error {
+	return repo.DeleteWith(tx.Executor(),
+		sql.DeleteFrom(sql.TableFor(models.CouponRedemption{})).Where(sql.Eq("order_id", orderID)))
 }
 
 // adjustOrderItemsStock moves every ordered line's stock by delta (clamped

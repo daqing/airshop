@@ -120,7 +120,7 @@ go run . repl                      # 带项目模型的 REPL
 - [x] T7.1 迁移:`coupons`(类型:满减/折扣、门槛、面值、有效期、总量)+ `coupon_redemptions`(用户×订单核销记录,防重复用)—— 2026-09-29 完成:`coupons` 含唯一 `code`(结算可输码)、`type` fixed/percent 且按 T0.5 规则分列 `value_cents` 与 `percent_off`、门槛 `threshold_cents`、`total_count`(0 = 不限,用量由核销计数推导)、可空 `starts_at`/`expires_at` 窗口与 `enabled` 开关;`coupon_redemptions` 快照实付优惠 `discount_cents`,`order_id` UNIQUE 作数据库兜底(一单一张),另加券/用户索引——同人同券防重复由服务层保证(T7.3,组合部分索引非三库可移植);up/down 往返已验证
 - [x] T7.2 admin 券管理:创建、列表、停用 —— 2026-09-29 完成:`services/coupon_service.go`(码格式/唯一校验,留空自动生成,类型化校验——fixed 需正数金额、percent 需 1-100 且不填金额,时间窗顺序,`updated_at` 用 UTC),用量由核销记录计数;`/admin/coupons` 列表(优惠展示、门槛、用量 n/上限或 ∞、时间窗、启用/停用开关)与创建/编辑表单(datetime-local 时间窗、留空码自动生成)。E2E 已验证(percent 自动码、fixed 指定码、重复码与类型错配 422、编辑回填/更新、停用/启用)
 - [x] T7.3 结算时选券/输码:金额重算集成进订单服务 —— 2026-09-29 完成:`services.ApplicableCoupon` / `CouponDiscountForLoaded` / `ApplicableCouponsFor`(启用、时间窗、同人限用一次、总量上限、门槛;fixed 面值封顶至小计、percent 按 T0.5 一次性四舍五入);`PlaceOrder` 接收券码,在订单事务内以券行 `FOR UPDATE` 锁定后重算折扣(并发结算不会突破总量上限)并写入核销行;结算页列出可用券提示并接受大小写不敏感的券码输入。环境门控集成测试覆盖(折扣计算、门槛/复用/耗尽、核销快照、无券订单)与 E2E(提示列表、小写券码、订单折扣、复用拒绝)
-- [ ] T7.4 ❓ 取消/退款时券回退策略
+- [x] T7.4 ❓ 取消/退款时券回退策略 —— 2026-09-29 由 David Zhang 拍板:**券归还用户**——取消 pending 订单或退款 paid 订单时,在流转事务内删除该订单的核销行,单次券恢复可用(与库存退款回补同一原则:交易未成,消耗即归还)。环境门控集成测试覆盖(取消后恢复、paid 期间已消耗、退款后恢复、核销行清零)
 - [ ] T7.5 (可选)用户领券中心
 
 ## M8 物流追踪
