@@ -14,6 +14,6 @@ import (
 // The home export renders without a database, so products stay empty.
 func init() {
 	cmd.SetStaticPages(
-		static.Page{Slug: "/", Component: home.Index(nil)},
+		static.Page{Slug: "/", Component: home.Index(nil, nil)},
 	)
 }

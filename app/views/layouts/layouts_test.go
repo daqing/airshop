@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/a-h/templ"
+
+	"github.com/daqing/airshop/app/models"
 )
 
 func renderToString(t *testing.T, c templ.Component) string {
@@ -20,7 +22,7 @@ func renderToString(t *testing.T, c templ.Component) string {
 }
 
 func TestStorefrontLayoutRendersShell(t *testing.T) {
-	html := renderToString(t, Storefront("Test Page", "Test description"))
+	html := renderToString(t, Storefront(nil, "Test Page", "Test description"))
 
 	for _, marker := range []string{
 		"<title>Test Page</title>",
@@ -29,6 +31,7 @@ func TestStorefrontLayoutRendersShell(t *testing.T) {
 		"aw-storefront-brand",
 		">AirShop</a>",
 		`href="/products"`,
+		`href="/signin"`,
 		"aw-storefront-main",
 		"aw-storefront-footer",
 		"© 2026 AirShop",
@@ -38,6 +41,14 @@ func TestStorefrontLayoutRendersShell(t *testing.T) {
 		if !strings.Contains(html, marker) {
 			t.Fatalf("expected storefront HTML to contain %q, got:\n%s", marker, html)
 		}
+	}
+
+	signedIn := renderToString(t, Storefront(&models.User{DisplayName: "User 1234"}, "Test Page"))
+	if !strings.Contains(signedIn, `href="/account">User 1234</a>`) {
+		t.Fatalf("expected signed-in nav to link the account, got:\n%s", signedIn)
+	}
+	if strings.Contains(signedIn, `href="/signin"`) {
+		t.Fatalf("expected signed-in nav to hide the sign-in link, got:\n%s", signedIn)
 	}
 }
 

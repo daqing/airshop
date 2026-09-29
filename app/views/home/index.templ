@@ -6,8 +6,8 @@ import (
 	"github.com/daqing/airshop/app/views/layouts"
 )
 
-templ Index(products []*models.Product) {
-	@layouts.Storefront("AirShop", "A complete e-commerce system built with Go and Airway.") {
+templ Index(user *models.User, products []*models.Product) {
+	@layouts.Storefront(user, "AirShop", "A complete e-commerce system built with Go and Airway.") {
 		<style>
 			.home-hero { padding: 48px 24px 32px; text-align: center; }
 			.home-hero h1 { font-size: clamp(28px, 5vw, 40px); letter-spacing: -1px; margin: 0; }

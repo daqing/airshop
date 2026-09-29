@@ -8,10 +8,13 @@ package errors
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/daqing/airshop/app/views/layouts"
+import (
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/views/layouts"
+)
 
 // NotFound renders the 404 page inside the storefront shell.
-func NotFound() templ.Component {
+func NotFound(user *models.User) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -50,7 +53,7 @@ func NotFound() templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Storefront("Page not found").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Storefront(user, "Page not found").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -59,7 +62,7 @@ func NotFound() templ.Component {
 }
 
 // Forbidden renders the 403 page inside the storefront shell.
-func Forbidden() templ.Component {
+func Forbidden(user *models.User) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -98,7 +101,7 @@ func Forbidden() templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Storefront("Access denied").Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Storefront(user, "Access denied").Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

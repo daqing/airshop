@@ -1,12 +1,18 @@
 package layouts
 
+import (
+	"github.com/daqing/airshop/app/models"
+)
+
 // Storefront is the customer-facing layout: brand header, primary nav and
-// footer around the page body. Pages wrap their content in this component:
+// footer around the page body. The user argument is the signed-in customer
+// (nil for guests) and drives the account nav entry. Pages wrap their
+// content in this component:
 //
-//	@layouts.Storefront("My Title") {
+//	@layouts.Storefront(user, "My Title") {
 //		<p>Page body…</p>
 //	}
-templ Storefront(title string, description ...string) {
+templ Storefront(user *models.User, title string, description ...string) {
 	@Base(title, description...) {
 		<style>
 			.aw-storefront {
@@ -43,7 +49,11 @@ templ Storefront(title string, description ...string) {
 					<a href="/">Home</a>
 					<a href="/products">Products</a>
 					<a href="/cart">Cart</a>
-					<a href="/account">Account</a>
+					if user != nil {
+						<a href="/account">{ user.DisplayName }</a>
+					} else {
+						<a href="/signin">Sign in</a>
+					}
 				</nav>
 			</header>
 			<main class="aw-storefront-main">

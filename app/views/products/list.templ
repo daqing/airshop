@@ -11,6 +11,7 @@ import (
 type ListingData struct {
 	Products   []*models.Product
 	Categories []*models.Category
+	User       *models.User
 	// CategorySlug is the active category filter; empty means all.
 	CategorySlug string
 	Page         int
@@ -27,7 +28,7 @@ func pageURL(categorySlug string, page int) string {
 }
 
 templ Listing(data ListingData) {
-	@layouts.Storefront("Products", "Browse the full catalog.") {
+	@layouts.Storefront(data.User, "Products", "Browse the full catalog.") {
 		<style>
 			.listing { max-width: 1080px; margin: 0 auto; padding: 32px 24px 64px; }
 			.listing h1 { font-size: 24px; margin: 0 0 16px; }

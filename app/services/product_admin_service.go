@@ -187,13 +187,13 @@ func UpdateProduct(id sql.IdType, in ProductInput) error {
 		"stock":       in.Stock,
 		"active":      in.Active,
 		"main_image":  existing.MainImage,
-		"updated_at":  time.Now(),
+		"updated_at":  time.Now().UTC(),
 	})
 }
 
 func SetProductActive(id sql.IdType, active bool) error {
 	return repo.UpdateByID[models.Product](id, sql.H{
 		"active":     active,
-		"updated_at": time.Now(),
+		"updated_at": time.Now().UTC(),
 	})
 }

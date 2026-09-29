@@ -1,10 +1,13 @@
 package errors
 
-import "github.com/daqing/airshop/app/views/layouts"
+import (
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/views/layouts"
+)
 
 // NotFound renders the 404 page inside the storefront shell.
-templ NotFound() {
-	@layouts.Storefront("Page not found") {
+templ NotFound(user *models.User) {
+	@layouts.Storefront(user, "Page not found") {
 		<section class="aw-error">
 			<h1>404</h1>
 			<p>The page you are looking for does not exist.</p>
@@ -19,8 +22,8 @@ templ NotFound() {
 }
 
 // Forbidden renders the 403 page inside the storefront shell.
-templ Forbidden() {
-	@layouts.Storefront("Access denied") {
+templ Forbidden(user *models.User) {
+	@layouts.Storefront(user, "Access denied") {
 		<section class="aw-error">
 			<h1>403</h1>
 			<p>You do not have permission to view this page.</p>

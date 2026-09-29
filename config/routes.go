@@ -4,13 +4,16 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/daqing/airshop/app/assets"
+	"github.com/daqing/airshop/app/middlewares"
 	"github.com/daqing/airshop/app/views/errors"
 	"github.com/daqing/airway/lib/jsbuild"
 	"github.com/daqing/airway/lib/openapi"
 	"github.com/daqing/airway/lib/render"
 	"github.com/daqing/airway/lib/utils"
 
+	"github.com/daqing/airshop/app/api/account_api"
 	"github.com/daqing/airshop/app/api/admin_api"
+	"github.com/daqing/airshop/app/api/auth_api"
 	"github.com/daqing/airshop/app/api/health_api"
 	"github.com/daqing/airshop/app/api/home_api"
 	"github.com/daqing/airshop/app/api/openapi_api"
@@ -29,6 +32,8 @@ func init() {
 // Routes registers every route — public and internal — at the root paths. This
 // is the full router used when the app is served without a URL_PREFIX.
 func Routes(r *gin.Engine) {
+	r.Use(middlewares.LoadUser())
+
 	PublicRoutes(r)
 	AdminRoutes(r)
 	HealthRoutes(r)
@@ -42,6 +47,11 @@ func PublicRoutes(r *gin.Engine) {
 	r.GET("/", home_api.IndexAction)
 	r.GET("/products", products_api.ListAction)
 	r.GET("/products/:slug", products_api.ShowAction)
+	r.GET("/signin", auth_api.SignInPageAction)
+	r.POST("/signin/code", auth_api.SendCodeAction)
+	r.POST("/signin", auth_api.SignInAction)
+	r.POST("/signout", auth_api.SignOutAction)
+	r.GET("/account", middlewares.RequireUser(), account_api.PageAction)
 
 	assetRoutes(r)
 	websocketRoutes(r)
@@ -83,14 +93,14 @@ func AdminRoutes(r *gin.Engine) {
 // storefront 404 page instead of gin's plain-text default.
 func FallbackRoutes(r *gin.Engine) {
 	r.NoRoute(func(c *gin.Context) {
-		render.HTMLStatus(c, 404, errors.NotFound())
+		render.HTMLStatus(c, 404, errors.NotFound(middlewares.CurrentUser(c)))
 	})
 }
 
 // ForbiddenHandler renders the 403 page. Future auth middleware (admin
 // accounts, T9.1) calls this to deny access.
 func ForbiddenHandler(c *gin.Context) {
-	render.HTMLStatus(c, 403, errors.Forbidden())
+	render.HTMLStatus(c, 403, errors.Forbidden(middlewares.CurrentUser(c)))
 }
 
 // HealthRoutes registers the internal health-check route. It stays reachable at

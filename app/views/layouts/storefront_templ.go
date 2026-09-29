@@ -8,13 +8,19 @@ package layouts
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import (
+	"github.com/daqing/airshop/app/models"
+)
+
 // Storefront is the customer-facing layout: brand header, primary nav and
-// footer around the page body. Pages wrap their content in this component:
+// footer around the page body. The user argument is the signed-in customer
+// (nil for guests) and drives the account nav entry. Pages wrap their
+// content in this component:
 //
-//	@layouts.Storefront("My Title") {
+//	@layouts.Storefront(user, "My Title") {
 //		<p>Page body…</p>
 //	}
-func Storefront(title string, description ...string) templ.Component {
+func Storefront(user *models.User, title string, description ...string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -47,7 +53,35 @@ func Storefront(title string, description ...string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t\t.aw-storefront {\n\t\t\t\t--sf-bg: #101319; --sf-ink: #f3f4ef; --sf-muted: #9a9eaa; --sf-line: #2b303a;\n\t\t\t\tcolor-scheme: dark;\n\t\t\t\tmin-height: 100vh; display: flex; flex-direction: column;\n\t\t\t\tbackground: var(--sf-bg); color: var(--sf-ink);\n\t\t\t}\n\t\t\t@media (prefers-color-scheme: light) {\n\t\t\t\t.aw-storefront {\n\t\t\t\t\t--sf-bg: #fafaf7; --sf-ink: #232820; --sf-muted: #6d7369; --sf-line: #dfe2d7;\n\t\t\t\t\tcolor-scheme: light;\n\t\t\t\t}\n\t\t\t}\n\t\t\t.aw-storefront-header {\n\t\t\t\tdisplay: flex; align-items: center; justify-content: space-between; gap: 16px;\n\t\t\t\tpadding: 14px 24px; border-bottom: 1px solid var(--sf-line);\n\t\t\t}\n\t\t\t.aw-storefront-brand { font-weight: 700; font-size: 18px; letter-spacing: -0.5px; color: inherit; text-decoration: none; }\n\t\t\t.aw-storefront-nav { display: flex; gap: 18px; font-size: 14px; }\n\t\t\t.aw-storefront-nav a { color: var(--sf-muted); text-decoration: none; }\n\t\t\t.aw-storefront-nav a:hover { color: inherit; }\n\t\t\t.aw-storefront-main { flex: 1; width: 100%; }\n\t\t\t.aw-storefront-footer {\n\t\t\t\tpadding: 18px 24px; border-top: 1px solid var(--sf-line);\n\t\t\t\tfont-size: 13px; color: var(--sf-muted); display: flex; gap: 16px; justify-content: space-between; flex-wrap: wrap;\n\t\t\t}\n\t\t\t.aw-storefront-footer a { color: inherit; text-decoration: none; }\n\t\t</style> <div class=\"aw-storefront\"><header class=\"aw-storefront-header\"><a href=\"/\" class=\"aw-storefront-brand\">AirShop</a><nav class=\"aw-storefront-nav\" aria-label=\"Store\"><a href=\"/\">Home</a> <a href=\"/products\">Products</a> <a href=\"/cart\">Cart</a> <a href=\"/account\">Account</a></nav></header><main class=\"aw-storefront-main\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t\t.aw-storefront {\n\t\t\t\t--sf-bg: #101319; --sf-ink: #f3f4ef; --sf-muted: #9a9eaa; --sf-line: #2b303a;\n\t\t\t\tcolor-scheme: dark;\n\t\t\t\tmin-height: 100vh; display: flex; flex-direction: column;\n\t\t\t\tbackground: var(--sf-bg); color: var(--sf-ink);\n\t\t\t}\n\t\t\t@media (prefers-color-scheme: light) {\n\t\t\t\t.aw-storefront {\n\t\t\t\t\t--sf-bg: #fafaf7; --sf-ink: #232820; --sf-muted: #6d7369; --sf-line: #dfe2d7;\n\t\t\t\t\tcolor-scheme: light;\n\t\t\t\t}\n\t\t\t}\n\t\t\t.aw-storefront-header {\n\t\t\t\tdisplay: flex; align-items: center; justify-content: space-between; gap: 16px;\n\t\t\t\tpadding: 14px 24px; border-bottom: 1px solid var(--sf-line);\n\t\t\t}\n\t\t\t.aw-storefront-brand { font-weight: 700; font-size: 18px; letter-spacing: -0.5px; color: inherit; text-decoration: none; }\n\t\t\t.aw-storefront-nav { display: flex; gap: 18px; font-size: 14px; }\n\t\t\t.aw-storefront-nav a { color: var(--sf-muted); text-decoration: none; }\n\t\t\t.aw-storefront-nav a:hover { color: inherit; }\n\t\t\t.aw-storefront-main { flex: 1; width: 100%; }\n\t\t\t.aw-storefront-footer {\n\t\t\t\tpadding: 18px 24px; border-top: 1px solid var(--sf-line);\n\t\t\t\tfont-size: 13px; color: var(--sf-muted); display: flex; gap: 16px; justify-content: space-between; flex-wrap: wrap;\n\t\t\t}\n\t\t\t.aw-storefront-footer a { color: inherit; text-decoration: none; }\n\t\t</style> <div class=\"aw-storefront\"><header class=\"aw-storefront-header\"><a href=\"/\" class=\"aw-storefront-brand\">AirShop</a><nav class=\"aw-storefront-nav\" aria-label=\"Store\"><a href=\"/\">Home</a> <a href=\"/products\">Products</a> <a href=\"/cart\">Cart</a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if user != nil {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<a href=\"/account\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var3 string
+				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(user.DisplayName)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `layouts/storefront.templ`, Line: 53, Col: 43}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</a>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<a href=\"/signin\">Sign in</a>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</nav></header><main class=\"aw-storefront-main\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -55,7 +89,7 @@ func Storefront(title string, description ...string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</main><footer class=\"aw-storefront-footer\"><span>© 2026 AirShop</span><nav aria-label=\"Footer\" style=\"display: flex; gap: 14px;\"><a href=\"/about\">About</a> <a href=\"/contact\">Contact</a></nav></footer></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</main><footer class=\"aw-storefront-footer\"><span>© 2026 AirShop</span><nav aria-label=\"Footer\" style=\"display: flex; gap: 14px;\"><a href=\"/about\">About</a> <a href=\"/contact\">Contact</a></nav></footer></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

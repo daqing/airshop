@@ -6,9 +6,10 @@ import (
 	"github.com/daqing/airway/lib/render"
 	sql "github.com/daqing/airway/lib/sql"
 
+	"github.com/daqing/airshop/app/middlewares"
 	"github.com/daqing/airshop/app/services"
 	"github.com/daqing/airshop/app/views/errors"
-	"github.com/daqing/airshop/app/views/products"
+	productsview "github.com/daqing/airshop/app/views/products"
 )
 
 func ShowAction(c *gin.Context) {
@@ -20,7 +21,7 @@ func ShowAction(c *gin.Context) {
 		return
 	}
 	if p == nil {
-		render.HTMLStatus(c, 404, errors.NotFound())
+		render.HTMLStatus(c, 404, errors.NotFound(middlewares.CurrentUser(c)))
 		return
 	}
 
@@ -42,19 +43,20 @@ func ShowAction(c *gin.Context) {
 		render.ErrorMessage(c, err.Error())
 		return
 	}
-	entries := make([]products.VariantEntry, 0, len(variants))
+	entries := make([]productsview.VariantEntry, 0, len(variants))
 	for _, v := range variants {
-		entries = append(entries, products.VariantEntry{
+		entries = append(entries, productsview.VariantEntry{
 			Variant:  v,
 			Price:    services.FormatCents(v.PriceCents),
 			Sellable: services.VariantSellable(v),
 		})
 	}
 
-	render.HTML(c, products.Detail(products.DetailData{
+	render.HTML(c, productsview.Detail(productsview.DetailData{
 		Product:      p,
 		CategoryName: categoryName,
 		Images:       images,
 		Variants:     entries,
+		User:         middlewares.CurrentUser(c),
 	}))
 }
