@@ -10,6 +10,7 @@ import (
 
 	"github.com/daqing/airshop/app/middlewares"
 	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/regions"
 	"github.com/daqing/airshop/app/services"
 	"github.com/daqing/airshop/app/views/account"
 )
@@ -35,8 +36,14 @@ func AddressesPageAction(c *gin.Context) {
 }
 
 func NewAddressAction(c *gin.Context) {
+	provinces, err := regions.Provinces()
+	if err != nil {
+		render.ErrorMessage(c, err.Error())
+		return
+	}
+
 	render.HTML(c, account.AddressForm(
-		middlewares.CurrentUser(c), "New address", "/account/addresses", nil, "",
+		middlewares.CurrentUser(c), "New address", "/account/addresses", nil, provinces, nil, nil, "",
 	))
 }
 
@@ -67,8 +74,20 @@ func EditAddressAction(c *gin.Context) {
 		return
 	}
 
+	provinces, err := regions.Provinces()
+	if err != nil {
+		render.ErrorMessage(c, err.Error())
+		return
+	}
+
+	cities, districts, err := regions.ChildrenForNames(addr.Province, addr.City)
+	if err != nil {
+		render.ErrorMessage(c, err.Error())
+		return
+	}
+
 	action := "/account/addresses/" + strconv.FormatInt(id, 10) + "/update"
-	render.HTML(c, account.AddressForm(user, "Edit address", action, addr, ""))
+	render.HTML(c, account.AddressForm(user, "Edit address", action, addr, provinces, cities, districts, ""))
 }
 
 func UpdateAddressAction(c *gin.Context) {
@@ -143,6 +162,17 @@ func addressInputFromForm(c *gin.Context) services.AddressInput {
 }
 
 func renderAddressFormError(c *gin.Context, user *models.User, title, action string, a *models.Address, in services.AddressInput, msg string) {
+	provinces, err := regions.Provinces()
+	if err != nil {
+		render.ErrorMessage(c, err.Error())
+		return
+	}
+	cities, districts, err := regions.ChildrenForNames(in.Province, in.City)
+	if err != nil {
+		render.ErrorMessage(c, err.Error())
+		return
+	}
+
 	display := a
 	if display == nil {
 		display = &models.Address{
@@ -152,5 +182,5 @@ func renderAddressFormError(c *gin.Context, user *models.User, title, action str
 		}
 	}
 
-	render.HTMLStatus(c, 422, account.AddressForm(user, title, action, display, msg))
+	render.HTMLStatus(c, 422, account.AddressForm(user, title, action, display, provinces, cities, districts, msg))
 }

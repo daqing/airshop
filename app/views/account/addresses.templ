@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/regions"
 	"github.com/daqing/airshop/app/views/layouts"
 )
 
@@ -93,7 +94,7 @@ templ Addresses(data AddressesData) {
 	}
 }
 
-templ AddressForm(user *models.User, title string, action string, a *models.Address, errMsg string) {
+templ AddressForm(user *models.User, title string, action string, a *models.Address, provinces, cities, districts []regions.Region, errMsg string) {
 	@layouts.Storefront(user, title) {
 		<style>
 			.addr-form { max-width: 480px; margin: 32px auto 64px; padding: 0 24px; display: grid; gap: 12px; }
@@ -122,18 +123,45 @@ templ AddressForm(user *models.User, title string, action string, a *models.Addr
 						Contact phone
 						<input type="text" name="phone" value={ fieldOf(a, "phone") } required/>
 					</label>
+					<label>
+						Province
+						<select name="province" data-region-level="province" data-target="#region-city">
+							<option value="">— select —</option>
+							for _, p := range provinces {
+								if a != nil && a.Province == p.Name {
+									<option value={ p.Name } data-code={ p.Code } selected>{ p.Name }</option>
+								} else {
+									<option value={ p.Name } data-code={ p.Code }>{ p.Name }</option>
+								}
+							}
+						</select>
+					</label>
 					<div class="row">
 						<label>
-							Province
-							<input type="text" name="province" value={ fieldOf(a, "province") }/>
-						</label>
-						<label>
 							City
-							<input type="text" name="city" value={ fieldOf(a, "city") }/>
+							<select name="city" id="region-city" data-region-level="city" data-target="#region-district">
+								<option value="">— select —</option>
+								for _, ct := range cities {
+									if a != nil && a.City == ct.Name {
+										<option value={ ct.Name } data-code={ ct.Code } selected>{ ct.Name }</option>
+									} else {
+										<option value={ ct.Name } data-code={ ct.Code }>{ ct.Name }</option>
+									}
+								}
+							</select>
 						</label>
 						<label>
 							District
-							<input type="text" name="district" value={ fieldOf(a, "district") }/>
+							<select name="district" id="region-district">
+								<option value="">— select —</option>
+								for _, d := range districts {
+									if a != nil && a.District == d.Name {
+										<option value={ d.Name } selected>{ d.Name }</option>
+									} else {
+										<option value={ d.Name }>{ d.Name }</option>
+									}
+								}
+							</select>
 						</label>
 					</div>
 					<label>
@@ -150,6 +178,50 @@ templ AddressForm(user *models.User, title string, action string, a *models.Addr
 					</div>
 				</div>
 			</form>
+			<script>
+				(function () {
+					function fill(select, list) {
+						var current = select.value;
+						select.innerHTML = '<option value="">— select —</option>';
+						list.forEach(function (r) {
+							var opt = document.createElement("option");
+							opt.value = r.name;
+							opt.textContent = r.name;
+							opt.dataset.code = r.code;
+							if (r.name === current) opt.selected = true;
+							select.appendChild(opt);
+						});
+					}
+
+					function clear(select) {
+						if (!select) return;
+						select.innerHTML = '<option value="">— select —</option>';
+					}
+
+					var province = document.querySelector('select[name="province"]');
+					var city = document.querySelector('select[name="city"]');
+					var district = document.querySelector('select[name="district"]');
+
+					province.addEventListener("change", function () {
+						var code = province.selectedOptions[0] ? province.selectedOptions[0].dataset.code : "";
+						fill(city, []);
+						clear(district);
+						if (!code) return;
+						fetch("/api/v1/regions/" + code + "/children")
+							.then(function (r) { return r.json(); })
+							.then(function (list) { fill(city, list); });
+					});
+
+					city.addEventListener("change", function () {
+						var code = city.selectedOptions[0] ? city.selectedOptions[0].dataset.code : "";
+						clear(district);
+						if (!code) return;
+						fetch("/api/v1/regions/" + code + "/children")
+							.then(function (r) { return r.json(); })
+							.then(function (list) { fill(district, list); });
+					});
+				})();
+			</script>
 		</div>
 	}
 }
