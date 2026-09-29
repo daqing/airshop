@@ -1,0 +1,121 @@
+package checkout
+
+import (
+	"strconv"
+
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/services"
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+type PageData struct {
+	User      *models.User
+	Lines     []services.CartLine
+	Subtotal  string
+	Addresses []*models.Address
+	Error     string
+}
+
+func addressLine(a *models.Address) string {
+	parts := []string{}
+	for _, p := range []string{a.Province, a.City, a.District, a.Street} {
+		if p != "" {
+			parts = append(parts, p)
+		}
+	}
+	out := ""
+	for i, p := range parts {
+		if i > 0 {
+			out += " "
+		}
+		out += p
+	}
+	return out
+}
+
+templ Page(data PageData) {
+	@layouts.Storefront(data.User, "Checkout") {
+		<style>
+			.checkout { max-width: 880px; margin: 32px auto 64px; padding: 0 24px; display: grid; gap: 20px; }
+			.checkout h1 { font-size: 24px; margin: 0; }
+			.co-box { border: 1px solid var(--sf-line); border-radius: 10px; padding: 16px 18px; }
+			.co-box h2 { font-size: 15px; margin: 0 0 12px; }
+			.co-error { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; font-size: 13px; }
+			.co-addr { display: grid; gap: 8px; }
+			.co-addr label { display: flex; gap: 8px; align-items: baseline; font-size: 13px; border: 1px solid var(--sf-line); border-radius: 8px; padding: 10px 12px; cursor: pointer; }
+			.co-addr .who { font-weight: 600; }
+			.co-addr .where { color: var(--sf-muted); }
+			.co-badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--sf-ink); color: var(--sf-bg); }
+			.co-manage { font-size: 12px; color: var(--sf-muted); }
+			.co-line { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; padding: 6px 0; border-bottom: 1px dashed var(--sf-line); }
+			.co-line .sum { font-weight: 600; }
+			.co-pay { display: grid; gap: 8px; }
+			.co-pay label { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+			.co-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+			.co-total { font-size: 18px; font-weight: 700; }
+			.co-place { padding: 12px 30px; border-radius: 8px; border: 1px solid var(--sf-ink); background: var(--sf-ink); color: var(--sf-bg); font-size: 15px; font-weight: 600; cursor: pointer; }
+			.co-empty { color: var(--sf-muted); }
+		</style>
+		<div class="checkout">
+			<h1>Checkout</h1>
+			if data.Error != "" {
+				<div class="co-error">{ data.Error }</div>
+			}
+			if len(data.Addresses) == 0 {
+				<div class="co-box">
+					<h2>Shipping address</h2>
+					<p class="co-empty">You need a shipping address first — <a href="/account/addresses/new">add one</a>.</p>
+				</div>
+			} else {
+				<form method="post" action="/checkout">
+					<div class="co-box">
+						<h2>Shipping address</h2>
+						<div class="co-addr">
+							for _, a := range data.Addresses {
+								<label>
+									if a.IsDefault {
+										<input type="radio" name="address_id" value={ strconv.FormatInt(int64(a.ID), 10) } checked/>
+									} else {
+										<input type="radio" name="address_id" value={ strconv.FormatInt(int64(a.ID), 10) }/>
+									}
+									<span>
+										<span class="who">{ a.Recipient }</span>
+										<span> { a.Phone }</span>
+										if a.IsDefault {
+											<span class="co-badge">DEFAULT</span>
+										}
+										<br/>
+										<span class="where">{ addressLine(a) }</span>
+									</span>
+								</label>
+							}
+						</div>
+						<p><a class="co-manage" href="/account/addresses">Manage addresses</a></p>
+					</div>
+					<div class="co-box">
+						<h2>Items</h2>
+						for _, line := range data.Lines {
+							<div class="co-line">
+								<span>{ line.Product.Name }{ " × " }{ strconv.Itoa(line.Item.Quantity) }</span>
+								<span class="sum">{ services.FormatCents(line.Item.PriceCents * int64(line.Item.Quantity)) }</span>
+							</div>
+						}
+					</div>
+					<div class="co-box">
+						<h2>Payment</h2>
+						<div class="co-pay">
+							<label>
+								<input type="radio" name="payment_method" value="online" checked/>
+								Online payment
+							</label>
+						</div>
+					</div>
+					<div class="co-footer">
+						<span class="co-total">Total: { data.Subtotal }</span>
+						<button class="co-place" type="submit">Place order</button>
+					</div>
+				</form>
+			}
+		</div>
+	}
+}

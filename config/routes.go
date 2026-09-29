@@ -15,9 +15,11 @@ import (
 	"github.com/daqing/airshop/app/api/admin_api"
 	"github.com/daqing/airshop/app/api/auth_api"
 	"github.com/daqing/airshop/app/api/cart_api"
+	"github.com/daqing/airshop/app/api/checkout_api"
 	"github.com/daqing/airshop/app/api/health_api"
 	"github.com/daqing/airshop/app/api/home_api"
 	"github.com/daqing/airshop/app/api/openapi_api"
+	"github.com/daqing/airshop/app/api/orders_api"
 	"github.com/daqing/airshop/app/api/products_api"
 	"github.com/daqing/airshop/app/api/storage_api"
 	regions_api "github.com/daqing/airshop/app/regions"
@@ -59,6 +61,11 @@ func PublicRoutes(r *gin.Engine) {
 	r.POST("/cart/items/:id", middlewares.RequireUser(), cart_api.UpdateItemAction)
 	r.POST("/cart/items/:id/delete", middlewares.RequireUser(), cart_api.RemoveItemAction)
 	r.POST("/cart/clear", middlewares.RequireUser(), cart_api.ClearAction)
+	r.GET("/checkout", middlewares.RequireUser(), checkout_api.PageAction)
+	r.POST("/checkout", middlewares.RequireUser(), checkout_api.PlaceOrderAction)
+	r.GET("/orders/:orderNo", middlewares.RequireUser(), orders_api.DetailAction)
+	r.POST("/orders/:orderNo/cancel", middlewares.RequireUser(), orders_api.CancelAction)
+	r.GET("/orders", middlewares.RequireUser(), orders_api.ListAction)
 	r.GET("/account/addresses", middlewares.RequireUser(), account_api.AddressesPageAction)
 	r.GET("/account/addresses/new", middlewares.RequireUser(), account_api.NewAddressAction)
 	r.POST("/account/addresses", middlewares.RequireUser(), account_api.CreateAddressAction)

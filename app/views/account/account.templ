@@ -21,6 +21,7 @@ templ Page(user *models.User) {
 			<div class="account-row"><span class="k">Phone number</span><span>{ user.PhoneNumber }</span></div>
 			<div class="account-row"><span class="k">Status</span><span>{ user.Status }</span></div>
 			<div class="account-row"><span class="k">Addresses</span><span><a href="/account/addresses">Manage addresses</a></span></div>
+			<div class="account-row"><span class="k">Orders</span><span><a href="/orders">My orders</a></span></div>
 			<form class="signout-form" method="post" action="/signout">
 				<button class="signout-button" type="submit">Sign out</button>
 			</form>

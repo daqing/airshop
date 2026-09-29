@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"time"
 
 	"github.com/daqing/airway/app/websocket"
 	"github.com/daqing/airway/cmd"
@@ -21,6 +22,7 @@ import (
 	// itself for the REPL regardless of other import chains.
 	_ "github.com/daqing/airshop/app/models"
 
+	"github.com/daqing/airshop/app/services"
 	"github.com/daqing/airshop/config"
 )
 
@@ -105,6 +107,9 @@ func runServer() {
 		log.Printf("plugin boot failed: %v", err)
 		os.Exit(5)
 	}
+
+	// Cancel unpaid orders once at boot and then on a ticker.
+	go services.RunOrderExpirySweeper(services.UnpaidOrderExpiry, time.Minute)
 
 	runApp()
 }

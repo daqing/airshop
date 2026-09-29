@@ -29,6 +29,10 @@
   `TIMESTAMP WITHOUT TIME ZONE`:pgx 读回时打 UTC 标签,而裸 `time.Now()`
   写入的是本地墙上时钟(本地为 UTC+8),会让所有过期/比较判断偏移最多
   8 小时。Go 侧写入必须用 UTC,保证存储的墙钟与读回的标签一致。
+- **与数据库默认时间戳比较时要用本地墙钟。** 由 `CURRENT_TIMESTAMP` 填充的
+  列(如 `created_at`)存的是服务器本地时间,因此 SQL 侧比较(如订单超时
+  清扫)要用裸 `time.Now()` 计算阈值;而服务端写入值的 Go 侧比较按上一条
+  用 UTC。
 
 ## updated_at 的维护
 

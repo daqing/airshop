@@ -31,6 +31,11 @@ For the Chinese edition, see [CONVENTIONS.zh-CN.md](CONVENTIONS.zh-CN.md).
   bare `time.Now()` writes the local wall clock (UTC+8 here), which shifts
   every expiry/comparison by up to eight hours. Go-side writes must use UTC
   so the stored wall clock and the read-back label agree.
+- **Comparing against database-default timestamps needs the local wall
+  clock.** Columns filled by `CURRENT_TIMESTAMP` (e.g. `created_at`) store
+  the server-local wall time, so SQL-side comparisons (like the unpaid-order
+  expiry sweep) must compute their cutoff with a bare `time.Now()`, while
+  Go-side comparisons of service-written values use UTC as above.
 
 ## updated_at maintenance
 
