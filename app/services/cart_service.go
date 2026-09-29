@@ -248,15 +248,29 @@ func CartLines(userID int64) ([]CartLine, int64, error) {
 	}
 
 	lines := make([]CartLine, 0, len(items))
+	if len(items) == 0 {
+		return lines, 0, nil
+	}
+
+	// Batch-load the products for all lines in one query.
+	productIDs := make([]int64, 0, len(items))
+	for _, item := range items {
+		productIDs = append(productIDs, item.ProductID)
+	}
+	products, err := repo.Find[models.Product](repo.CurrentDB(),
+		sql.Select("*").From("products").Where(sql.In("id", productIDs)))
+	if err != nil {
+		return nil, 0, err
+	}
+	productByID := make(map[int64]*models.Product, len(products))
+	for _, p := range products {
+		productByID[int64(p.ID)] = p
+	}
+
 	var subtotal int64
 	for _, item := range items {
 		line := CartLine{Item: item}
-
-		product, err := repo.FindByID[models.Product](sql.IdType(item.ProductID))
-		if err != nil {
-			return nil, 0, err
-		}
-		line.Product = product
+		line.Product = productByID[item.ProductID]
 
 		if item.VariantID != nil {
 			variant, err := repo.FindByID[models.ProductVariant](sql.IdType(*item.VariantID))
@@ -267,14 +281,14 @@ func CartLines(userID int64) ([]CartLine, int64, error) {
 			line.VariantOK = variant != nil && variant.Active
 		}
 
-		if product != nil {
-			if product.MainImage != "" {
-				line.ImageURL = ProductImageURL(product.MainImage)
+		if line.Product != nil {
+			if line.Product.MainImage != "" {
+				line.ImageURL = ProductImageURL(line.Product.MainImage)
 			}
 
 			variantActive := item.VariantID == nil || line.VariantOK
-			if product.Active && variantActive {
-				line.Stock = stockFor(product, line.Variant)
+			if line.Product.Active && variantActive {
+				line.Stock = stockFor(line.Product, line.Variant)
 				line.Available = line.Stock > 0
 				line.Shortage = line.Stock < item.Quantity
 			}

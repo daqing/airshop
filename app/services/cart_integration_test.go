@@ -60,6 +60,20 @@ func TestCartService(t *testing.T) {
 	if err := AddToCart(int64(userA.ID), int64(product.ID), nil, 2); err != nil {
 		t.Fatalf("add: %v", err)
 	}
+
+	// The cart is lazily created once and reused afterwards.
+	cartA1, err := CartForUser(int64(userA.ID))
+	if err != nil {
+		t.Fatalf("cart for user A: %v", err)
+	}
+	cartA2, err := CartForUser(int64(userA.ID))
+	if err != nil {
+		t.Fatalf("cart for user A again: %v", err)
+	}
+	if cartA1.ID != cartA2.ID {
+		t.Fatalf("expected one cart per user, got %d and %d", cartA1.ID, cartA2.ID)
+	}
+
 	if err := AddToCart(int64(userA.ID), int64(product.ID), nil, 1); err != nil {
 		t.Fatalf("add again: %v", err)
 	}
