@@ -23,7 +23,7 @@ var (
 // PlaceOrder turns the user's purchasable cart lines into an order: amounts
 // are recomputed server-side from the line snapshots, the address is copied
 // into the order and the cart is cleared — all in one transaction.
-func PlaceOrder(userID int64, addressID int64, paymentMethod string) (*models.Order, error) {
+func PlaceOrder(userID int64, addressID int64, paymentMethod, couponCode string) (*models.Order, error) {
 	paymentMethod = strings.TrimSpace(paymentMethod)
 	if paymentMethod == "" {
 		return nil, ErrPaymentMethodNeeded
@@ -54,13 +54,35 @@ func PlaceOrder(userID int64, addressID int64, paymentMethod string) (*models.Or
 	for _, line := range lines {
 		subtotal += line.Item.PriceCents * int64(line.Item.Quantity)
 	}
-	discount := int64(0)
 	shipping := int64(0)
+
+	// The coupon discount is recomputed inside the transaction with the
+	// coupon row locked FOR UPDATE, so concurrent checkouts cannot exceed a
+	// coupon's total count.
+	discount := int64(0)
+	var appliedCoupon *models.Coupon
 
 	orderNo := "SO" + time.Now().UTC().Format("20060102150405") + "-" + strings.ToUpper(utils.RandomHex(4))
 
 	var order *models.Order
 	err = repo.WithTx(repo.CurrentDB(), func(tx *repo.Tx) error {
+		if strings.TrimSpace(couponCode) != "" {
+			locked, err := repo.FindOneWith[models.Coupon](tx.Executor(),
+				sql.Select("*").From("coupons").Where(sql.Eq("code", strings.ToUpper(strings.TrimSpace(couponCode)))).ForUpdate())
+			if err != nil {
+				return err
+			}
+			if locked == nil {
+				return ErrCouponNotFound
+			}
+			var discountErr error
+			discount, discountErr = CouponDiscountForLoaded(userID, locked, subtotal)
+			if discountErr != nil {
+				return discountErr
+			}
+			appliedCoupon = locked
+		}
+
 		created, err := repo.CreateWith[models.Order](tx.Executor(), sql.Create(models.Order{}, sql.H{
 			"order_no":       orderNo,
 			"user_id":        userID,
@@ -78,6 +100,17 @@ func PlaceOrder(userID int64, addressID int64, paymentMethod string) (*models.Or
 			return err
 		}
 		order = created
+
+		if appliedCoupon != nil {
+			if _, err := repo.CreateWith[models.CouponRedemption](tx.Executor(), sql.Create(models.CouponRedemption{}, sql.H{
+				"coupon_id":      int64(appliedCoupon.ID),
+				"user_id":        userID,
+				"order_id":       int64(order.ID),
+				"discount_cents": discount,
+			})); err != nil {
+				return err
+			}
+		}
 
 		for _, line := range lines {
 			var variantID any

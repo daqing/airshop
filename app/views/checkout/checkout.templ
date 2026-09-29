@@ -14,6 +14,8 @@ type PageData struct {
 	Subtotal  string
 	Addresses []*models.Address
 	Gateways  []string
+	Coupons   []*models.Coupon
+	Code      string
 	Error     string
 }
 
@@ -101,6 +103,26 @@ templ Page(data PageData) {
 								<span class="sum">{ services.FormatCents(line.Item.PriceCents * int64(line.Item.Quantity)) }</span>
 							</div>
 						}
+					</div>
+					<div class="co-box">
+						<h2>Coupon</h2>
+						if len(data.Coupons) > 0 {
+							<p style="font-size: 12px; color: var(--sf-muted); margin: 0 0 8px;">Available for this order:</p>
+							for _, cp := range data.Coupons {
+								<p style="font-size: 13px; margin: 0 0 4px;">
+									<code>{ cp.Code }</code> —
+									if cp.Type == "percent" {
+										{ strconv.Itoa(cp.PercentOff) }{ "% off" }
+									} else {
+										{ services.FormatCents(cp.ValueCents) }{ " off" }
+									}
+								</p>
+							}
+						}
+						<label style="display: grid; gap: 4px; font-size: 13px; font-weight: 600;">
+							Coupon code (optional)
+							<input type="text" name="coupon_code" value={ data.Code } placeholder="e.g. SAVE10" style="padding: 9px 12px; border: 1px solid var(--sf-line); border-radius: 8px; font-size: 14px; font-weight: 400;"/>
+						</label>
 					</div>
 					<div class="co-box">
 						<h2>Payment</h2>

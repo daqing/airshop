@@ -174,3 +174,136 @@ func ParseOptionalTime(input string) (*time.Time, error) {
 	utc := parsed.UTC()
 	return &utc, nil
 }
+
+var (
+	ErrCouponNotApplicable = errors.New("this coupon cannot be used on this order")
+)
+
+// couponWindowOpen reports whether now falls inside the coupon's optional
+// validity window.
+func couponWindowOpen(c *models.Coupon, now time.Time) bool {
+	if c.StartsAt != nil && now.Before(*c.StartsAt) {
+		return false
+	}
+	if c.ExpiresAt != nil && now.After(*c.ExpiresAt) {
+		return false
+	}
+	return true
+}
+
+func couponUnderLimit(c *models.Coupon, now time.Time) (bool, error) {
+	if c.TotalCount == 0 {
+		return true, nil
+	}
+	usage, err := CouponUsage(int64(c.ID))
+	if err != nil {
+		return false, err
+	}
+	return usage < int64(c.TotalCount), nil
+}
+
+func userUsedCoupon(userID, couponID int64) (bool, error) {
+	return repo.ExistsWhere[models.CouponRedemption](sql.H{"coupon_id": couponID, "user_id": userID})
+}
+
+func couponDiscountFor(c *models.Coupon, subtotal int64) int64 {
+	if c.Type == CouponTypePercent {
+		// Single rounding step, half-up, per the T0.5 money rules.
+		return (subtotal*int64(c.PercentOff) + 50) / 100
+	}
+	if c.ValueCents > subtotal {
+		return subtotal
+	}
+	return c.ValueCents
+}
+
+// ApplicableCoupon validates a checkout coupon code against the subtotal and
+// returns the coupon with its computed discount. Unknown codes yield
+// ErrCouponNotFound; everything else (disabled, out of window, exhausted,
+// already used by this user, below the threshold) yields
+// ErrCouponNotApplicable.
+func ApplicableCoupon(userID int64, code string, subtotal int64) (*models.Coupon, int64, error) {
+	code = strings.ToUpper(strings.TrimSpace(code))
+	if code == "" {
+		return nil, 0, nil
+	}
+
+	coupon, err := repo.FindOneBy[models.Coupon](sql.H{"code": code})
+	if err != nil {
+		return nil, 0, err
+	}
+	if coupon == nil {
+		return nil, 0, ErrCouponNotFound
+	}
+
+	discount, err := CouponDiscountForLoaded(userID, coupon, subtotal)
+	if err != nil {
+		return nil, 0, err
+	}
+	return coupon, discount, nil
+}
+
+// CouponDiscountForLoaded validates an already-loaded coupon row (typically
+// locked FOR UPDATE inside the order transaction) and returns the computed
+// discount. A nil coupon means no coupon requested.
+func CouponDiscountForLoaded(userID int64, coupon *models.Coupon, subtotal int64) (int64, error) {
+	if coupon == nil {
+		return 0, nil
+	}
+
+	now := time.Now().UTC()
+	if !coupon.Enabled || !couponWindowOpen(coupon, now) {
+		return 0, ErrCouponNotApplicable
+	}
+	if subtotal < coupon.ThresholdCents {
+		return 0, ErrCouponNotApplicable
+	}
+	limit, err := couponUnderLimit(coupon, now)
+	if err != nil {
+		return 0, err
+	}
+	if !limit {
+		return 0, ErrCouponNotApplicable
+	}
+	used, err := userUsedCoupon(userID, int64(coupon.ID))
+	if err != nil {
+		return 0, err
+	}
+	if used {
+		return 0, ErrCouponNotApplicable
+	}
+
+	return couponDiscountFor(coupon, subtotal), nil
+}
+
+// ApplicableCouponsFor lists the store's coupons the user could apply to a
+// subtotal right now — the checkout hint list.
+func ApplicableCouponsFor(userID int64, subtotal int64) ([]*models.Coupon, error) {
+	all, err := AdminListCoupons()
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now().UTC()
+	out := []*models.Coupon{}
+	for _, c := range all {
+		if !c.Enabled || !couponWindowOpen(c, now) || subtotal < c.ThresholdCents {
+			continue
+		}
+		limit, err := couponUnderLimit(c, now)
+		if err != nil {
+			return nil, err
+		}
+		if !limit {
+			continue
+		}
+		used, err := userUsedCoupon(userID, int64(c.ID))
+		if err != nil {
+			return nil, err
+		}
+		if !used {
+			out = append(out, c)
+		}
+	}
+	return out, nil
+}
