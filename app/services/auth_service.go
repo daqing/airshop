@@ -64,6 +64,8 @@ func SendSignInCode(input string) (string, error) {
 		return "", err
 	}
 
+	pruneExpiredCodes()
+
 	n, err := crand.Int(crand.Reader, big.NewInt(1000000))
 	if err != nil {
 		return "", err
@@ -76,6 +78,20 @@ func SendSignInCode(input string) (string, error) {
 
 	log.Printf("sign-in code for %s: %s", phone, code)
 	return code, nil
+}
+
+// pruneExpiredCodes drops stale entries so the in-memory store cannot grow
+// without bound.
+func pruneExpiredCodes() {
+	now := time.Now()
+
+	codeStoreMu.Lock()
+	defer codeStoreMu.Unlock()
+	for phone, entry := range codeStore {
+		if now.After(entry.expiresAt) {
+			delete(codeStore, phone)
+		}
+	}
 }
 
 func takeCodeEntry(phone string) (codeEntry, bool) {
@@ -145,7 +161,7 @@ func CreateSession(userID int64) (string, error) {
 	if _, err := repo.CreateFrom[models.Session](sql.H{
 		"token":      token,
 		"user_id":    userID,
-		"expires_at": time.Now().Add(SessionTTL),
+		"expires_at": time.Now().UTC().Add(SessionTTL),
 	}); err != nil {
 		return "", err
 	}
@@ -153,7 +169,7 @@ func CreateSession(userID int64) (string, error) {
 }
 
 // SessionUser resolves a session token to its active user. Expired or
-// unknown tokens yield nil.
+// unknown tokens yield nil; expired rows are cleaned up as they are seen.
 func SessionUser(token string) (*models.User, error) {
 	if token == "" {
 		return nil, nil
@@ -163,7 +179,12 @@ func SessionUser(token string) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	if session == nil || time.Now().After(session.ExpiresAt) {
+	if session == nil {
+		return nil, nil
+	}
+
+	if time.Now().After(session.ExpiresAt) {
+		_ = repo.DeleteByID[models.Session](session.ID)
 		return nil, nil
 	}
 

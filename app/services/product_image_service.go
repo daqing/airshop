@@ -225,7 +225,7 @@ func MakeProductImageMain(productID, imageID int64) error {
 		}
 		if err := repo.UpdateByID[models.ProductImage](img.ID, sql.H{
 			"sort_order": i,
-			"updated_at": time.Now(),
+			"updated_at": time.Now().UTC(),
 		}); err != nil {
 			return err
 		}
@@ -249,6 +249,6 @@ func refreshMainImage(productID int64) error {
 
 	return repo.UpdateByID[models.Product](sql.IdType(productID), sql.H{
 		"main_image": main,
-		"updated_at": time.Now(),
+		"updated_at": time.Now().UTC(),
 	})
 }

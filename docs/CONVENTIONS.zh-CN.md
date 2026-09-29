@@ -25,6 +25,10 @@
 - 每个模型带 `CreatedAt time.Time` 和 `UpdatedAt time.Time`,tag 为
   `db:"created_at"` / `db:"updated_at"` 和 `json:"created_at"` /
   `json:"updated_at"`。
+- **时间值一律用 `time.Now().UTC()` 写入。** 列类型是
+  `TIMESTAMP WITHOUT TIME ZONE`:pgx 读回时打 UTC 标签,而裸 `time.Now()`
+  写入的是本地墙上时钟(本地为 UTC+8),会让所有过期/比较判断偏移最多
+  8 小时。Go 侧写入必须用 UTC,保证存储的墙钟与读回的标签一致。
 
 ## updated_at 的维护
 
@@ -107,3 +111,6 @@ repo 层不会自动维护 `updated_at`,脚手架生成的 `UpdateAction` 也不
 - 2026-09-29 —— T2.2 由 David Zhang 拍板:登录仅手机号 + 短信验证码,
   不做密码。`users.password_hash` 保留为默认空列;身份列是
   `users.phone_number`(VARCHAR(20),唯一)。
+- 2026-09-29 —— T2.6 收口认证服务时修复的坑:时间列一律用
+  `time.Now().UTC()` 写入,因为 pgx 给 `TIMESTAMP WITHOUT TIME ZONE`
+  的读回值打 UTC 标签;此前本地时间写入会让会话过期判断偏移最多 8 小时。

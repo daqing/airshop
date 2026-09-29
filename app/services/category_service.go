@@ -104,7 +104,7 @@ func UpdateCategory(id sql.IdType, in CategoryInput) error {
 		"parent_id":  in.ParentID,
 		"sort_order": in.SortOrder,
 		"enabled":    in.Enabled,
-		"updated_at": time.Now(),
+		"updated_at": time.Now().UTC(),
 	})
 }
 

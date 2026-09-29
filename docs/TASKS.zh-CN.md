@@ -70,7 +70,7 @@ go run . repl                      # 带项目模型的 REPL
 - [x] T2.3 注册页/登录页/登出 action —— 2026-09-29 完成:登录与注册合并为手机号+验证码单流程(`/signin` 两步表单,新用户自动创建为 "User <尾号4位>");`POST /signin/code`(按 T2.2 决策验证码打印到服务端日志,内存存储,5 分钟有效,单次使用)、`POST /signin`、`POST /signout`(删会话行 + 清 cookie);会话机制随本任务提前落地(`sessions` 表 + token cookie,T2.4 的中间件仍未做);禁用账号拒绝登录。服务层测试 + 完整 E2E 覆盖(非法手机号、错码、日志取码登录、自动注册、登出、二次登录复用用户)
 - [x] T2.4 会话:cookie session 落地,登录态中间件(未登录访问受保护页面跳登录)—— 2026-09-29 完成:会话写入侧已随 T2.3 落地(`sessions` 表 + httpOnly token cookie);`middlewares.LoadUser` 每请求解析 cookie,`RequireUser` 将访客跳到 `/signin?next=<路径>` 且登录后同站安全回跳;`/account` 受保护页(资料 + 登出);storefront 导航按登录态切换 Sign in / 账号链接。layouts 测试(两种导航态)+ E2E 覆盖(访客重定向、next 往返、登录态导航、账户页、登出)
 - [x] T2.5 表单校验与错误提示(手机号格式、重复注册)—— 2026-09-29 完成:大部分已随 T2.3 落地(手机号规范化/格式校验带用户可读错误、自动注册使"重复注册"在设计上不可能且有唯一约束兜底、登录页错误横幅经 templ 自动转义);本任务补充了空验证码的专用提示(`ErrCodeRequired`,在任何存储查询前返回);框架的 `lib/validation`(仅 required/email)评估后不适用,保留自定义手机号校验
-- [ ] T2.6 服务层:`AuthService`(注册/登录/登出),action 只做参数绑定
+- [x] T2.6 服务层:`AuthService`(注册/登录/登出),action 只做参数绑定 —— 2026-09-29 完成:认证逻辑全部收敛在 `services/auth_service.go`(手机号规范化、发码/验码含单次使用 + TTL + 过期清理、注册或登录、会话签发/解析/销毁且过期行自清理);action 只做参数绑定与重定向编排。收口审计中修掉一个真实时区 bug(本地时间写入 vs pgx UTC 标签读回,会话过期判断最多偏移 8 小时——时间写入已全部改 UTC,记入 CONVENTIONS);完整流程由环境门控集成测试(`AIRWAY_PG_TEST_DSN`)覆盖
 
 ## M3 地址簿
 
