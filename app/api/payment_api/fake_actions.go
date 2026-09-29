@@ -49,5 +49,5 @@ func FakeConfirmAction(c *gin.Context) {
 		return
 	}
 
-	render.Found(c, "/orders/"+order.OrderNo)
+	render.Found(c, "/orders/"+order.OrderNo+"?paid=1")
 }

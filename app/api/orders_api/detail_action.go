@@ -30,6 +30,7 @@ func DetailAction(c *gin.Context) {
 		Order: order,
 		Items: items,
 		Flash: c.Query("error"),
+		Paid:  c.Query("paid") == "1",
 	}))
 }
 
