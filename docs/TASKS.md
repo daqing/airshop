@@ -94,7 +94,7 @@ Prerequisites: M2 (addresses belong to users).
 Prerequisites: M1, M2.
 
 - [x] T4.1 ❓ Guest cart strategy — settled 2026-09-29 by David Zhang: **signed-in users only**. No guest cart and no merge logic; the cart belongs to the user account (keyed by `user_id`, T4.2). Guests clicking add-to-cart are redirected to `/signin?next=<product page>` and return to the product after signing in. Consequence: the cart page and checkout live behind `RequireUser`, and M5 checkout reads the cart directly.
-- [ ] T4.2 Migration: `carts` + `cart_items` (product/variant, quantity, price snapshot at add time)
+- [x] T4.2 Migration: `carts` + `cart_items` (product/variant, quantity, price snapshot at add time) — done 2026-09-29: `carts` keyed by `user_id` UNIQUE per the T4.1 decision (one cart per user); `cart_items` carries `cart_id` (indexed), `product_id` NOT NULL, nullable `variant_id` per the sellable-unit rule, `quantity` and the `price_cents` snapshot taken at add time; line-uniqueness (same product+variant merges) is enforced in the service layer since partial unique indexes are not portable; up/down roundtrip verified (each rollback step drops one migration)
 - [ ] T4.3 Add/update/remove/clear actions and pages
 - [ ] T4.4 Cart page: subtotal, stock and availability checks (show unbuyable states)
 - [ ] T4.5 Service layer: `CartService` (validation, totals), reused by checkout

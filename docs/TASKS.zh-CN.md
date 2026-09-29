@@ -85,7 +85,7 @@ go run . repl                      # 带项目模型的 REPL
 前置依赖:M1、M2。
 
 - [x] T4.1 ❓ 游客购物车策略 —— 2026-09-29 由 David Zhang 拍板:**仅登录用户可用**。不做游客购物车、不做合并逻辑;购物车归属用户账号(以 `user_id` 关联,T4.2)。游客点加购跳转 `/signin?next=<商品页>`,登录后回到商品页。连带效果:购物车页与结算都挂在 `RequireUser` 下,M5 结算直接读购物车。
-- [ ] T4.2 迁移:`carts` + `cart_items`(商品/变体、数量、加入时价格快照)
+- [x] T4.2 迁移:`carts` + `cart_items`(商品/变体、数量、加入时价格快照)—— 2026-09-29 完成:`carts` 以 `user_id` UNIQUE 关联(按 T4.1 决策每用户一个购物车);`cart_items` 含 `cart_id`(带索引)、`product_id` NOT NULL、可空 `variant_id`(可售单元规则)、`quantity` 与加入时快照 `price_cents`;同商品+变体行合并由服务层保证(部分唯一索引非三库可移植);up/down 往返已验证(每次 rollback 一步)
 - [ ] T4.3 加购/改数量/删除/清空 action 与页面
 - [ ] T4.4 购物车页:金额小计、库存与下架校验(展示不可购买状态)
 - [ ] T4.5 服务层:`CartService`(校验、合计计算),供结算复用
