@@ -221,10 +221,18 @@ type CartLine struct {
 	Variant   *models.ProductVariant
 	ImageURL  string
 	VariantOK bool
+	// Stock is the currently available stock for the line's sellable unit.
+	Stock int
+	// Available reports whether the line can be bought at all (product and
+	// variant still active, stock not zero).
+	Available bool
+	// Shortage reports whether the requested quantity exceeds the stock.
+	Shortage bool
 }
 
-// CartLines returns the user's cart lines with display data and the cart
-// subtotal in minor units.
+// CartLines returns the user's cart lines with display data and the subtotal
+// in minor units. The subtotal only counts lines that are purchasable as-is
+// (available and not short of stock).
 func CartLines(userID int64) ([]CartLine, int64, error) {
 	cart, err := cartForUserOrErr(userID)
 	if err != nil {
@@ -263,6 +271,16 @@ func CartLines(userID int64) ([]CartLine, int64, error) {
 			if product.MainImage != "" {
 				line.ImageURL = ProductImageURL(product.MainImage)
 			}
+
+			variantActive := item.VariantID == nil || line.VariantOK
+			if product.Active && variantActive {
+				line.Stock = stockFor(product, line.Variant)
+				line.Available = line.Stock > 0
+				line.Shortage = line.Stock < item.Quantity
+			}
+		}
+
+		if line.Available && !line.Shortage {
 			subtotal += item.PriceCents * int64(item.Quantity)
 		}
 

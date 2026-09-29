@@ -89,6 +89,34 @@ func TestCartService(t *testing.T) {
 		t.Fatal("expected an update beyond stock to fail")
 	}
 
+	// A stock drop below the requested quantity flags the line as short and
+	// keeps it out of the subtotal.
+	if err := repo.UpdateByID[models.Product](product.ID, sql.H{"stock": 1, "updated_at": time.Now().UTC()}); err != nil {
+		t.Fatalf("drop stock: %v", err)
+	}
+	lines, subtotal, err = CartLines(int64(userA.ID))
+	if err != nil {
+		t.Fatalf("lines after stock drop: %v", err)
+	}
+	if !lines[0].Shortage || lines[0].Stock != 1 {
+		t.Fatalf("expected a shortage flag with stock 1, got %#v", lines[0])
+	}
+	if subtotal != 0 {
+		t.Fatalf("expected a short line to stay out of the subtotal, got %d", subtotal)
+	}
+	if err := repo.UpdateByID[models.Product](product.ID, sql.H{"stock": 3, "updated_at": time.Now().UTC()}); err != nil {
+		t.Fatalf("restore stock: %v", err)
+	}
+	lines, subtotal, err = CartLines(int64(userA.ID))
+	if err != nil {
+		t.Fatalf("lines after stock restore: %v", err)
+	}
+	// The quantity was updated to 2 earlier, so the restored stock clears the
+	// shortage and the line re-enters the subtotal.
+	if subtotal != 3000 {
+		t.Fatalf("expected subtotal back at 3000, got %d", subtotal)
+	}
+
 	// Inactive products cannot be added.
 	if err := repo.UpdateByID[models.Product](product.ID, sql.H{"active": false, "updated_at": time.Now().UTC()}); err != nil {
 		t.Fatalf("deactivate product: %v", err)

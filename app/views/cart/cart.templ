@@ -78,6 +78,12 @@ templ Page(data PageData) {
 							if line.Variant != nil && !line.VariantOK {
 								<div class="unavail">This variant is no longer available</div>
 							}
+							if line.Available && line.Shortage {
+								<div class="unavail">Only { strconv.Itoa(line.Stock) } in stock — please adjust the quantity</div>
+							}
+							if line.Product != nil && !line.Available && line.Stock == 0 && line.Product.Active {
+								<div class="unavail">Out of stock</div>
+							}
 							<div class="unit">{ services.FormatCents(line.Item.PriceCents) } each</div>
 						</div>
 						<div class="cart-side">
