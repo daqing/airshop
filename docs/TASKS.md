@@ -93,7 +93,7 @@ Prerequisites: M2 (addresses belong to users).
 
 Prerequisites: M1, M2.
 
-- [ ] T4.1 ❓ Guest cart strategy: signed-in only, or guests too (session-stored, merged on login)?
+- [x] T4.1 ❓ Guest cart strategy — settled 2026-09-29 by David Zhang: **signed-in users only**. No guest cart and no merge logic; the cart belongs to the user account (keyed by `user_id`, T4.2). Guests clicking add-to-cart are redirected to `/signin?next=<product page>` and return to the product after signing in. Consequence: the cart page and checkout live behind `RequireUser`, and M5 checkout reads the cart directly.
 - [ ] T4.2 Migration: `carts` + `cart_items` (product/variant, quantity, price snapshot at add time)
 - [ ] T4.3 Add/update/remove/clear actions and pages
 - [ ] T4.4 Cart page: subtotal, stock and availability checks (show unbuyable states)
