@@ -132,3 +132,6 @@ does not set it either — left alone the column goes stale. Therefore:
   columns are written with `time.Now().UTC()` because pgx labels
   `TIMESTAMP WITHOUT TIME ZONE` reads as UTC; local-time writes skewed
   session expiry by up to eight hours.
+- 2026-09-29 — T4.1 settled by David Zhang: the cart is signed-in users
+  only — no guest cart, no merge logic; add-to-cart for guests redirects
+  to sign-in with a `next` back to the product page.

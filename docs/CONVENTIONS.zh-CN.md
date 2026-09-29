@@ -114,3 +114,5 @@ repo 层不会自动维护 `updated_at`,脚手架生成的 `UpdateAction` 也不
 - 2026-09-29 —— T2.6 收口认证服务时修复的坑:时间列一律用
   `time.Now().UTC()` 写入,因为 pgx 给 `TIMESTAMP WITHOUT TIME ZONE`
   的读回值打 UTC 标签;此前本地时间写入会让会话过期判断偏移最多 8 小时。
+- 2026-09-29 —— T4.1 由 David Zhang 拍板:购物车仅登录用户可用——不做
+  游客购物车、不做合并逻辑;游客加购跳转登录页并带 `next` 回到商品页。

@@ -1,0 +1,115 @@
+package cart
+
+import (
+	"strconv"
+
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/services"
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+type PageData struct {
+	User     *models.User
+	Lines    []services.CartLine
+	Subtotal string
+	Flash    string
+}
+
+func itemID(id int64) string {
+	return strconv.FormatInt(id, 10)
+}
+
+templ Page(data PageData) {
+	@layouts.Storefront(data.User, "Cart") {
+		<style>
+			.cart-wrap { max-width: 880px; margin: 32px auto 64px; padding: 0 24px; }
+			.cart-wrap h1 { font-size: 24px; margin: 0 0 18px; }
+			.cart-flash { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; font-size: 13px; margin-bottom: 14px; }
+			.cart-line { display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; gap: 14px; align-items: center; border: 1px solid var(--sf-line); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+			.cart-line img, .cart-line .img-empty { width: 88px; height: 88px; object-fit: cover; border-radius: 8px; border: 1px solid var(--sf-line); background: var(--sf-line); }
+			.cart-line .img-empty { display: flex; align-items: center; justify-content: center; color: var(--sf-muted); font-size: 12px; }
+			.cart-line .name { font-weight: 600; font-size: 14px; }
+			.cart-line .variant { font-size: 12px; color: var(--sf-muted); margin-top: 2px; }
+			.cart-line .unavail { color: #b3423a; font-size: 12px; margin-top: 2px; }
+			.cart-line .unit { font-size: 12px; color: var(--sf-muted); margin-top: 4px; }
+			.cart-side { display: grid; gap: 8px; justify-items: end; }
+			.cart-total { font-weight: 700; font-size: 15px; }
+			.cart-qty { display: flex; gap: 6px; align-items: center; }
+			.cart-qty input { width: 64px; padding: 6px 8px; border: 1px solid var(--sf-line); border-radius: 6px; font-size: 13px; }
+			.cart-mini { padding: 5px 12px; border: 1px solid var(--sf-line); border-radius: 6px; background: transparent; color: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
+			.cart-mini-danger { border-color: #b3423a; color: #b3423a; }
+			.cart-forms { display: flex; gap: 8px; flex-wrap: wrap; }
+			.cart-summary { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; border-top: 1px solid var(--sf-line); padding-top: 16px; }
+			.cart-subtotal { font-size: 16px; font-weight: 700; }
+			.cart-actions { display: flex; gap: 10px; align-items: center; }
+			.cart-clear { border: 1px solid var(--sf-line); background: transparent; color: var(--sf-muted); border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; }
+			.cart-checkout { padding: 10px 22px; border-radius: 8px; border: 1px solid var(--sf-ink); background: var(--sf-ink); color: var(--sf-bg); font-size: 14px; font-weight: 600; }
+			.cart-checkout[disabled] { opacity: .55; cursor: not-allowed; }
+			.cart-empty { color: var(--sf-muted); text-align: center; padding: 48px 0; }
+			.cart-empty a { color: inherit; }
+		</style>
+		<div class="cart-wrap">
+			<h1>Cart</h1>
+			if data.Flash != "" {
+				<div class="cart-flash">{ data.Flash }</div>
+			}
+			if len(data.Lines) == 0 {
+				<p class="cart-empty">Your cart is empty. <a href="/products">Browse products</a></p>
+			} else {
+				for _, line := range data.Lines {
+									<div class="cart-line">
+						if line.ImageURL != "" {
+							<img src={ templ.URL(line.ImageURL) } alt={ line.Product.Name }/>
+						} else {
+							<div class="img-empty">No image</div>
+						}
+						<div>
+							if line.Product != nil {
+								<div class="name">{ line.Product.Name }</div>
+							} else {
+								<div class="name">Unavailable product</div>
+							}
+							if line.Variant != nil {
+								<div class="variant">{ line.Variant.Name }</div>
+							}
+							if line.Product != nil && !line.Product.Active {
+								<div class="unavail">No longer for sale</div>
+							}
+							if line.Variant != nil && !line.VariantOK {
+								<div class="unavail">This variant is no longer available</div>
+							}
+							if line.Available && line.Shortage {
+								<div class="unavail">Only { strconv.Itoa(line.Stock) } in stock — please adjust the quantity</div>
+							}
+							if line.Product != nil && !line.Available && line.Stock == 0 && line.Product.Active {
+								<div class="unavail">Out of stock</div>
+							}
+							<div class="unit">{ services.FormatCents(line.Item.PriceCents) } each</div>
+						</div>
+						<div class="cart-side">
+							<div class="cart-total">{ services.FormatCents(line.Item.PriceCents * int64(line.Item.Quantity)) }</div>
+							<form class="cart-qty" method="post" action={ templ.URL("/cart/items/" + itemID(int64(line.Item.ID))) }>
+								<input type="number" name="quantity" value={ strconv.Itoa(line.Item.Quantity) } min="1" required/>
+								<button class="cart-mini" type="submit">Update</button>
+							</form>
+							<div class="cart-forms">
+												<form method="post" action={ templ.URL("/cart/items/" + itemID(int64(line.Item.ID)) + "/delete") }>
+									<button class="cart-mini cart-mini-danger" type="submit">Remove</button>
+								</form>
+							</div>
+						</div>
+					</div>
+				}
+				<div class="cart-summary">
+					<form method="post" action="/cart/clear">
+						<button class="cart-clear" type="submit">Clear cart</button>
+					</form>
+					<div class="cart-actions">
+						<span class="cart-subtotal">Subtotal: { data.Subtotal }</span>
+						<button class="cart-checkout" type="button" disabled>Checkout</button>
+					</div>
+				</div>
+			}
+		</div>
+	}
+}

@@ -96,41 +96,68 @@ templ Detail(data DetailData) {
 				</div>
 				<div class="detail-info">
 					<h1>{ data.Product.Name }</h1>
-					if services.SellsThroughVariants(viewVariants(data.Variants)) {
-						<fieldset class="variants">
-							for i, v := range data.Variants {
-								<div class="variant">
-									<label>
-										if i == 0 {
-											<input type="radio" name="variant" value={ fmtID(int64(v.Variant.ID)) } checked/>
-										} else {
-											<input type="radio" name="variant" value={ fmtID(int64(v.Variant.ID)) }/>
-										}
-										{ v.Variant.Name }
-									</label>
-									<span>
-										if v.Sellable {
-											<span class="v-price">{ v.Price }</span>
-										} else {
-											<span class="v-out">Out of stock</span>
-										}
-									</span>
-								</div>
+					<form method="post" action="/cart/add">
+						<input type="hidden" name="product_id" value={ fmtID(int64(data.Product.ID)) }/>
+						<input type="hidden" name="back" value={ templ.URL("/products/" + data.Product.Slug) }/>
+						if services.SellsThroughVariants(viewVariants(data.Variants)) {
+							<fieldset class="variants">
+								for i, v := range data.Variants {
+									<div class="variant">
+										<label>
+											if v.Sellable {
+												if i == 0 {
+													<input type="radio" name="variant_id" value={ fmtID(int64(v.Variant.ID)) } checked/>
+												} else {
+													<input type="radio" name="variant_id" value={ fmtID(int64(v.Variant.ID)) }/>
+												}
+											}
+											{ v.Variant.Name }
+										</label>
+										<span>
+											if v.Sellable {
+												<span class="v-price">{ v.Price }</span>
+											} else {
+												<span class="v-out">Out of stock</span>
+											}
+										</span>
+									</div>
+								}
+							</fieldset>
+						} else {
+							<div class="detail-price">{ services.FormatCents(data.Product.PriceCents) }</div>
+						}
+						<div class={ "detail-stock", stockClass(data.Product) }>{ stockLabel(data.Product) }</div>
+						if data.Product.Description != "" {
+							<p class="detail-desc">{ data.Product.Description }</p>
+						}
+						<label style="display: inline-flex; gap: 8px; align-items: center; font-size: 13px; margin-bottom: 12px;">
+							Quantity
+							<input type="number" name="quantity" value="1" min="1" max="99" style="width: 72px; padding: 8px 10px; border: 1px solid var(--sf-line); border-radius: 6px; font-size: 14px;"/>
+						</label>
+						<div>
+							if cartButtonEnabled(data) {
+								<button class="cart-button" type="submit">Add to cart</button>
+							} else {
+								<button class="cart-button" type="button" disabled>Add to cart</button>
 							}
-						</fieldset>
-					} else {
-						<div class="detail-price">{ services.FormatCents(data.Product.PriceCents) }</div>
-					}
-					<div class={ "detail-stock", stockClass(data.Product) }>{ stockLabel(data.Product) }</div>
-					if data.Product.Description != "" {
-						<p class="detail-desc">{ data.Product.Description }</p>
-					}
-					<button class="cart-button" type="button" disabled>Add to cart</button>
-					<p class="cart-note">Online ordering arrives with the cart milestone.</p>
+						</div>
+					</form>
 				</div>
 			</div>
 		</section>
 	}
+}
+
+func cartButtonEnabled(data DetailData) bool {
+	if services.ProductSellable(data.Product) {
+		return true
+	}
+	for _, v := range data.Variants {
+		if v.Sellable {
+			return true
+		}
+	}
+	return false
 }
 
 func stockClass(p *models.Product) string {

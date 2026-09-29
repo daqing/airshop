@@ -14,6 +14,7 @@ import (
 	"github.com/daqing/airshop/app/api/account_api"
 	"github.com/daqing/airshop/app/api/admin_api"
 	"github.com/daqing/airshop/app/api/auth_api"
+	"github.com/daqing/airshop/app/api/cart_api"
 	"github.com/daqing/airshop/app/api/health_api"
 	"github.com/daqing/airshop/app/api/home_api"
 	"github.com/daqing/airshop/app/api/openapi_api"
@@ -53,6 +54,11 @@ func PublicRoutes(r *gin.Engine) {
 	r.POST("/signin", auth_api.SignInAction)
 	r.POST("/signout", auth_api.SignOutAction)
 	r.GET("/account", middlewares.RequireUser(), account_api.PageAction)
+	r.GET("/cart", middlewares.RequireUser(), cart_api.CartPageAction)
+	r.POST("/cart/add", middlewares.RequireUser(), cart_api.AddAction)
+	r.POST("/cart/items/:id", middlewares.RequireUser(), cart_api.UpdateItemAction)
+	r.POST("/cart/items/:id/delete", middlewares.RequireUser(), cart_api.RemoveItemAction)
+	r.POST("/cart/clear", middlewares.RequireUser(), cart_api.ClearAction)
 	r.GET("/account/addresses", middlewares.RequireUser(), account_api.AddressesPageAction)
 	r.GET("/account/addresses/new", middlewares.RequireUser(), account_api.NewAddressAction)
 	r.POST("/account/addresses", middlewares.RequireUser(), account_api.CreateAddressAction)
