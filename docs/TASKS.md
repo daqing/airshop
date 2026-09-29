@@ -74,7 +74,7 @@ Prerequisites: M0.
 
 Prerequisites: M0.
 
-- [ ] T2.1 Migration: `users` (unique phone, password hash, display name, status)
+- [x] T2.1 Migration: `users` (unique phone, password hash, display name, status) — done 2026-09-29: `phone` VARCHAR(20) UNIQUE (E.164 fits), `password_hash` VARCHAR(255) NOT NULL DEFAULT '' (stays empty under a code-only login; algorithm decided in T2.2), `display_name` VARCHAR(255) DEFAULT '', `status` VARCHAR(20) DEFAULT 'active' (active/disabled, room to extend); standard timestamps; up/down roundtrip verified on local Postgres
 - [ ] T2.2 ❓ Decide the login method: password + SMS code, or code only? Start with a fake code locally (fixed value / logged to console); pick an SMS provider later
 - [ ] T2.3 Sign-up, sign-in pages and sign-out action
 - [ ] T2.4 Sessions: cookie sessions, auth middleware (protected pages redirect to login)

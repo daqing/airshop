@@ -65,7 +65,7 @@ go run . repl                      # 带项目模型的 REPL
 
 前置依赖:M0。
 
-- [ ] T2.1 迁移:`users` 表(手机号唯一、密码哈希、昵称、状态)
+- [x] T2.1 迁移:`users` 表(手机号唯一、密码哈希、昵称、状态)—— 2026-09-29 完成:`phone` VARCHAR(20) UNIQUE(容纳 E.164),`password_hash` VARCHAR(255) NOT NULL DEFAULT ''(纯验证码登录时保持为空,哈希算法 T2.2 定),`display_name` VARCHAR(255) DEFAULT '',`status` VARCHAR(20) DEFAULT 'active'(active/disabled,留扩展余地);标准时间戳;up/down 往返已在本机 Postgres 验证
 - [ ] T2.2 ❓ 登录方式定版:密码 + 短信验证码,还是仅验证码?本地开发先用假验证码(固定值/日志输出),短信服务商后置
 - [ ] T2.3 注册页/登录页/登出 action
 - [ ] T2.4 会话:cookie session 落地,登录态中间件(未登录访问受保护页面跳登录)
