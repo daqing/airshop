@@ -24,6 +24,8 @@ import (
 
 	"github.com/daqing/airshop/app/services"
 	"github.com/daqing/airshop/config"
+
+	_ "github.com/daqing/airshop/db/migrate"
 )
 
 // The project binary starts the HTTP server by default (or via `server`).

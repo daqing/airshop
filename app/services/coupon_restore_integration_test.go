@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	_ "github.com/daqing/airshop/db/migrate"
 	"github.com/daqing/airway/lib/migrate"
 	"github.com/daqing/airway/lib/repo"
 	sql "github.com/daqing/airway/lib/sql"
@@ -68,6 +69,12 @@ func TestCouponRestoreOnCancelAndRefund(t *testing.T) {
 		t.Helper()
 		if err := AddToCart(int64(user.ID), int64(product.ID), nil, 1); err != nil {
 			t.Fatalf("add to cart: %v", err)
+		}
+		// Claim first (once per user), then place the order. Refunds and
+		// cancellations only remove redemptions; the claim stays, so the
+		// coupon keeps working across this user's orders.
+		if err := ClaimCoupon(int64(user.ID), int64(coupon.ID)); err != nil {
+			t.Fatalf("claim coupon: %v", err)
 		}
 		order, err := PlaceOrder(int64(user.ID), int64(address.ID), "fake", coupon.Code)
 		if err != nil {

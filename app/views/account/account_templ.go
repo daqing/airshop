@@ -85,7 +85,7 @@ func Page(user *models.User) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span></div><div class=\"account-row\"><span class=\"k\">Addresses</span><span><a href=\"/account/addresses\">Manage addresses</a></span></div><div class=\"account-row\"><span class=\"k\">Orders</span><span><a href=\"/orders\">My orders</a></span></div><form class=\"signout-form\" method=\"post\" action=\"/signout\"><button class=\"signout-button\" type=\"submit\">Sign out</button></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span></div><div class=\"account-row\"><span class=\"k\">Addresses</span><span><a href=\"/account/addresses\">Manage addresses</a></span></div><div class=\"account-row\"><span class=\"k\">Coupons</span><span><a href=\"/coupons\">Coupon center</a></span></div><div class=\"account-row\"><span class=\"k\">Orders</span><span><a href=\"/orders\">My orders</a></span></div><form class=\"signout-form\" method=\"post\" action=\"/signout\"><button class=\"signout-button\" type=\"submit\">Sign out</button></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

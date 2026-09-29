@@ -1,0 +1,94 @@
+package couponscenter
+
+import (
+	"strconv"
+
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/services"
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+type CenterData struct {
+	User      *models.User
+	Claimable []*models.Coupon
+	Mine      []services.MyCouponEntry
+	Flash     string
+}
+
+func centerID(id int64) string {
+	return strconv.FormatInt(id, 10)
+}
+
+func entryDiscount(e services.MyCouponEntry) string {
+	if e.Coupon.Type == services.CouponTypePercent {
+		return "-" + strconv.Itoa(e.Coupon.PercentOff) + "%"
+	}
+	return "-" + services.FormatCents(e.Coupon.ValueCents)
+}
+
+templ Center(data CenterData) {
+	@layouts.Storefront(data.User, "Coupon center") {
+		<style>
+			.center { max-width: 720px; margin: 32px auto 64px; padding: 0 24px; }
+			.center h1 { font-size: 24px; margin: 0 0 16px; }
+			.center h2 { font-size: 16px; margin: 22px 0 12px; }
+			.center-flash { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; font-size: 13px; margin-bottom: 14px; }
+			.coupon-card { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 1px solid var(--sf-line); border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; }
+			.coupon-main { display: grid; gap: 2px; }
+			.coupon-code { font-weight: 700; font-size: 14px; }
+			.coupon-desc { font-size: 12px; color: var(--sf-muted); }
+			.coupon-used { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #f3e6e5; color: #8f2f28; }
+			.claim-button { padding: 7px 18px; border-radius: 8px; border: 1px solid var(--sf-ink); background: var(--sf-ink); color: var(--sf-bg); font-size: 13px; cursor: pointer; }
+			.center-empty { color: var(--sf-muted); padding: 24px 0; }
+		</style>
+		<div class="center">
+			<h1>Coupon center</h1>
+			if data.Flash != "" {
+				<div class="center-flash">{ data.Flash }</div>
+			}
+			<h2>Claimable</h2>
+			if len(data.Claimable) == 0 {
+				<p class="center-empty">Nothing to claim right now.</p>
+			} else {
+				for _, cp := range data.Claimable {
+					<div class="coupon-card">
+						<div class="coupon-main">
+							<span class="coupon-code">{ cp.Code }</span>
+							<span class="coupon-desc">
+								if cp.Type == "percent" {
+									{ strconv.Itoa(cp.PercentOff) }{ "% off" }
+								} else {
+									{ services.FormatCents(cp.ValueCents) }{ " off" }
+								}
+								if cp.ThresholdCents > 0 {
+									{ " · min spend " }{ services.FormatCents(cp.ThresholdCents) }
+								}
+							</span>
+						</div>
+						<form method="post" action={ templ.URL("/coupons/claim?id=" + centerID(int64(cp.ID))) }>
+							<button class="claim-button" type="submit">Claim</button>
+						</form>
+					</div>
+				}
+			}
+			<h2>My coupons</h2>
+			if len(data.Mine) == 0 {
+				<p class="center-empty">You have no claimed coupons yet.</p>
+			} else {
+				for _, entry := range data.Mine {
+					<div class="coupon-card">
+						<div class="coupon-main">
+							<span class="coupon-code">{ entry.Coupon.Code }</span>
+							<span class="coupon-desc">{ entryDiscount(entry) }</span>
+						</div>
+						if entry.Used {
+							<span class="coupon-used">used</span>
+						} else {
+							<span>enter the code at checkout</span>
+						}
+					</div>
+				}
+			}
+		</div>
+	}
+}

@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	_ "github.com/daqing/airshop/db/migrate"
 	"github.com/daqing/airway/lib/migrate"
 	"github.com/daqing/airway/lib/repo"
 	sql "github.com/daqing/airway/lib/sql"
@@ -85,6 +86,11 @@ func TestCouponCheckout(t *testing.T) {
 		t.Fatalf("add to cart: %v", err)
 	}
 
+	// Claiming at the coupon center is what makes a coupon usable.
+	if err := ClaimCoupon(int64(user.ID), int64(fixed.ID)); err != nil {
+		t.Fatalf("claim fixed coupon: %v", err)
+	}
+
 	order, err := PlaceOrder(int64(user.ID), int64(address.ID), "fake", fixed.Code)
 	if err != nil {
 		t.Fatalf("place order with coupon: %v", err)
@@ -124,6 +130,9 @@ func TestCouponCheckout(t *testing.T) {
 	// after the first redemption, and the order still total-checks.
 	if err := AddToCart(int64(user.ID), int64(product.ID), nil, 2); err != nil {
 		t.Fatalf("add to cart for percent order: %v", err)
+	}
+	if err := ClaimCoupon(int64(user.ID), int64(once.ID)); err != nil {
+		t.Fatalf("claim once coupon: %v", err)
 	}
 	if _, _, err := ApplicableCoupon(int64(user.ID), once.Code, 8000); err != nil {
 		t.Fatalf("expected once coupon applicable, got %v", err)

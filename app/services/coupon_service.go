@@ -202,8 +202,111 @@ func couponUnderLimit(c *models.Coupon, now time.Time) (bool, error) {
 	return usage < int64(c.TotalCount), nil
 }
 
-func userUsedCoupon(userID, couponID int64) (bool, error) {
+func userClaimedCoupon(userID, couponID int64) (bool, error) {
+	return repo.ExistsWhere[models.CouponClaim](sql.H{"coupon_id": couponID, "user_id": userID})
+}
+
+func userRedeemedCoupon(userID, couponID int64) (bool, error) {
 	return repo.ExistsWhere[models.CouponRedemption](sql.H{"coupon_id": couponID, "user_id": userID})
+}
+
+// ClaimCoupon lets a user claim a coupon at the coupon center: enabled, in
+// window, under the total claim pool (0 = unlimited) and not already claimed
+// by the same user. Claims are what make a coupon usable at checkout.
+func ClaimCoupon(userID, couponID int64) error {
+	coupon, err := repo.FindByID[models.Coupon](sql.IdType(couponID))
+	if err != nil {
+		return err
+	}
+	if coupon == nil || !coupon.Enabled || !couponWindowOpen(coupon, time.Now().UTC()) {
+		return ErrCouponNotApplicable
+	}
+
+	claimed, err := userClaimedCoupon(userID, couponID)
+	if err != nil {
+		return err
+	}
+	if claimed {
+		return nil
+	}
+
+	if coupon.TotalCount > 0 {
+		claims, err := repo.CountWhere[models.CouponClaim](sql.H{"coupon_id": couponID})
+		if err != nil {
+			return err
+		}
+		if claims >= int64(coupon.TotalCount) {
+			return ErrCouponNotApplicable
+		}
+	}
+
+	_, err = repo.CreateFrom[models.CouponClaim](sql.H{"coupon_id": couponID, "user_id": userID})
+	return err
+}
+
+// ListClaimableCoupons lists coupons the user can still claim at the center.
+func ListClaimableCoupons(userID int64) ([]*models.Coupon, error) {
+	all, err := AdminListCoupons()
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now().UTC()
+	out := []*models.Coupon{}
+	for _, c := range all {
+		if !c.Enabled || !couponWindowOpen(c, now) {
+			continue
+		}
+		claimed, err := userClaimedCoupon(userID, int64(c.ID))
+		if err != nil {
+			return nil, err
+		}
+		if claimed {
+			continue
+		}
+		if c.TotalCount > 0 {
+			claims, err := repo.CountWhere[models.CouponClaim](sql.H{"coupon_id": int64(c.ID)})
+			if err != nil {
+				return nil, err
+			}
+			if claims >= int64(c.TotalCount) {
+				continue
+			}
+		}
+		out = append(out, c)
+	}
+	return out, nil
+}
+
+// MyCouponEntry pairs a claimed coupon with its used flag.
+type MyCouponEntry struct {
+	Coupon *models.Coupon
+	Used   bool
+}
+
+// MyCoupons lists the user's claimed coupons and whether they were redeemed.
+func MyCoupons(userID int64) ([]MyCouponEntry, error) {
+	claims, err := repo.FindBy[models.CouponClaim](sql.H{"user_id": userID})
+	if err != nil {
+		return nil, err
+	}
+
+	out := make([]MyCouponEntry, 0, len(claims))
+	for _, claim := range claims {
+		coupon, err := repo.FindByID[models.Coupon](sql.IdType(claim.CouponID))
+		if err != nil {
+			return nil, err
+		}
+		if coupon == nil {
+			continue
+		}
+		used, err := userRedeemedCoupon(userID, int64(coupon.ID))
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, MyCouponEntry{Coupon: coupon, Used: used})
+	}
+	return out, nil
 }
 
 func couponDiscountFor(c *models.Coupon, subtotal int64) int64 {
@@ -265,11 +368,19 @@ func CouponDiscountForLoaded(userID int64, coupon *models.Coupon, subtotal int64
 	if !limit {
 		return 0, ErrCouponNotApplicable
 	}
-	used, err := userUsedCoupon(userID, int64(coupon.ID))
+	claimed, err := userClaimedCoupon(userID, int64(coupon.ID))
 	if err != nil {
 		return 0, err
 	}
-	if used {
+	if !claimed {
+		return 0, ErrCouponNotApplicable
+	}
+
+	redeemed, err := userRedeemedCoupon(userID, int64(coupon.ID))
+	if err != nil {
+		return 0, err
+	}
+	if redeemed {
 		return 0, ErrCouponNotApplicable
 	}
 
@@ -297,11 +408,18 @@ func ApplicableCouponsFor(userID int64, subtotal int64) ([]*models.Coupon, error
 		if !limit {
 			continue
 		}
-		used, err := userUsedCoupon(userID, int64(c.ID))
+		claimed, err := userClaimedCoupon(userID, int64(c.ID))
 		if err != nil {
 			return nil, err
 		}
-		if !used {
+		if !claimed {
+			continue
+		}
+		redeemed, err := userRedeemedCoupon(userID, int64(c.ID))
+		if err != nil {
+			return nil, err
+		}
+		if !redeemed {
 			out = append(out, c)
 		}
 	}
