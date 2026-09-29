@@ -43,6 +43,16 @@ func LatestProducts(limit int) ([]*models.Product, error) {
 	return repo.Find[models.Product](repo.CurrentDB(), b)
 }
 
+// FindActiveProductBySlug returns the active product with the given slug,
+// or nil when it does not exist or is not published.
+func FindActiveProductBySlug(slug string) (*models.Product, error) {
+	p, err := repo.FindOneBy[models.Product](sql.H{"slug": slug, "active": true})
+	if err != nil {
+		return nil, err
+	}
+	return p, nil
+}
+
 const StorefrontPageSize = 12
 
 // StorefrontListProducts returns one page of active products for the public

@@ -68,7 +68,7 @@ Prerequisites: M0.
 
 - [x] T1.8 Rework the homepage: product section (featured or latest items) — done 2026-09-29: storefront homepage replaces the scaffold welcome page; latest 8 active products as cards (main-image thumb or placeholder, formatted price, link to `/products/<slug>`); `services.LatestProducts` verified by an env-gated integration test (`AIRWAY_PG_TEST_DSN`, runs the real migrations on a scratch DB); homepage E2E verified (empty state, active-only, newest first, formatted prices)
 - [x] T1.9 Product listing page: category filter, pagination — done 2026-09-29: `/products` storefront page (12/page, active only) with category chips (enabled categories only, active chip highlighted, unknown slug falls back to All) and Prev/Next pagination; product cards extracted into a shared `views/catalog.Grid` reused by the homepage; `services.StorefrontListProducts` powers filter + count; E2E verified (all view, category filter, page 2, inactive excluded, disabled category hidden, unknown category fallback)
-- [ ] T1.10 Product detail page: images, price, stock, description, add-to-cart button (placeholder until M4)
+- [x] T1.10 Product detail page: images, price, stock, description, add-to-cart button (placeholder until M4) — done 2026-09-29: `/products/<slug>` (active products only; unknown or inactive slug renders the storefront 404 page); gallery with main image + thumbnails (CSS placeholder when imageless), price block or variant radios per the sellable-unit rule, stock label, description, disabled add-to-cart button; covered by view tests and E2E (simple product, variant product via seeded rows, both 404 cases)
 
 ## M2 Users & auth (phone-number sign-up and login)
 

@@ -23,6 +23,7 @@ func TestRoutesRegistersCoreEndpoints(t *testing.T) {
 	expected := []string{
 		"GET /",
 		"GET /products",
+		"GET /products/:slug",
 		"GET /admin",
 		"GET /admin/categories",
 		"GET /admin/categories/new",

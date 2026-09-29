@@ -11,6 +11,7 @@ templ Grid(products []*models.Product) {
 		.product-card { border: 1px solid var(--sf-line); border-radius: 10px; overflow: hidden; background: var(--sf-bg); display: block; color: inherit; text-decoration: none; }
 		.product-card:hover { border-color: var(--sf-muted); }
 		.product-card .thumb { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: var(--sf-line); }
+		.product-card .thumb-empty { display: flex; align-items: center; justify-content: center; color: var(--sf-muted); font-size: 13px; }
 		.product-card .body { padding: 10px 12px 14px; }
 		.product-card .name { font-size: 14px; font-weight: 600; line-height: 1.4; }
 		.product-card .price { margin-top: 6px; font-size: 15px; font-weight: 700; }
@@ -21,7 +22,7 @@ templ Grid(products []*models.Product) {
 				if p.MainImage != "" {
 					<img class="thumb" src={ templ.URL(services.ProductImageURL(p.MainImage)) } alt={ p.Name }/>
 				} else {
-					<img class="thumb" src={ templ.URL(placeholderImage()) } alt={ p.Name }/>
+					<div class="thumb thumb-empty">No image</div>
 				}
 				<div class="body">
 					<div class="name">{ p.Name }</div>
@@ -30,8 +31,4 @@ templ Grid(products []*models.Product) {
 			</a>
 		}
 	</div>
-}
-
-func placeholderImage() string {
-	return ("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='200' height='200' fill='%23d8dae0'/></svg>")
 }

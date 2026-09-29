@@ -41,6 +41,7 @@ func Routes(r *gin.Engine) {
 func PublicRoutes(r *gin.Engine) {
 	r.GET("/", home_api.IndexAction)
 	r.GET("/products", products_api.ListAction)
+	r.GET("/products/:slug", products_api.ShowAction)
 
 	assetRoutes(r)
 	websocketRoutes(r)
