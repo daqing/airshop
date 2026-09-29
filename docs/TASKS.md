@@ -137,7 +137,7 @@ Prerequisites: M5 (money math already centralized in the service layer).
 Prerequisites: M5 (shipments attach to orders).
 
 - [x] T8.1 Migration: `shipments` (order, carrier, tracking number, status, track events JSON) — done 2026-09-29: first Go DSL migration on the v0.19.1 framework (`m.CreateTable` + auto-reversible down); `order_id` indexed, `carrier`/`tracking_no` VARCHAR(64), `status` VARCHAR(20) defaulting to `created` (service-enforced), track `events` as JSONB (array of `{time, description}` appended by the service). Up/down roundtrip verified
-- [ ] T8.2 Admin shipping: enter carrier + tracking number, order moves to `shipped`
+- [x] T8.2 Admin shipping: enter carrier + tracking number, order moves to `shipped` — done 2026-09-29: `services/shipment_service.go` (`ShipOrder` validates carrier/tracking, paid-only, one shipment per order with a first "Label created" event, order transitioned to shipped with shipment-row rollback on transition failure; `UpdateShipmentStatus` walks created → in_transit → delivered appending events); `/admin/shipments` page (paid orders with inline ship forms, shipped table with In transit/Delivered buttons). Covered by the env-gated integration test (validation, pending rejection, happy path with events, double-ship rejection, status lifecycle) and E2E
 - [ ] T8.3 ❓ Track-event source: a tracking service (Kuaidi100 / AfterShip / …, pick by availability) or manual entry first — break into tasks once decided
 - [ ] T8.4 Account area: order shipment page (timeline of events)
 

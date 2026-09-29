@@ -128,7 +128,7 @@ go run . repl                      # 带项目模型的 REPL
 前置依赖:M5(发货挂在订单上)。
 
 - [x] T8.1 迁移:`shipments`(订单、承运商、运单号、状态、轨迹 JSON)—— 2026-09-29 完成:首个使用 v0.19.1 Go DSL 的迁移(`m.CreateTable`,down 自动反转);`order_id` 带索引,`carrier`/`tracking_no` VARCHAR(64),`status` VARCHAR(20) 默认 `created`(由服务层约束),轨迹 `events` 为 JSONB(服务层追加 `{time, description}` 数组)。up/down 往返已验证
-- [ ] T8.2 admin 发货:录入承运商+单号,订单转 `shipped`
+- [x] T8.2 admin 发货:录入承运商+单号,订单转 `shipped` —— 2026-09-29 完成:`services/shipment_service.go`(`ShipOrder` 校验承运商/单号、仅 paid 可发货、一单一运单并写入首条 "Label created" 事件、订单转 shipped 且流转失败回滚运单行;`UpdateShipmentStatus` 沿 created → in_transit → delivered 追加事件);`/admin/shipments` 页面(待发货 paid 订单内联发货表单、已发货表带 In transit/Delivered 按钮)。环境门控集成测试(输入校验、pending 拒绝、含事件的正常路径、重复发货拒绝、状态生命周期)与 E2E 覆盖
 - [ ] T8.3 ❓ 轨迹来源:对接查询服务(快递 100 / AfterShip 等,按可用性选型)或先做手动录入节点;定好后补任务
 - [ ] T8.4 用户中心:订单物流页(时间线展示轨迹)
 
