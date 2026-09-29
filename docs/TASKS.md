@@ -86,7 +86,7 @@ Prerequisites: M0.
 Prerequisites: M2 (addresses belong to users).
 
 - [x] T3.1 Migration: `addresses` (user ID, recipient, phone, province/city/district, street, is-default) — done 2026-09-29: `user_id` BIGINT NOT NULL with an index (no FK per T0.2), region columns as VARCHAR defaults-empty so T3.3's data-source decision can land later without a migration, `is_default` BOOLEAN; single-default-per-user is enforced in the service layer (T3.2) since partial unique indexes are not portable across the three databases; up/down roundtrip verified on local Postgres
-- [ ] T3.2 Address CRUD in the account area: list, create, edit, delete, set default
+- [x] T3.2 Address CRUD in the account area: list, create, edit, delete, set default — done 2026-09-29: `services/address_service.go` (recipient/phone/street validation, ownership enforced everywhere so cross-user access reads as not-found, first address forced default, explicit default clears the previous one, deleting the default promotes the newest remaining, `updated_at` in UTC per T2.6); `/account/addresses` pages under `RequireUser` (cards with DEFAULT badge, two-step form, region fields as free text until T3.3); env-gated integration test covers default semantics and cross-user isolation; E2E verified (create/list/edit/set-default/delete-promotion, validation 422)
 - [ ] T3.3 ❓ Source for province/city/district data (bundle a dataset, or start with three free-text inputs and defer)
 
 ## M4 Shopping cart

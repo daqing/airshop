@@ -52,6 +52,13 @@ func PublicRoutes(r *gin.Engine) {
 	r.POST("/signin", auth_api.SignInAction)
 	r.POST("/signout", auth_api.SignOutAction)
 	r.GET("/account", middlewares.RequireUser(), account_api.PageAction)
+	r.GET("/account/addresses", middlewares.RequireUser(), account_api.AddressesPageAction)
+	r.GET("/account/addresses/new", middlewares.RequireUser(), account_api.NewAddressAction)
+	r.POST("/account/addresses", middlewares.RequireUser(), account_api.CreateAddressAction)
+	r.GET("/account/addresses/:id/edit", middlewares.RequireUser(), account_api.EditAddressAction)
+	r.POST("/account/addresses/:id/update", middlewares.RequireUser(), account_api.UpdateAddressAction)
+	r.POST("/account/addresses/:id/delete", middlewares.RequireUser(), account_api.DeleteAddressAction)
+	r.POST("/account/addresses/:id/default", middlewares.RequireUser(), account_api.SetDefaultAddressAction)
 
 	assetRoutes(r)
 	websocketRoutes(r)
