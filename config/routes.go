@@ -20,6 +20,7 @@ import (
 	"github.com/daqing/airshop/app/api/home_api"
 	"github.com/daqing/airshop/app/api/openapi_api"
 	"github.com/daqing/airshop/app/api/orders_api"
+	"github.com/daqing/airshop/app/api/payment_api"
 	"github.com/daqing/airshop/app/api/products_api"
 	"github.com/daqing/airshop/app/api/storage_api"
 	regions_api "github.com/daqing/airshop/app/regions"
@@ -66,6 +67,8 @@ func PublicRoutes(r *gin.Engine) {
 	r.GET("/orders/:orderNo", middlewares.RequireUser(), orders_api.DetailAction)
 	r.POST("/orders/:orderNo/cancel", middlewares.RequireUser(), orders_api.CancelAction)
 	r.GET("/orders", middlewares.RequireUser(), orders_api.ListAction)
+	r.GET("/pay/fake", middlewares.RequireUser(), payment_api.FakeCashierAction)
+	r.POST("/pay/fake/confirm", middlewares.RequireUser(), payment_api.FakeConfirmAction)
 	r.GET("/account/addresses", middlewares.RequireUser(), account_api.AddressesPageAction)
 	r.GET("/account/addresses/new", middlewares.RequireUser(), account_api.NewAddressAction)
 	r.POST("/account/addresses", middlewares.RequireUser(), account_api.CreateAddressAction)

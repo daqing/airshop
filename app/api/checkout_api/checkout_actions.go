@@ -35,6 +35,7 @@ func PageAction(c *gin.Context) {
 		Lines:     lines,
 		Subtotal:  services.FormatCents(subtotal),
 		Addresses: addresses,
+		Gateways:  services.GatewayNames(),
 		Error:     c.Query("error"),
 	}))
 }

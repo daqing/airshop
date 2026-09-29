@@ -1,0 +1,49 @@
+package payment
+
+import (
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+type FakeCashierData struct {
+	User  *models.User
+	Order *models.Order
+	Total string
+	Flash string
+}
+
+// FakeCashier is the local-test cashier: one click pays the order.
+templ FakeCashier(data FakeCashierData) {
+	@layouts.Storefront(data.User, "Fake payment") {
+		<style>
+			.fake-pay { max-width: 440px; margin: 48px auto 64px; padding: 28px; border: 1px dashed var(--sf-line); border-radius: 12px; text-align: center; }
+			.fake-pay h1 { font-size: 20px; margin: 0 0 8px; }
+			.fake-note { font-size: 12px; color: var(--sf-muted); margin: 0 0 18px; }
+			.fake-total { font-size: 30px; font-weight: 700; letter-spacing: -1px; margin-bottom: 6px; }
+			.fake-order { font-size: 12px; color: var(--sf-muted); margin-bottom: 22px; }
+			.fake-actions { display: flex; gap: 10px; justify-content: center; }
+			.fake-pay-button { padding: 11px 30px; border-radius: 8px; border: 1px solid var(--sf-ink); background: var(--sf-ink); color: var(--sf-bg); font-size: 14px; font-weight: 600; cursor: pointer; }
+			.fake-cancel { padding: 11px 20px; border-radius: 8px; border: 1px solid var(--sf-line); color: inherit; font-size: 14px; text-decoration: none; }
+			.fake-flash { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; font-size: 13px; margin-bottom: 16px; }
+		</style>
+		<div class="fake-pay">
+			<h1>Fake gateway</h1>
+			<p class="fake-note">Local test checkout — no real money moves.</p>
+			if data.Flash != "" {
+				<div class="fake-flash">{ data.Flash }</div>
+			}
+			<div class="fake-total">{ data.Total }</div>
+			<div class="fake-order">{ data.Order.OrderNo } · { data.Order.Status }</div>
+			if data.Order.Status == "pending" {
+				<div class="fake-actions">
+					<form method="post" action={ templ.URL("/pay/fake/confirm?order=" + data.Order.OrderNo) }>
+						<button class="fake-pay-button" type="submit">Pay now</button>
+					</form>
+					<a class="fake-cancel" href={ templ.URL("/orders/" + data.Order.OrderNo) }>Cancel</a>
+				</div>
+			} else {
+				<p class="fake-note">This order is already { data.Order.Status }.</p>
+			}
+		</div>
+	}
+}

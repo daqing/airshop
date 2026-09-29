@@ -13,6 +13,9 @@ type DetailData struct {
 	Order *models.Order
 	Items []*models.OrderItem
 	Flash string
+	// Paid marks a return from the payment flow; the thank-you banner only
+	// renders when the order really is paid.
+	Paid bool
 }
 
 templ Detail(data DetailData) {
@@ -32,10 +35,14 @@ templ Detail(data DetailData) {
 			.order-kv .k { color: var(--sf-muted); }
 			.order-cancel { padding: 10px 20px; border-radius: 8px; border: 1px solid #b3423a; background: transparent; color: #b3423a; font-size: 14px; cursor: pointer; }
 			.order-flash { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; font-size: 13px; }
+			.order-success { padding: 10px 14px; border-radius: 8px; background: #e7f0e7; color: #2f6b2f; font-size: 13px; }
 		</style>
 		<div class="order">
 			if data.Flash != "" {
 				<div class="order-flash">{ data.Flash }</div>
+			}
+			if data.Paid && data.Order.Status == "paid" {
+				<div class="order-success">Payment received — thank you! Your order will ship soon.</div>
 			}
 			<div>
 				<h1>Order { data.Order.OrderNo }</h1>

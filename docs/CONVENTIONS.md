@@ -140,3 +140,7 @@ does not set it either — left alone the column goes stale. Therefore:
 - 2026-09-29 — T4.1 settled by David Zhang: the cart is signed-in users
   only — no guest cart, no merge logic; add-to-cart for guests redirects
   to sign-in with a `next` back to the product page.
+- 2026-09-29 — T6.3 settled by David Zhang: payment channels are WeChat Pay
+  and Alipay; Stripe is not supported. The `PaymentGateway` registry is the
+  extension seam — new channels implement the interface and self-register
+  from `init()`, gated on their configuration being present.

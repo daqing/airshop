@@ -13,6 +13,7 @@ type PageData struct {
 	Lines     []services.CartLine
 	Subtotal  string
 	Addresses []*models.Address
+	Gateways  []string
 	Error     string
 }
 
@@ -104,10 +105,16 @@ templ Page(data PageData) {
 					<div class="co-box">
 						<h2>Payment</h2>
 						<div class="co-pay">
-							<label>
-								<input type="radio" name="payment_method" value="online" checked/>
-								Online payment
-							</label>
+							for i, gateway := range data.Gateways {
+								<label>
+									if i == 0 {
+										<input type="radio" name="payment_method" value={ gateway } checked/>
+									} else {
+										<input type="radio" name="payment_method" value={ gateway }/>
+									}
+									{ gateway }
+								</label>
+							}
 						</div>
 					</div>
 					<div class="co-footer">
