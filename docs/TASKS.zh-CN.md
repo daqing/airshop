@@ -118,7 +118,7 @@ go run . repl                      # 带项目模型的 REPL
 前置依赖:M5(金额计算已集中在服务层)。
 
 - [x] T7.1 迁移:`coupons`(类型:满减/折扣、门槛、面值、有效期、总量)+ `coupon_redemptions`(用户×订单核销记录,防重复用)—— 2026-09-29 完成:`coupons` 含唯一 `code`(结算可输码)、`type` fixed/percent 且按 T0.5 规则分列 `value_cents` 与 `percent_off`、门槛 `threshold_cents`、`total_count`(0 = 不限,用量由核销计数推导)、可空 `starts_at`/`expires_at` 窗口与 `enabled` 开关;`coupon_redemptions` 快照实付优惠 `discount_cents`,`order_id` UNIQUE 作数据库兜底(一单一张),另加券/用户索引——同人同券防重复由服务层保证(T7.3,组合部分索引非三库可移植);up/down 往返已验证
-- [ ] T7.2 admin 券管理:创建、列表、停用
+- [x] T7.2 admin 券管理:创建、列表、停用 —— 2026-09-29 完成:`services/coupon_service.go`(码格式/唯一校验,留空自动生成,类型化校验——fixed 需正数金额、percent 需 1-100 且不填金额,时间窗顺序,`updated_at` 用 UTC),用量由核销记录计数;`/admin/coupons` 列表(优惠展示、门槛、用量 n/上限或 ∞、时间窗、启用/停用开关)与创建/编辑表单(datetime-local 时间窗、留空码自动生成)。E2E 已验证(percent 自动码、fixed 指定码、重复码与类型错配 422、编辑回填/更新、停用/启用)
 - [ ] T7.3 结算时选券/输码:金额重算集成进订单服务
 - [ ] T7.4 ❓ 取消/退款时券回退策略
 - [ ] T7.5 (可选)用户领券中心

@@ -110,6 +110,14 @@ func AdminRoutes(r *gin.Engine) {
 		admin.POST("/products/:id/images/upload", admin_api.UploadProductImagesAction)
 		admin.POST("/products/:id/images/:imageId/delete", admin_api.DeleteProductImageAction)
 		admin.POST("/products/:id/images/:imageId/main", admin_api.MakeProductImageMainAction)
+
+		admin.GET("/coupons", admin_api.CouponsPageAction)
+		admin.GET("/coupons/new", admin_api.NewCouponAction)
+		admin.POST("/coupons", admin_api.CreateCouponAction)
+		admin.GET("/coupons/:id/edit", admin_api.EditCouponAction)
+		admin.POST("/coupons/:id/update", admin_api.UpdateCouponAction)
+		admin.POST("/coupons/:id/enable", admin_api.EnableCouponAction)
+		admin.POST("/coupons/:id/disable", admin_api.DisableCouponAction)
 	}
 }
 
