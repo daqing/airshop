@@ -64,6 +64,7 @@ func PublicRoutes(r *gin.Engine) {
 	r.GET("/checkout", middlewares.RequireUser(), checkout_api.PageAction)
 	r.POST("/checkout", middlewares.RequireUser(), checkout_api.PlaceOrderAction)
 	r.GET("/orders/:orderNo", middlewares.RequireUser(), orders_api.DetailAction)
+	r.GET("/orders", middlewares.RequireUser(), orders_api.ListAction)
 	r.GET("/account/addresses", middlewares.RequireUser(), account_api.AddressesPageAction)
 	r.GET("/account/addresses/new", middlewares.RequireUser(), account_api.NewAddressAction)
 	r.POST("/account/addresses", middlewares.RequireUser(), account_api.CreateAddressAction)

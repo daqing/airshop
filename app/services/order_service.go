@@ -142,6 +142,38 @@ func FindOrderByNo(userID int64, orderNo string) (*models.Order, error) {
 	return order, nil
 }
 
+const OrdersPageSize = 10
+
+// KnownOrderStatus reports whether the status filter value is a real order
+// status.
+func KnownOrderStatus(status string) bool {
+	return knownOrderStatus(status)
+}
+
+// ListOrders returns one page of the user's orders, newest first, optionally
+// filtered by status, with the total count.
+func ListOrders(userID int64, status string, page, size int) ([]*models.Order, int64, error) {
+	conds := []sql.CondBuilder{sql.Eq("user_id", userID)}
+	if KnownOrderStatus(status) {
+		conds = append(conds, sql.Eq("status", status))
+	}
+	cond := sql.AllOf(conds...)
+
+	b := sql.Select("*").From("orders").Where(cond).OrderBy("id DESC").Limit(size).Offset((page - 1) * size)
+	orders, err := repo.Find[models.Order](repo.CurrentDB(), b)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	cb := sql.SelectColumns("count(*)").From("orders").Where(cond)
+	total, err := repo.Count(repo.CurrentDB(), cb)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return orders, total, nil
+}
+
 // OrderItems returns the lines of an order.
 func OrderItems(orderID int64) ([]*models.OrderItem, error) {
 	b := sql.Select("*").From("order_items").Where(sql.Eq("order_id", orderID)).OrderBy("id ASC")
