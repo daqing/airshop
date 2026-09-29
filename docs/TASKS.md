@@ -115,7 +115,7 @@ Prerequisites: M3, M4.
 Prerequisites: M5.
 
 - [x] T6.1 Gateway abstraction: `PaymentGateway` interface + a registry — done 2026-09-29: `services/payment_gateway.go` defines the minimal interface (`Name()` doubles as `orders.payment_method`, `PayLink(order)` is the buyer's redirect target) plus a mutex-guarded registry (`RegisterGateway` from init, `Gateway`, sorted `GatewayNames`); re-registration replaces. Payment-confirmation routes stay gateway-specific and are intentionally not part of the interface yet — real channels will extend it when their callback shapes are known (T6.3+). Unit-tested (registration, sorted names, lookup, replacement)
-- [ ] T6.2 Fake gateway (one click marks the order paid) so the full flow is testable locally
+- [x] T6.2 Fake gateway (one click marks the order paid) so the full flow is testable locally — done 2026-09-29: `services/payment_fake.go` registers a `fake` gateway whose PayLink is the internal cashier `/pay/fake?order=<no>`; the cashier page (order total, status-aware Pay now button) confirms via `TransitionOrder(pending → paid)`, which also deducts stock per T5.4 and rejects double payments; the checkout page's payment radios now render from `GatewayNames()` and `PlaceOrder` validates the method against the registry. Covered by the PlaceOrder integration test (unknown gateway rejected) and a full E2E pay loop (cashier render, pay, stock 5→3, double-pay rejection)
 - [ ] T6.3 ❓ Real channels: Alipay / WeChat Pay / Stripe — pick per target market, then break into tasks
 - [ ] T6.4 Payment callbacks: verify signatures, idempotency, update order status
 - [ ] T6.5 Cashier redirect and result pages (success/failure)

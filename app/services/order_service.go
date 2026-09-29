@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -14,10 +13,11 @@ import (
 )
 
 var (
-	ErrCartEmpty           = errors.New("your cart is empty")
-	ErrCartHasUnavailable  = errors.New("some items in your cart are no longer available")
-	ErrOrderNotFound       = errors.New("order not found")
-	ErrPaymentMethodNeeded = errors.New("choose a payment method")
+	ErrCartEmpty            = errors.New("your cart is empty")
+	ErrCartHasUnavailable   = errors.New("some items in your cart are no longer available")
+	ErrOrderNotFound        = errors.New("order not found")
+	ErrPaymentMethodNeeded  = errors.New("choose a payment method")
+	ErrPaymentMethodUnknown = errors.New("unknown payment method")
 )
 
 // PlaceOrder turns the user's purchasable cart lines into an order: amounts
@@ -28,8 +28,8 @@ func PlaceOrder(userID int64, addressID int64, paymentMethod string) (*models.Or
 	if paymentMethod == "" {
 		return nil, ErrPaymentMethodNeeded
 	}
-	if len(paymentMethod) > 30 {
-		return nil, fmt.Errorf("payment method is too long")
+	if _, ok := Gateway(paymentMethod); !ok {
+		return nil, ErrPaymentMethodUnknown
 	}
 
 	lines, _, err := CartLines(userID)

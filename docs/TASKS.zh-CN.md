@@ -106,7 +106,7 @@ go run . repl                      # 带项目模型的 REPL
 前置依赖:M5。
 
 - [x] T6.1 支付网关抽象:`PaymentGateway` 接口 + 网关注册表 —— 2026-09-29 完成:`services/payment_gateway.go` 定义最小接口(`Name()` 兼作 `orders.payment_method`,`PayLink(order)` 为买家跳转目标)与互斥锁注册表(`RegisterGateway` 供 init 调用、`Gateway`、排序的 `GatewayNames`);重复注册即替换。支付确认路由保持各网关自持、暂不纳入接口——真实渠道的回调形态明确后再扩展(T6.3+)。单测覆盖(注册、名称排序、查找、替换)
-- [ ] T6.2 假支付网关(本地/测试一键标记已支付),保证全流程可测
+- [x] T6.2 假支付网关(本地/测试一键标记已支付),保证全流程可测 —— 2026-09-29 完成:`services/payment_fake.go` 注册 `fake` 网关,PayLink 指向内部收银台 `/pay/fake?order=<no>`;收银台页(订单总额、状态感知的 Pay now 按钮)经 `TransitionOrder(pending → paid)` 确认支付,同步触发 T5.4 的扣库存并拒绝重复支付;结算页支付单选改为从 `GatewayNames()` 动态渲染,`PlaceOrder` 校验支付方式必须在注册表中。PlaceOrder 集成测试(未知网关拒绝)+ 完整支付闭环 E2E(收银台渲染、支付、库存 5→3、重复支付拒绝)
 - [ ] T6.3 ❓ 真实渠道:支付宝 / 微信支付 / Stripe,按目标市场选型后再拆任务
 - [ ] T6.4 支付回调:验签、幂等、更新订单状态
 - [ ] T6.5 支付页/收银台跳转与结果页(成功/失败)

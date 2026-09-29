@@ -61,7 +61,7 @@ func TestPlaceOrder(t *testing.T) {
 	}
 
 	// Empty cart cannot check out.
-	if _, err := PlaceOrder(int64(user.ID), int64(address.ID), "online"); err != ErrCartEmpty {
+	if _, err := PlaceOrder(int64(user.ID), int64(address.ID), "fake"); err != ErrCartEmpty {
 		t.Fatalf("expected empty-cart error, got %v", err)
 	}
 
@@ -70,16 +70,21 @@ func TestPlaceOrder(t *testing.T) {
 	}
 
 	// A missing payment method is rejected.
-	if _, err := PlaceOrder(int64(user.ID), int64(address.ID), "  "); err != ErrPaymentMethodNeeded {
+	if _, err := PlaceOrder(int64(user.ID), int64(address.ID), " "); err != ErrPaymentMethodNeeded {
 		t.Fatalf("expected payment-method error, got %v", err)
 	}
 
+	// An unregistered gateway is rejected.
+	if _, err := PlaceOrder(int64(user.ID), int64(address.ID), "bitcoin"); err != ErrPaymentMethodUnknown {
+		t.Fatalf("expected unknown payment method, got %v", err)
+	}
+
 	// A foreign address is rejected.
-	if _, err := PlaceOrder(int64(user.ID), 999999, "online"); err != ErrAddressNotFound {
+	if _, err := PlaceOrder(int64(user.ID), 999999, "fake"); err != ErrAddressNotFound {
 		t.Fatalf("expected address-not-found, got %v", err)
 	}
 
-	order, err := PlaceOrder(int64(user.ID), int64(address.ID), "online")
+	order, err := PlaceOrder(int64(user.ID), int64(address.ID), "fake")
 	if err != nil {
 		t.Fatalf("place order: %v", err)
 	}
