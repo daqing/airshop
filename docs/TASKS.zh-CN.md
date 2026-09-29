@@ -94,7 +94,7 @@ go run . repl                      # 带项目模型的 REPL
 
 前置依赖:M3、M4。
 
-- [ ] T5.1 迁移:`orders`(单号、用户、收货地址快照、金额小计/优惠/运费/实付、状态、支付方式)+ `order_items`(商品快照:名称、图、单价、数量)
+- [x] T5.1 迁移:`orders`(单号、用户、收货地址快照、金额小计/优惠/运费/实付、状态、支付方式)+ `order_items`(商品快照:名称、图、单价、数量)—— 2026-09-29 完成:`orders` 含 `order_no` UNIQUE、带索引 `user_id`、扁平化地址快照(收件人/电话/单行地址)、`subtotal_cents`/`discount_cents`(M7 备用)/`shipping_cents`/`total_cents`、`status`(pending/paid/shipped/completed/cancelled/refunded,默认 pending)、`payment_method`(支付前为空,M6 写入);`order_items` 快照商品/变体名称、图片 key、`unit_price_cents`,可空 `variant_id`;行小计可推导不入库;up/down 往返已验证
 - [ ] T5.2 结算页:选地址 → 选支付方式 → 提交订单(金额由服务端重算,不信任前端)
 - [ ] T5.3 订单状态机:`pending → paid → shipped → completed`,及 `cancelled / refunded`;状态流转集中在服务层
 - [ ] T5.4 ❓ 下单扣库存策略(下单预扣 + 取消回补,还是支付后扣),定了写在状态机旁

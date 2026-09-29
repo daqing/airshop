@@ -103,7 +103,7 @@ Prerequisites: M1, M2.
 
 Prerequisites: M3, M4.
 
-- [ ] T5.1 Migrations: `orders` (order number, user, address snapshot, subtotal/discount/shipping/total, status, payment method) + `order_items` (product snapshot: name, image, unit price, quantity)
+- [x] T5.1 Migrations: `orders` (order number, user, address snapshot, subtotal/discount/shipping/total, status, payment method) + `order_items` (product snapshot: name, image, unit price, quantity) — done 2026-09-29: `orders` carries `order_no` UNIQUE, indexed `user_id`, flattened address snapshot (recipient/phone/single address line), `subtotal_cents`/`discount_cents` (M7-ready)/`shipping_cents`/`total_cents`, `status` (pending/paid/shipped/completed/cancelled/refunded, default pending), `payment_method` (empty until paid, M6); `order_items` snapshots product/variant names, image key and `unit_price_cents` with a nullable `variant_id`; line totals are derived, not stored; up/down roundtrip verified
 - [ ] T5.2 Checkout page: choose address → choose payment method → place order (amounts recomputed server-side; never trust the client)
 - [ ] T5.3 Order state machine: `pending → paid → shipped → completed`, plus `cancelled / refunded`; keep transitions in the service layer
 - [ ] T5.4 ❓ Stock deduction strategy (reserve at order time and restore on cancel, or deduct after payment) — record the answer next to the state machine
