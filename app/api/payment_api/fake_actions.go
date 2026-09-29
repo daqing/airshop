@@ -42,9 +42,9 @@ func FakeConfirmAction(c *gin.Context) {
 		return
 	}
 
-	// The state machine is the single writer of the status column: moving
-	// pending -> paid also deducts stock (T5.4).
-	if err := services.TransitionOrder(int64(order.ID), services.OrderStatusPaid); err != nil {
+	// The shared payment-success entry point: idempotent for duplicate
+	// notifications and stock-deducting via the state machine (T5.4).
+	if err := services.MarkOrderPaid(int64(order.ID)); err != nil {
 		render.Found(c, "/pay/fake?order="+order.OrderNo+"&error="+err.Error())
 		return
 	}
