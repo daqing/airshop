@@ -1,0 +1,248 @@
+package account
+
+import (
+	"strconv"
+
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/regions"
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+type AddressesData struct {
+	User    *models.User
+	Address []*models.Address
+	Flash   string
+}
+
+func addrID(id int64) string {
+	return strconv.FormatInt(id, 10)
+}
+
+func fullAddress(a *models.Address) string {
+	parts := []string{}
+	for _, p := range []string{a.Province, a.City, a.District, a.Street} {
+		if p != "" {
+			parts = append(parts, p)
+		}
+	}
+	out := ""
+	for i, p := range parts {
+		if i > 0 {
+			out += " "
+		}
+		out += p
+	}
+	return out
+}
+
+templ Addresses(data AddressesData) {
+	@layouts.Storefront(data.User, "Addresses") {
+		<style>
+			.addr-wrap { max-width: 720px; margin: 32px auto 64px; padding: 0 24px; }
+			.addr-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+			.addr-head h1 { font-size: 22px; margin: 0; }
+			.addr-new { padding: 8px 16px; border: 1px solid var(--sf-ink); border-radius: 8px; background: var(--sf-ink); color: var(--sf-bg); font-size: 13px; text-decoration: none; }
+			.addr-flash { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; font-size: 13px; margin-bottom: 14px; }
+			.addr-card { border: 1px solid var(--sf-line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+			.addr-top { display: flex; gap: 10px; align-items: center; }
+			.addr-name { font-weight: 600; font-size: 14px; }
+			.addr-phone { color: var(--sf-muted); font-size: 13px; }
+			.addr-badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--sf-ink); color: var(--sf-bg); }
+			.addr-text { margin-top: 6px; font-size: 13px; color: var(--sf-muted); line-height: 1.6; }
+			.addr-actions { display: flex; gap: 8px; margin-top: 10px; }
+			.addr-actions form { display: contents; }
+			.addr-button { padding: 4px 12px; border: 1px solid var(--sf-line); border-radius: 6px; background: transparent; color: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
+			.addr-button-danger { border-color: #b3423a; color: #b3423a; }
+			.addr-empty { color: var(--sf-muted); text-align: center; padding: 32px 0; }
+		</style>
+		<div class="addr-wrap">
+			<div class="addr-head">
+				<h1>Addresses</h1>
+				<a class="addr-new" href="/account/addresses/new">New address</a>
+			</div>
+			if data.Flash != "" {
+				<div class="addr-flash">{ data.Flash }</div>
+			}
+			if len(data.Address) == 0 {
+				<p class="addr-empty">No addresses yet. Add one to check out faster.</p>
+			} else {
+				for _, a := range data.Address {
+					<div class="addr-card">
+						<div class="addr-top">
+							<span class="addr-name">{ a.Recipient }</span>
+							<span class="addr-phone">{ a.Phone }</span>
+							if a.IsDefault {
+								<span class="addr-badge">DEFAULT</span>
+							}
+						</div>
+						<div class="addr-text">{ fullAddress(a) }</div>
+						<div class="addr-actions">
+							<a class="addr-button" href={ templ.URL("/account/addresses/" + addrID(int64(a.ID)) + "/edit") }>Edit</a>
+							if !a.IsDefault {
+								<form method="post" action={ templ.URL("/account/addresses/" + addrID(int64(a.ID)) + "/default") }>
+									<button class="addr-button" type="submit">Set as default</button>
+								</form>
+							}
+							<form method="post" action={ templ.URL("/account/addresses/" + addrID(int64(a.ID)) + "/delete") }>
+								<button class="addr-button addr-button-danger" type="submit">Delete</button>
+							</form>
+						</div>
+					</div>
+				}
+			}
+		</div>
+	}
+}
+
+templ AddressForm(user *models.User, title string, action string, a *models.Address, provinces, cities, districts []regions.Region, errMsg string) {
+	@layouts.Storefront(user, title) {
+		<style>
+			.addr-form { max-width: 480px; margin: 32px auto 64px; padding: 0 24px; display: grid; gap: 12px; }
+			.addr-form h1 { font-size: 20px; margin: 0 0 4px; }
+			.addr-form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
+			.addr-form input[type="text"] { padding: 9px 12px; border: 1px solid var(--sf-line); border-radius: 8px; font-size: 14px; }
+			.addr-form .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+			.addr-form .check { display: flex; gap: 8px; align-items: center; }
+			.addr-error { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; font-size: 13px; }
+			.addr-submit { padding: 11px 16px; border-radius: 8px; border: 1px solid var(--sf-ink); background: var(--sf-ink); color: var(--sf-bg); font-size: 14px; font-weight: 600; cursor: pointer; }
+			.addr-cancel { padding: 11px 16px; border-radius: 8px; border: 1px solid var(--sf-line); color: inherit; font-size: 14px; text-decoration: none; text-align: center; }
+			.addr-buttons { display: flex; gap: 10px; }
+		</style>
+		<div class="addr-form">
+			<h1>{ title }</h1>
+			if errMsg != "" {
+				<div class="addr-error">{ errMsg }</div>
+			}
+			<form method="post" action={ templ.URL(action) }>
+				<div style="display: grid; gap: 12px;">
+					<label>
+						Recipient
+						<input type="text" name="recipient" value={ fieldOf(a, "recipient") } required/>
+					</label>
+					<label>
+						Contact phone
+						<input type="text" name="phone" value={ fieldOf(a, "phone") } required/>
+					</label>
+					<label>
+						Province
+						<select name="province" data-region-level="province" data-target="#region-city">
+							<option value="">— select —</option>
+							for _, p := range provinces {
+								if a != nil && a.Province == p.Name {
+									<option value={ p.Name } data-code={ p.Code } selected>{ p.Name }</option>
+								} else {
+									<option value={ p.Name } data-code={ p.Code }>{ p.Name }</option>
+								}
+							}
+						</select>
+					</label>
+					<div class="row">
+						<label>
+							City
+							<select name="city" id="region-city" data-region-level="city" data-target="#region-district">
+								<option value="">— select —</option>
+								for _, ct := range cities {
+									if a != nil && a.City == ct.Name {
+										<option value={ ct.Name } data-code={ ct.Code } selected>{ ct.Name }</option>
+									} else {
+										<option value={ ct.Name } data-code={ ct.Code }>{ ct.Name }</option>
+									}
+								}
+							</select>
+						</label>
+						<label>
+							District
+							<select name="district" id="region-district">
+								<option value="">— select —</option>
+								for _, d := range districts {
+									if a != nil && a.District == d.Name {
+										<option value={ d.Name } selected>{ d.Name }</option>
+									} else {
+										<option value={ d.Name }>{ d.Name }</option>
+									}
+								}
+							</select>
+						</label>
+					</div>
+					<label>
+						Street address
+						<input type="text" name="street" value={ fieldOf(a, "street") } required/>
+					</label>
+					<label class="check">
+						<input type="checkbox" name="is_default" value="true" checked?={ a != nil && a.IsDefault }/>
+						Set as default address
+					</label>
+					<div class="addr-buttons">
+						<button class="addr-submit" type="submit">Save</button>
+						<a class="addr-cancel" href="/account/addresses">Cancel</a>
+					</div>
+				</div>
+			</form>
+			<script>
+				(function () {
+					function fill(select, list) {
+						var current = select.value;
+						select.innerHTML = '<option value="">— select —</option>';
+						list.forEach(function (r) {
+							var opt = document.createElement("option");
+							opt.value = r.name;
+							opt.textContent = r.name;
+							opt.dataset.code = r.code;
+							if (r.name === current) opt.selected = true;
+							select.appendChild(opt);
+						});
+					}
+
+					function clear(select) {
+						if (!select) return;
+						select.innerHTML = '<option value="">— select —</option>';
+					}
+
+					var province = document.querySelector('select[name="province"]');
+					var city = document.querySelector('select[name="city"]');
+					var district = document.querySelector('select[name="district"]');
+
+					province.addEventListener("change", function () {
+						var code = province.selectedOptions[0] ? province.selectedOptions[0].dataset.code : "";
+						fill(city, []);
+						clear(district);
+						if (!code) return;
+						fetch("/api/v1/regions/" + code + "/children")
+							.then(function (r) { return r.json(); })
+							.then(function (list) { fill(city, list); });
+					});
+
+					city.addEventListener("change", function () {
+						var code = city.selectedOptions[0] ? city.selectedOptions[0].dataset.code : "";
+						clear(district);
+						if (!code) return;
+						fetch("/api/v1/regions/" + code + "/children")
+							.then(function (r) { return r.json(); })
+							.then(function (list) { fill(district, list); });
+					});
+				})();
+			</script>
+		</div>
+	}
+}
+
+func fieldOf(a *models.Address, field string) string {
+	if a == nil {
+		return ""
+	}
+	switch field {
+	case "recipient":
+		return a.Recipient
+	case "phone":
+		return a.Phone
+	case "province":
+		return a.Province
+	case "city":
+		return a.City
+	case "district":
+		return a.District
+	case "street":
+		return a.Street
+	}
+	return ""
+}

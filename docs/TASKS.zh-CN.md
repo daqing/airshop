@@ -76,9 +76,9 @@ go run . repl                      # 带项目模型的 REPL
 
 前置依赖:M2(地址挂在用户下)。
 
-- [ ] T3.1 迁移:`addresses` 表(用户 ID、收件人、手机号、省/市/区、详细地址、是否默认)
-- [ ] T3.2 用户中心地址 CRUD:列表、新增、编辑、删除、设默认
-- [ ] T3.3 ❓ 省市区数据来源(内置区划数据集,或先用三个文本输入,后置)
+- [x] T3.1 迁移:`addresses` 表(用户 ID、收件人、手机号、省/市/区、详细地址、是否默认)—— 2026-09-29 完成:`user_id` BIGINT NOT NULL 带索引(按 T0.2 不带外键),省市区列为空默认 VARCHAR,使 T3.3 的数据来源决策后置也不需要改表,`is_default` BOOLEAN;"每用户仅一个默认"由服务层保证(T3.2),因部分唯一索引非三库可移植;up/down 往返已在本机 Postgres 验证
+- [x] T3.2 用户中心地址 CRUD:列表、新增、编辑、删除、设默认 —— 2026-09-29 完成:`services/address_service.go`(收件人/手机号/街道校验,所有权全域强校验、跨用户访问一律 not-found,首地址强制默认,显式设默认清旧默认,删默认自动递补最新,`updated_at` 按 T2.6 用 UTC);`/account/addresses` 页面挂在 `RequireUser` 下(卡片 + DEFAULT 徽标 + 表单,省市区暂为自由文本待 T3.3);环境门控集成测试覆盖默认语义与跨用户隔离;E2E 已验证(建/列表/编辑/设默认/删除递补,校验 422)
+- [x] T3.3 ❓ 省市区数据来源 —— 2026-09-29 由 David Zhang 拍板:**内置数据集**。`app/regions` 内嵌三级民政部区划数据(31 省 / 342 市 / 3056 区,137 KB,来自 modood/Administrative-divisions-of-China,MIT;港澳台暂未包含),并提供 `GET /api/v1/regions` 与 `GET /api/v1/regions/:code/children` 两个 JSON 端点。地址表单的三个自由文本输入升级为三级联动下拉(服务端按已存名称预选中,内联脚本在切换时拉取子级;直辖市与源数据一致地呈现"市辖区"层级)。数据集按名称解析,addresses 表结构无需变动。
 
 ## M4 购物车
 
