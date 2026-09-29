@@ -1,0 +1,67 @@
+package orders
+
+import (
+	"strconv"
+
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/services"
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+type DetailData struct {
+	User  *models.User
+	Order *models.Order
+	Items []*models.OrderItem
+}
+
+templ Detail(data DetailData) {
+	@layouts.Storefront(data.User, "Order "+data.Order.OrderNo) {
+		<style>
+			.order { max-width: 720px; margin: 32px auto 64px; padding: 0 24px; display: grid; gap: 20px; }
+			.order h1 { font-size: 22px; margin: 0; }
+			.order-meta { font-size: 13px; color: var(--sf-muted); }
+			.order-status { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: 999px; background: var(--sf-ink); color: var(--sf-bg); }
+			.order-box { border: 1px solid var(--sf-line); border-radius: 10px; padding: 16px 18px; }
+			.order-box h2 { font-size: 15px; margin: 0 0 12px; }
+			.order-row { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; padding: 6px 0; border-bottom: 1px dashed var(--sf-line); }
+			.order-row .sum { font-weight: 600; }
+			.order-row:last-child { border-bottom: 0; }
+			.order-total { display: flex; justify-content: flex-end; gap: 16px; font-size: 16px; font-weight: 700; padding-top: 10px; }
+			.order-kv { display: grid; gap: 6px; font-size: 13px; }
+			.order-kv .k { color: var(--sf-muted); }
+		</style>
+		<div class="order">
+			<div>
+				<h1>Order { data.Order.OrderNo }</h1>
+				<p class="order-meta">Placed { data.Order.CreatedAt.Format("2006-01-02 15:04") } · <span class="order-status">{ data.Order.Status }</span></p>
+			</div>
+			<div class="order-box">
+				<h2>Items</h2>
+				for _, item := range data.Items {
+					<div class="order-row">
+						<span>
+							{ item.ProductName }
+							if item.VariantName != "" {
+								{ " (" }{ item.VariantName }{ ")" }
+							}
+							{ " × " }{ strconv.Itoa(item.Quantity) }
+						</span>
+						<span class="sum">{ services.FormatCents(item.UnitPriceCents * int64(item.Quantity)) }</span>
+					</div>
+				}
+				<div class="order-total">
+					<span>Total</span>
+					<span>{ services.FormatCents(data.Order.TotalCents) }</span>
+				</div>
+			</div>
+			<div class="order-box">
+				<h2>Shipping & payment</h2>
+				<div class="order-kv">
+					<span><span class="k">Recipient: </span>{ data.Order.ShipRecipient } · { data.Order.ShipPhone }</span>
+					<span><span class="k">Address: </span>{ data.Order.ShipAddress }</span>
+					<span><span class="k">Payment: </span>{ data.Order.PaymentMethod }</span>
+				</div>
+			</div>
+		</div>
+	}
+}
