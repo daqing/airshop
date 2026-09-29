@@ -10,7 +10,7 @@ import (
 
 func TestIndexViewRendersEmptyStorefront(t *testing.T) {
 	var buf strings.Builder
-	if err := home.Index(nil).Render(t.Context(), &buf); err != nil {
+	if err := home.Index(nil, nil).Render(t.Context(), &buf); err != nil {
 		t.Fatalf("render failed: %v", err)
 	}
 	body := buf.String()
@@ -30,7 +30,7 @@ func TestIndexViewRendersEmptyStorefront(t *testing.T) {
 
 func TestIndexViewShowsProductsAndHidesNothing(t *testing.T) {
 	var buf strings.Builder
-	if err := home.Index([]*models.Product{
+	if err := home.Index(nil, []*models.Product{
 		{ID: 1, Name: "Mug", Slug: "mug", PriceCents: 4500, Active: true},
 		{ID: 2, Name: "Tee", Slug: "tee", PriceCents: 1990, Active: true, MainImage: "products/202609/abc.png"},
 	}).Render(t.Context(), &buf); err != nil {

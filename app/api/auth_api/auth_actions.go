@@ -2,15 +2,23 @@ package auth_api
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/daqing/airshop/app/middlewares"
 	"github.com/daqing/airshop/app/services"
 	"github.com/daqing/airshop/app/views/auth"
 	"github.com/daqing/airway/lib/render"
 )
 
 func SignInPageAction(c *gin.Context) {
+	user := middlewares.CurrentUser(c)
+	if user != nil {
+		render.Found(c, "/")
+		return
+	}
+
 	render.HTML(c, auth.SignIn(auth.SignInData{
 		Phone: c.Query("phone"),
 		Sent:  c.Query("sent") == "1",
@@ -58,7 +66,7 @@ func SignInAction(c *gin.Context) {
 	}
 
 	c.SetCookie(services.SessionCookieName, token, int(services.SessionTTL.Seconds()), "/", "", false, true)
-	render.Found(c, "/")
+	render.Found(c, safeNext(c.DefaultPostForm("next", "/")))
 }
 
 func SignOutAction(c *gin.Context) {
@@ -72,4 +80,12 @@ func SignOutAction(c *gin.Context) {
 
 func redirectToSignIn(c *gin.Context, phone, message string) {
 	c.Redirect(http.StatusFound, "/signin?phone="+phone+"&error="+message)
+}
+
+// safeNext only allows same-site absolute paths as post-login targets.
+func safeNext(next string) string {
+	if strings.HasPrefix(next, "/") && !strings.HasPrefix(next, "//") {
+		return next
+	}
+	return "/"
 }

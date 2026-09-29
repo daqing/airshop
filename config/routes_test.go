@@ -28,6 +28,7 @@ func TestRoutesRegistersCoreEndpoints(t *testing.T) {
 		"POST /signin/code",
 		"POST /signin",
 		"POST /signout",
+		"GET /account",
 		"GET /admin",
 		"GET /admin/categories",
 		"GET /admin/categories/new",

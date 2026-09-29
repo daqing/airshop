@@ -1,10 +1,12 @@
 package auth
 
 import (
+	"github.com/daqing/airshop/app/models"
 	"github.com/daqing/airshop/app/views/layouts"
 )
 
 type SignInData struct {
+	User *models.User
 	// Phone carries the number back after the code step.
 	Phone string
 	// Sent marks that a code was just dispatched to Phone.
@@ -14,7 +16,7 @@ type SignInData struct {
 }
 
 templ SignIn(data SignInData) {
-	@layouts.Storefront("Sign in", "Sign in or create your account with a phone number.") {
+	@layouts.Storefront(data.User, "Sign in", "Sign in or create your account with a phone number.") {
 		<style>
 			.auth-card { max-width: 400px; margin: 48px auto 64px; padding: 28px; border: 1px solid var(--sf-line); border-radius: 12px; }
 			.auth-card h1 { font-size: 22px; margin: 0 0 6px; }

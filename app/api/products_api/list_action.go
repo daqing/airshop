@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/daqing/airshop/app/middlewares"
 	"github.com/daqing/airshop/app/models"
 	"github.com/daqing/airshop/app/services"
 	productsview "github.com/daqing/airshop/app/views/products"
@@ -46,6 +47,7 @@ func ListAction(c *gin.Context) {
 	render.HTML(c, productsview.Listing(productsview.ListingData{
 		Products:     products,
 		Categories:   enabled,
+		User:         middlewares.CurrentUser(c),
 		CategorySlug: c.Query("category"),
 		Page:         page,
 		TotalPages:   totalPages,

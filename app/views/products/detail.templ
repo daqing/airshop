@@ -20,6 +20,7 @@ type DetailData struct {
 	CategoryName string
 	Images       []services.ProductImageEntry
 	Variants     []VariantEntry
+	User         *models.User
 }
 
 func stockLabel(p *models.Product) string {
@@ -42,7 +43,7 @@ func fmtID(id int64) string {
 }
 
 templ Detail(data DetailData) {
-	@layouts.Storefront(data.Product.Name, data.Product.Description) {
+	@layouts.Storefront(data.User, data.Product.Name, data.Product.Description) {
 		<style>
 			.detail { max-width: 1080px; margin: 0 auto; padding: 32px 24px 64px; }
 			.crumb { font-size: 13px; color: var(--sf-muted); margin-bottom: 20px; }
