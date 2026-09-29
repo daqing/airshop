@@ -126,7 +126,7 @@ Prerequisites: M5.
 
 Prerequisites: M5 (money math already centralized in the service layer).
 
-- [ ] T7.1 Migrations: `coupons` (type: fixed amount / percentage, threshold, value, validity window, total count) + `coupon_redemptions` (per user and order, prevents double use)
+- [x] T7.1 Migrations: `coupons` (type: fixed amount / percentage, threshold, value, validity window, total count) + `coupon_redemptions` (per user and order, prevents double use) — done 2026-09-29: `coupons` carries a unique `code` (for enter-a-code checkout), `type` fixed/percent with separate `value_cents` and `percent_off` columns per the T0.5 money rules, `threshold_cents` minimum spend, `total_count` (0 = unlimited) with usage derived by counting redemptions, nullable `starts_at`/`expires_at` window and an `enabled` flag; `coupon_redemptions` snapshots the applied `discount_cents` with `order_id` UNIQUE as the database backstop (one redemption per order) plus per-coupon/per-user indexes — per-user reuse prevention is service-enforced (T7.3) since composite partial indexes are not portable; up/down roundtrip verified
 - [ ] T7.2 Admin coupon management: create, list, disable
 - [ ] T7.3 Apply a coupon at checkout (pick one or enter a code), integrated into order total calculation
 - [ ] T7.4 ❓ Coupon refund policy on cancellation/refund

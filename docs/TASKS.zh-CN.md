@@ -117,7 +117,7 @@ go run . repl                      # 带项目模型的 REPL
 
 前置依赖:M5(金额计算已集中在服务层)。
 
-- [ ] T7.1 迁移:`coupons`(类型:满减/折扣、门槛、面值、有效期、总量)+ `coupon_redemptions`(用户×订单核销记录,防重复用)
+- [x] T7.1 迁移:`coupons`(类型:满减/折扣、门槛、面值、有效期、总量)+ `coupon_redemptions`(用户×订单核销记录,防重复用)—— 2026-09-29 完成:`coupons` 含唯一 `code`(结算可输码)、`type` fixed/percent 且按 T0.5 规则分列 `value_cents` 与 `percent_off`、门槛 `threshold_cents`、`total_count`(0 = 不限,用量由核销计数推导)、可空 `starts_at`/`expires_at` 窗口与 `enabled` 开关;`coupon_redemptions` 快照实付优惠 `discount_cents`,`order_id` UNIQUE 作数据库兜底(一单一张),另加券/用户索引——同人同券防重复由服务层保证(T7.3,组合部分索引非三库可移植);up/down 往返已验证
 - [ ] T7.2 admin 券管理:创建、列表、停用
 - [ ] T7.3 结算时选券/输码:金额重算集成进订单服务
 - [ ] T7.4 ❓ 取消/退款时券回退策略
