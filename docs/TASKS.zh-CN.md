@@ -99,7 +99,7 @@ go run . repl                      # 带项目模型的 REPL
 - [x] T5.3 订单状态机:`pending → paid → shipped → completed`,及 `cancelled / refunded`;状态流转集中在服务层 —— 2026-09-29 完成:`services/order_state_service.go` 持有状态常量、合法流转表与 `TransitionOrder`(状态列的唯一写入方);终态拒绝再流转,未知目标状态报可读错误。环境门控集成测试覆盖(完整链路、非法跳转、终态拒绝、订单不存在)
 - [x] T5.4 ❓ 下单扣库存策略 —— 2026-09-29 由 David Zhang 拍板:**支付后扣减**。`PlaceOrder` 不动库存;扣减挂在状态机的 `paid` 流转上(支付回调与假网关的唯一路径),退款自动回补数量,`pending → cancelled` 不涉及库存(尚未扣过)。扣减以零为下限,且与状态变更同事务完成。环境门控集成测试覆盖(`TestOrderStockFollowsPayment`:商品行与变体行贯穿 支付/退款/取消)
 - [x] T5.5 用户中心:订单列表(按状态筛选)、订单详情 —— 2026-09-29 完成:`services.ListOrders`(状态筛选 + 每页 10 条 + 计数)与 `/orders` 列表页(状态 chip、最新在前、状态徽标、金额、Prev/Next 分页),账户页已挂 My orders 入口;`/orders/<order-no>` 详情页沿用 T5.2 所建。所有权全域校验(他人单号 404)。E2E 已验证(全部/按状态列表、徽标、详情链接)
-- [ ] T5.6 取消订单(仅 pending)、订单超时未支付自动取消(定时任务)
+- [x] T5.6 取消订单(仅 pending)、订单超时未支付自动取消(定时任务)—— 2026-09-29 完成:`services.CancelOrder`(经单号查找即所有权校验,状态机强制仅 pending 可取消),订单详情页与列表页都有取消按钮;`services.CancelExpiredOrders` 取消超过 30 分钟的 pending 订单,由 main 启动的后台清扫器执行(启动即扫一次,此后每分钟一次)。过期阈值用本地墙钟计算以匹配数据库 `CURRENT_TIMESTAMP` 默认值(已在 CONVENTIONS 的 UTC 规则旁注明)。环境门控集成测试(本人/陌生人取消、paid 拒绝、清扫器作用域)+ E2E(详情页取消流程、回填订单的开机清扫)
 
 ## M6 支付
 

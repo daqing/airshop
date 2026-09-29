@@ -6,7 +6,7 @@ import (
 	"github.com/daqing/airshop/app/middlewares"
 	"github.com/daqing/airshop/app/services"
 	"github.com/daqing/airshop/app/views/errors"
-	"github.com/daqing/airshop/app/views/orders"
+	ordersview "github.com/daqing/airshop/app/views/orders"
 	"github.com/daqing/airway/lib/render"
 )
 
@@ -25,9 +25,22 @@ func DetailAction(c *gin.Context) {
 		return
 	}
 
-	render.HTML(c, orders.Detail(orders.DetailData{
+	render.HTML(c, ordersview.Detail(ordersview.DetailData{
 		User:  user,
 		Order: order,
 		Items: items,
+		Flash: c.Query("error"),
 	}))
+}
+
+func CancelAction(c *gin.Context) {
+	user := middlewares.CurrentUser(c)
+	orderNo := c.Param("orderNo")
+
+	if err := services.CancelOrder(int64(user.ID), orderNo); err != nil {
+		render.Found(c, "/orders/"+orderNo+"?error="+err.Error())
+		return
+	}
+
+	render.Found(c, "/orders/"+orderNo)
 }

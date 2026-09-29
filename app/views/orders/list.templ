@@ -53,6 +53,7 @@ templ List(data ListData) {
 			.order-view:hover { color: inherit; }
 			.orders-empty { color: var(--sf-muted); text-align: center; padding: 40px 0; }
 			.pager { display: flex; gap: 12px; align-items: center; margin-top: 16px; font-size: 13px; color: var(--sf-muted); }
+			.order-cancel-mini { border: 0; background: none; padding: 0; color: #b3423a; cursor: pointer; }
 			.pager a { padding: 6px 14px; border: 1px solid var(--sf-line); border-radius: 6px; color: inherit; text-decoration: none; }
 		</style>
 		<div class="orders">
@@ -80,6 +81,11 @@ templ List(data ListData) {
 							<span class="order-status">{ o.Status }</span>
 							<span class="order-total">{ services.FormatCents(o.TotalCents) }</span>
 							<a class="order-view" href={ templ.URL("/orders/" + o.OrderNo) }>View →</a>
+							if o.Status == "pending" {
+								<form method="post" action={ templ.URL("/orders/" + o.OrderNo + "/cancel") }>
+									<button class="order-view order-cancel-mini" type="submit">Cancel</button>
+								</form>
+							}
 						</div>
 					</div>
 				}

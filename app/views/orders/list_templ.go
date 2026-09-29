@@ -75,7 +75,7 @@ func List(data ListData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t\t.orders { max-width: 880px; margin: 32px auto 64px; padding: 0 24px; }\n\t\t\t.orders h1 { font-size: 24px; margin: 0 0 16px; }\n\t\t\t.status-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }\n\t\t\t.status-chip { padding: 6px 14px; border: 1px solid var(--sf-line); border-radius: 999px; font-size: 13px; color: var(--sf-muted); text-decoration: none; }\n\t\t\t.status-chip:hover { color: inherit; }\n\t\t\t.status-chip.active { background: var(--sf-ink); border-color: var(--sf-ink); color: var(--sf-bg); }\n\t\t\t.order-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 1px solid var(--sf-line); border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; }\n\t\t\t.order-row .no { font-weight: 600; font-size: 14px; }\n\t\t\t.order-row .date { font-size: 12px; color: var(--sf-muted); margin-top: 2px; }\n\t\t\t.order-row .right { display: grid; gap: 4px; justify-items: end; }\n\t\t\t.order-status { display: inline-block; font-size: 11px; padding: 2px 10px; border-radius: 999px; background: var(--sf-ink); color: var(--sf-bg); }\n\t\t\t.order-total { font-weight: 700; font-size: 14px; }\n\t\t\t.order-view { font-size: 12px; color: var(--sf-muted); text-decoration: none; }\n\t\t\t.order-view:hover { color: inherit; }\n\t\t\t.orders-empty { color: var(--sf-muted); text-align: center; padding: 40px 0; }\n\t\t\t.pager { display: flex; gap: 12px; align-items: center; margin-top: 16px; font-size: 13px; color: var(--sf-muted); }\n\t\t\t.pager a { padding: 6px 14px; border: 1px solid var(--sf-line); border-radius: 6px; color: inherit; text-decoration: none; }\n\t\t</style> <div class=\"orders\"><h1>My orders</h1><nav class=\"status-chips\" aria-label=\"Order status\"><a class=\"status-chip\" href=\"/orders\">All</a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t\t.orders { max-width: 880px; margin: 32px auto 64px; padding: 0 24px; }\n\t\t\t.orders h1 { font-size: 24px; margin: 0 0 16px; }\n\t\t\t.status-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }\n\t\t\t.status-chip { padding: 6px 14px; border: 1px solid var(--sf-line); border-radius: 999px; font-size: 13px; color: var(--sf-muted); text-decoration: none; }\n\t\t\t.status-chip:hover { color: inherit; }\n\t\t\t.status-chip.active { background: var(--sf-ink); border-color: var(--sf-ink); color: var(--sf-bg); }\n\t\t\t.order-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 1px solid var(--sf-line); border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; }\n\t\t\t.order-row .no { font-weight: 600; font-size: 14px; }\n\t\t\t.order-row .date { font-size: 12px; color: var(--sf-muted); margin-top: 2px; }\n\t\t\t.order-row .right { display: grid; gap: 4px; justify-items: end; }\n\t\t\t.order-status { display: inline-block; font-size: 11px; padding: 2px 10px; border-radius: 999px; background: var(--sf-ink); color: var(--sf-bg); }\n\t\t\t.order-total { font-weight: 700; font-size: 14px; }\n\t\t\t.order-view { font-size: 12px; color: var(--sf-muted); text-decoration: none; }\n\t\t\t.order-view:hover { color: inherit; }\n\t\t\t.orders-empty { color: var(--sf-muted); text-align: center; padding: 40px 0; }\n\t\t\t.pager { display: flex; gap: 12px; align-items: center; margin-top: 16px; font-size: 13px; color: var(--sf-muted); }\n\t\t\t.order-cancel-mini { border: 0; background: none; padding: 0; color: #b3423a; cursor: pointer; }\n\t\t\t.pager a { padding: 6px 14px; border: 1px solid var(--sf-line); border-radius: 6px; color: inherit; text-decoration: none; }\n\t\t</style> <div class=\"orders\"><h1>My orders</h1><nav class=\"status-chips\" aria-label=\"Order status\"><a class=\"status-chip\" href=\"/orders\">All</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -88,7 +88,7 @@ func List(data ListData) templ.Component {
 					var templ_7745c5c3_Var3 templ.SafeURL
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL(listURL(s, 1)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 64, Col: 67}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 65, Col: 67}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
@@ -101,7 +101,7 @@ func List(data ListData) templ.Component {
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(s)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 64, Col: 73}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 65, Col: 73}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -119,7 +119,7 @@ func List(data ListData) templ.Component {
 					var templ_7745c5c3_Var5 templ.SafeURL
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL(listURL(s, 1)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 66, Col: 60}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 67, Col: 60}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -132,7 +132,7 @@ func List(data ListData) templ.Component {
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(s)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 66, Col: 66}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 67, Col: 66}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -162,7 +162,7 @@ func List(data ListData) templ.Component {
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(o.OrderNo)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 76, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 77, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -175,7 +175,7 @@ func List(data ListData) templ.Component {
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(o.CreatedAt.Format("2006-01-02 15:04"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 77, Col: 65}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 78, Col: 65}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -188,7 +188,7 @@ func List(data ListData) templ.Component {
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(o.Status)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 80, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 81, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -201,7 +201,7 @@ func List(data ListData) templ.Component {
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(services.FormatCents(o.TotalCents))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 81, Col: 69}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 82, Col: 69}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -214,108 +214,131 @@ func List(data ListData) templ.Component {
 					var templ_7745c5c3_Var11 templ.SafeURL
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("/orders/" + o.OrderNo))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 82, Col: 69}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 83, Col: 69}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\">View →</a></div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\">View →</a> ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if o.Status == "pending" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<form method=\"post\" action=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var12 templ.SafeURL
+						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("/orders/" + o.OrderNo + "/cancel"))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 85, Col: 82}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\"><button class=\"order-view order-cancel-mini\" type=\"submit\">Cancel</button></form>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " <div class=\"pager\"><span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " <div class=\"pager\"><span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var12 string
-				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(data.Total, 10))
+				var templ_7745c5c3_Var13 string
+				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(data.Total, 10))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 87, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 93, Col: 46}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, " order(s)</span> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, " order(s)</span> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if data.Page > 1 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var13 templ.SafeURL
-					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL(listURL(data.Status, data.Page-1)))
+					var templ_7745c5c3_Var14 templ.SafeURL
+					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL(listURL(data.Status, data.Page-1)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 89, Col: 60}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 95, Col: 60}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\">Prev</a> ")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\">Prev</a> ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>Page ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var14 string
-				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(data.Page))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 91, Col: 41}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " of ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>Page ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var15 string
-				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(data.TotalPages))
+				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(data.Page))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 91, Col: 78}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 97, Col: 41}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</span> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, " of ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var16 string
+				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(data.TotalPages))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 97, Col: 78}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</span> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if data.Page < data.TotalPages {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var16 templ.SafeURL
-					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL(listURL(data.Status, data.Page+1)))
+					var templ_7745c5c3_Var17 templ.SafeURL
+					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL(listURL(data.Status, data.Page+1)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 93, Col: 60}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `orders/list.templ`, Line: 99, Col: 60}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\">Next</a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\">Next</a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

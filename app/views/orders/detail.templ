@@ -12,6 +12,7 @@ type DetailData struct {
 	User  *models.User
 	Order *models.Order
 	Items []*models.OrderItem
+	Flash string
 }
 
 templ Detail(data DetailData) {
@@ -29,8 +30,13 @@ templ Detail(data DetailData) {
 			.order-total { display: flex; justify-content: flex-end; gap: 16px; font-size: 16px; font-weight: 700; padding-top: 10px; }
 			.order-kv { display: grid; gap: 6px; font-size: 13px; }
 			.order-kv .k { color: var(--sf-muted); }
+			.order-cancel { padding: 10px 20px; border-radius: 8px; border: 1px solid #b3423a; background: transparent; color: #b3423a; font-size: 14px; cursor: pointer; }
+			.order-flash { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; font-size: 13px; }
 		</style>
 		<div class="order">
+			if data.Flash != "" {
+				<div class="order-flash">{ data.Flash }</div>
+			}
 			<div>
 				<h1>Order { data.Order.OrderNo }</h1>
 				<p class="order-meta">Placed { data.Order.CreatedAt.Format("2006-01-02 15:04") } · <span class="order-status">{ data.Order.Status }</span></p>
@@ -62,6 +68,11 @@ templ Detail(data DetailData) {
 					<span><span class="k">Payment: </span>{ data.Order.PaymentMethod }</span>
 				</div>
 			</div>
+			if data.Order.Status == "pending" {
+				<form method="post" action={ templ.URL("/orders/" + data.Order.OrderNo + "/cancel") }>
+					<button class="order-cancel" type="submit">Cancel order</button>
+				</form>
+			}
 		</div>
 	}
 }

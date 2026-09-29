@@ -37,6 +37,7 @@ func TestRoutesRegistersCoreEndpoints(t *testing.T) {
 		"GET /checkout",
 		"POST /checkout",
 		"GET /orders/:orderNo",
+		"POST /orders/:orderNo/cancel",
 		"GET /orders",
 		"GET /account/addresses",
 		"GET /account/addresses/new",
