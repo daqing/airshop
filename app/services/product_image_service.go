@@ -35,15 +35,32 @@ type ProductImageEntry struct {
 	IsMain bool
 }
 
-func productImageURL(key string) string {
-	u, err := storage.Current().URL(context.Background(), key, 24*time.Hour)
-	if err != nil || u == "" {
+// ProductImageURL resolves a stored image key to its browser-ready URL.
+// Falls back to the local download path when storage is not configured
+// (e.g. view unit tests).
+func ProductImageURL(key string) string {
+	u := ""
+	if store := currentStorage(); store != nil {
+		if v, err := store.URL(context.Background(), key, 24*time.Hour); err == nil {
+			u = v
+		}
+	}
+	if u == "" {
 		u = "/api/v1/storage/" + key
 	}
 	if strings.HasPrefix(u, "/") {
 		u = utils.URLPrefix() + u
 	}
 	return u
+}
+
+func currentStorage() (s storage.Storage) {
+	defer func() {
+		if recover() != nil {
+			s = nil
+		}
+	}()
+	return storage.Current()
 }
 
 // ProductImageEntries lists a product's images ordered main-first.
@@ -58,7 +75,7 @@ func ProductImageEntries(productID int64) ([]ProductImageEntry, error) {
 	for i, img := range ordered {
 		entries = append(entries, ProductImageEntry{
 			Image:  img,
-			URL:    productImageURL(img.Key),
+			URL:    ProductImageURL(img.Key),
 			IsMain: i == 0,
 		})
 	}

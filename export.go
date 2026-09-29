@@ -11,8 +11,9 @@ import (
 // dist/ together with the committed frontend bundle (see
 // docs/static-export.md). Register more pages here, or run
 // `generate scaffold` — each resource adds its own export_<name>.go.
+// The home export renders without a database, so products stay empty.
 func init() {
 	cmd.SetStaticPages(
-		static.Page{Slug: "/", Component: home.Index()},
+		static.Page{Slug: "/", Component: home.Index(nil)},
 	)
 }
