@@ -11,6 +11,7 @@ import (
 	"github.com/daqing/airway/lib/utils"
 
 	"github.com/daqing/airshop/app/api/admin_api"
+	"github.com/daqing/airshop/app/api/auth_api"
 	"github.com/daqing/airshop/app/api/health_api"
 	"github.com/daqing/airshop/app/api/home_api"
 	"github.com/daqing/airshop/app/api/openapi_api"
@@ -42,6 +43,10 @@ func PublicRoutes(r *gin.Engine) {
 	r.GET("/", home_api.IndexAction)
 	r.GET("/products", products_api.ListAction)
 	r.GET("/products/:slug", products_api.ShowAction)
+	r.GET("/signin", auth_api.SignInPageAction)
+	r.POST("/signin/code", auth_api.SendCodeAction)
+	r.POST("/signin", auth_api.SignInAction)
+	r.POST("/signout", auth_api.SignOutAction)
 
 	assetRoutes(r)
 	websocketRoutes(r)

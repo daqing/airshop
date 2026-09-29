@@ -1,0 +1,62 @@
+package auth
+
+import (
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+type SignInData struct {
+	// Phone carries the number back after the code step.
+	Phone string
+	// Sent marks that a code was just dispatched to Phone.
+	Sent bool
+	// Error is a user-facing failure message.
+	Error string
+}
+
+templ SignIn(data SignInData) {
+	@layouts.Storefront("Sign in", "Sign in or create your account with a phone number.") {
+		<style>
+			.auth-card { max-width: 400px; margin: 48px auto 64px; padding: 28px; border: 1px solid var(--sf-line); border-radius: 12px; }
+			.auth-card h1 { font-size: 22px; margin: 0 0 6px; }
+			.auth-sub { font-size: 13px; color: var(--sf-muted); margin: 0 0 20px; }
+			.auth-form { display: grid; gap: 12px; }
+			.auth-form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
+			.auth-form input[type="text"] { padding: 10px 12px; border: 1px solid var(--sf-line); border-radius: 8px; font-size: 15px; }
+			.auth-button { padding: 11px 16px; border-radius: 8px; border: 1px solid var(--sf-ink); background: var(--sf-ink); color: var(--sf-bg); font-size: 14px; font-weight: 600; cursor: pointer; }
+			.auth-error { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; font-size: 13px; }
+			.auth-sent { padding: 10px 14px; border-radius: 8px; background: #e7f0e7; color: #2f6b2f; font-size: 13px; }
+			.auth-switch { border: 0; border-top: 1px dashed var(--sf-line); margin: 18px 0 0; padding: 14px 0 0; }
+			.auth-note { font-size: 12px; color: var(--sf-muted); margin: 8px 0 0; }
+		</style>
+		<div class="auth-card">
+			<h1>Sign in</h1>
+			<p class="auth-sub">New here? Signing in creates your account automatically.</p>
+			if data.Error != "" {
+				<div class="auth-error">{ data.Error }</div>
+			}
+			if data.Sent {
+				<div class="auth-sent">Code sent to { data.Phone }. It expires in 5 minutes.</div>
+			}
+			<form class="auth-form" method="post" action="/signin/code">
+				<label>
+					Phone number
+					<input type="text" name="phone" value={ data.Phone } placeholder="e.g. 13800138000" required/>
+				</label>
+				<button class="auth-button" type="submit">Send code</button>
+			</form>
+			if data.Sent {
+				<fieldset class="auth-switch">
+					<form class="auth-form" method="post" action="/signin">
+						<input type="hidden" name="phone" value={ data.Phone }/>
+						<label>
+							Verification code
+							<input type="text" name="code" placeholder="6-digit code" required/>
+						</label>
+						<button class="auth-button" type="submit">Sign in</button>
+					</form>
+				</fieldset>
+			}
+			<p class="auth-note">We only use your number for sign-in. No password needed — a one-time SMS code keeps your account safe.</p>
+		</div>
+	}
+}
