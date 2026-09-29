@@ -96,7 +96,7 @@ go run . repl                      # 带项目模型的 REPL
 
 - [x] T5.1 迁移:`orders`(单号、用户、收货地址快照、金额小计/优惠/运费/实付、状态、支付方式)+ `order_items`(商品快照:名称、图、单价、数量)—— 2026-09-29 完成:`orders` 含 `order_no` UNIQUE、带索引 `user_id`、扁平化地址快照(收件人/电话/单行地址)、`subtotal_cents`/`discount_cents`(M7 备用)/`shipping_cents`/`total_cents`、`status`(pending/paid/shipped/completed/cancelled/refunded,默认 pending)、`payment_method`(支付前为空,M6 写入);`order_items` 快照商品/变体名称、图片 key、`unit_price_cents`,可空 `variant_id`;行小计可推导不入库;up/down 往返已验证
 - [x] T5.2 结算页:选地址 → 选支付方式 → 提交订单(金额由服务端重算,不信任前端)—— 2026-09-29 完成:`services/order_service.go` 的 `PlaceOrder`(校验购物车行全部可购,快照本人地址,按行快照服务端重算金额,生成 `SO<UTC时间戳>-<随机>` 单号,订单 + 明细 + 清购物车在 `repo.WithTx` 单事务完成);`/checkout` 页面(地址单选默认选中、商品摘要、支付单选、合计);最小 `/orders/<order-no>` 详情页(T5.5 再扩展账户区视图)。错误:空购物车、不可购行、缺支付方式、他人地址。环境门控集成测试 + 完整 E2E(结算渲染、下单、详情渲染、购物车清空、跨用户 404)
-- [ ] T5.3 订单状态机:`pending → paid → shipped → completed`,及 `cancelled / refunded`;状态流转集中在服务层
+- [x] T5.3 订单状态机:`pending → paid → shipped → completed`,及 `cancelled / refunded`;状态流转集中在服务层 —— 2026-09-29 完成:`services/order_state_service.go` 持有状态常量、合法流转表与 `TransitionOrder`(状态列的唯一写入方);终态拒绝再流转,未知目标状态报可读错误。环境门控集成测试覆盖(完整链路、非法跳转、终态拒绝、订单不存在)
 - [ ] T5.4 ❓ 下单扣库存策略(下单预扣 + 取消回补,还是支付后扣),定了写在状态机旁
 - [ ] T5.5 用户中心:订单列表(按状态筛选)、订单详情
 - [ ] T5.6 取消订单(仅 pending)、订单超时未支付自动取消(定时任务)
