@@ -105,7 +105,7 @@ go run . repl                      # 带项目模型的 REPL
 
 前置依赖:M5。
 
-- [ ] T6.1 支付网关抽象:`PaymentGateway` 接口 + 网关注册表
+- [x] T6.1 支付网关抽象:`PaymentGateway` 接口 + 网关注册表 —— 2026-09-29 完成:`services/payment_gateway.go` 定义最小接口(`Name()` 兼作 `orders.payment_method`,`PayLink(order)` 为买家跳转目标)与互斥锁注册表(`RegisterGateway` 供 init 调用、`Gateway`、排序的 `GatewayNames`);重复注册即替换。支付确认路由保持各网关自持、暂不纳入接口——真实渠道的回调形态明确后再扩展(T6.3+)。单测覆盖(注册、名称排序、查找、替换)
 - [ ] T6.2 假支付网关(本地/测试一键标记已支付),保证全流程可测
 - [ ] T6.3 ❓ 真实渠道:支付宝 / 微信支付 / Stripe,按目标市场选型后再拆任务
 - [ ] T6.4 支付回调:验签、幂等、更新订单状态

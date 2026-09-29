@@ -114,7 +114,7 @@ Prerequisites: M3, M4.
 
 Prerequisites: M5.
 
-- [ ] T6.1 Gateway abstraction: `PaymentGateway` interface + a registry
+- [x] T6.1 Gateway abstraction: `PaymentGateway` interface + a registry — done 2026-09-29: `services/payment_gateway.go` defines the minimal interface (`Name()` doubles as `orders.payment_method`, `PayLink(order)` is the buyer's redirect target) plus a mutex-guarded registry (`RegisterGateway` from init, `Gateway`, sorted `GatewayNames`); re-registration replaces. Payment-confirmation routes stay gateway-specific and are intentionally not part of the interface yet — real channels will extend it when their callback shapes are known (T6.3+). Unit-tested (registration, sorted names, lookup, replacement)
 - [ ] T6.2 Fake gateway (one click marks the order paid) so the full flow is testable locally
 - [ ] T6.3 ❓ Real channels: Alipay / WeChat Pay / Stripe — pick per target market, then break into tasks
 - [ ] T6.4 Payment callbacks: verify signatures, idempotency, update order status
