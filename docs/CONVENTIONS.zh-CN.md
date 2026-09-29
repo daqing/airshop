@@ -104,3 +104,6 @@ repo 层不会自动维护 `updated_at`,脚手架生成的 `UpdateAction` 也不
 - 2026-09-28 —— T1.3 由 David Zhang 拍板:现在就支持变体
   (`product_variants` 表);可售单元判定收在 Product 服务层;结构化
   选项轴后置;被引用的变体停用而非删除。
+- 2026-09-29 —— T2.2 由 David Zhang 拍板:登录仅手机号 + 短信验证码,
+  不做密码。`users.password_hash` 保留为默认空列;身份列是
+  `users.phone_number`(VARCHAR(20),唯一)。

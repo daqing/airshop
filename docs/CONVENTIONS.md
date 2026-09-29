@@ -119,3 +119,7 @@ does not set it either — left alone the column goes stale. Therefore:
   (`product_variants` table); sellable-unit decision lives in the Product
   service; structured option axes deferred; referenced variants deactivate
   instead of deleting.
+- 2026-09-29 — T2.2 settled by David Zhang: sign-in is phone number + SMS
+  verification code only, no passwords. `users.password_hash` stays as an
+  empty-default column; the identity column is `users.phone_number`
+  (VARCHAR(20), unique).
