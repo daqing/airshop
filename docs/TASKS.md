@@ -156,7 +156,7 @@ Prerequisites: the admin pages from M1–M8 in place.
 Prerequisites: everything above.
 
 - [x] T10.1 Seed data: demo categories/products and an admin account — done 2026-09-29: `services.SeedDemoDataIfEmpty` fills an empty catalog with 2 categories, 5 demo products and a WELCOME10 percent coupon; runs at boot in local environments only (skipped when the catalog has products or outside local), so production never sees demo data; the admin account bootstrap (T9.1) covers the admin side. E2E verified (boot seeds once, storefront renders the demo items, restart does not duplicate)
-- [ ] T10.2 Full-flow regression: sign up → browse → add to cart → checkout → pay (fake gateway) → ship in admin → track on storefront → complete
+- [x] T10.2 Full-flow regression: sign up → browse → add to cart → checkout → pay (fake gateway) → ship in admin → track on storefront → complete — done 2026-09-29: 17-checkpoint live regression on a clean database, all green — boot seeding, admin bootstrap, storefront browse, SMS auto-registration, coupon claim, address creation, cart merge, checkout with WELCOME10 (discount 398 of 3980), fake payment (stock 20→18), cart cleared, admin ship with timeline, owner-visible tracking, delivered, audit entries, dashboard reflection
 - [ ] T10.3 Error handling and logging review (5xx pages, logs on critical paths)
 - [ ] T10.4 `go test ./...` green; cover the core services (money math, state machine)
 - [ ] T10.5 Desktop packaging check: `airway desktop:init` → `wails3 task dev`
