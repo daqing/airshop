@@ -119,6 +119,56 @@ func ShipOrder(orderID int64, carrier, trackingNo string) error {
 	return nil
 }
 
+// AddShipmentEvent appends a manual tracking entry (T8.3: track events are
+// entered by admin until a tracking service is integrated).
+func AddShipmentEvent(shipmentID int64, description string) error {
+	description = strings.TrimSpace(description)
+	if description == "" {
+		return ErrShipmentNumberRequired
+	}
+
+	shipment, err := repo.FindByID[models.Shipment](sql.IdType(shipmentID))
+	if err != nil {
+		return err
+	}
+	if shipment == nil {
+		return ErrShipmentNotFound
+	}
+
+	events, err := appendShipmentEvent(shipment.Events, description, time.Now().UTC())
+	if err != nil {
+		return err
+	}
+
+	return repo.UpdateByID[models.Shipment](shipment.ID, sql.H{
+		"events":     events,
+		"updated_at": time.Now().UTC(),
+	})
+}
+
+// ShipmentTimeline is one parsed tracking event, newest first for display.
+type ShipmentTimelineEntry struct {
+	Time        string
+	Description string
+}
+
+// ShipmentTimeline parses a shipment's event trail into display entries,
+// newest first.
+func ShipmentTimeline(shipment *models.Shipment) ([]ShipmentTimelineEntry, error) {
+	events := []shipmentEvent{}
+	if shipment != nil && strings.TrimSpace(shipment.Events) != "" {
+		if err := json.Unmarshal([]byte(shipment.Events), &events); err != nil {
+			return nil, err
+		}
+	}
+
+	out := make([]ShipmentTimelineEntry, 0, len(events))
+	for i := len(events) - 1; i >= 0; i-- {
+		out = append(out, ShipmentTimelineEntry{Time: events[i].Time, Description: events[i].Description})
+	}
+	return out, nil
+}
+
 // UpdateShipmentStatus moves the shipment along its own lifecycle
 // (created → in_transit → delivered) and appends a tracking event.
 func UpdateShipmentStatus(shipmentID int64, status string) error {

@@ -76,7 +76,7 @@ templ Page(data PageData) {
 								<td>{ s.TrackingNo }</td>
 								<td><span class="shp-badge">{ s.Status }</span></td>
 								<td>
-									<div style="display: flex; gap: 8px;">
+									<div style="display: flex; gap: 8px; align-items: center;">
 										if s.Status == "created" {
 											<form method="post" action={ templ.URL("/admin/shipments/" + shipID(int64(s.ID)) + "/in_transit") }>
 												<button class="shp-mini" type="submit">In transit</button>
@@ -88,6 +88,10 @@ templ Page(data PageData) {
 											</form>
 										}
 									</div>
+									<form class="shp-form" style="margin-top: 8px;" method="post" action={ templ.URL("/admin/shipments/" + shipID(int64(s.ID)) + "/events") }>
+										<input type="text" name="description" placeholder="Add tracking event…" required/>
+										<button class="shp-mini" type="submit">Add event</button>
+									</form>
 								</td>
 							</tr>
 						}

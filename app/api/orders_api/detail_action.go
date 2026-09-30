@@ -25,12 +25,29 @@ func DetailAction(c *gin.Context) {
 		return
 	}
 
+	shipment, err := services.FindShipmentByOrder(int64(order.ID))
+	if err != nil {
+		render.ErrorMessage(c, err.Error())
+		return
+	}
+
+	var timeline []services.ShipmentTimelineEntry
+	if shipment != nil {
+		timeline, err = services.ShipmentTimeline(shipment)
+		if err != nil {
+			render.ErrorMessage(c, err.Error())
+			return
+		}
+	}
+
 	render.HTML(c, ordersview.Detail(ordersview.DetailData{
-		User:  user,
-		Order: order,
-		Items: items,
-		Flash: c.Query("error"),
-		Paid:  c.Query("paid") == "1",
+		User:     user,
+		Order:    order,
+		Items:    items,
+		Flash:    c.Query("error"),
+		Paid:     c.Query("paid") == "1",
+		Shipment: shipment,
+		Timeline: timeline,
 	}))
 }
 

@@ -75,6 +75,7 @@ func TestRoutesRegistersCoreEndpoints(t *testing.T) {
 		"POST /admin/shipments/:id",
 		"POST /admin/shipments/:id/in_transit",
 		"POST /admin/shipments/:id/delivered",
+		"POST /admin/shipments/:id/events",
 		"GET /health",
 		"GET /openapi.json",
 		"GET /ws",

@@ -126,6 +126,7 @@ func AdminRoutes(r *gin.Engine) {
 		admin.POST("/shipments/:id", admin_api.ShipOrderAction)
 		admin.POST("/shipments/:id/in_transit", admin_api.ShipmentInTransitAction)
 		admin.POST("/shipments/:id/delivered", admin_api.ShipmentDeliveredAction)
+		admin.POST("/shipments/:id/events", admin_api.AddShipmentEventAction)
 	}
 }
 

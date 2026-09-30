@@ -53,6 +53,21 @@ func ShipmentDeliveredAction(c *gin.Context) {
 	shipmentStatusAction(c, services.ShipmentStatusDelivered)
 }
 
+func AddShipmentEventAction(c *gin.Context) {
+	shipmentID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		render.Found(c, "/admin/shipments?error=invalid+shipment")
+		return
+	}
+
+	if err := services.AddShipmentEvent(shipmentID, c.PostForm("description")); err != nil {
+		render.Found(c, "/admin/shipments?error="+err.Error())
+		return
+	}
+
+	render.Found(c, "/admin/shipments")
+}
+
 func shipmentStatusAction(c *gin.Context, status string) {
 	shipmentID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {

@@ -16,6 +16,10 @@ type DetailData struct {
 	// Paid marks a return from the payment flow; the thank-you banner only
 	// renders when the order really is paid.
 	Paid bool
+	// Shipment is present once the order has been shipped.
+	Shipment *models.Shipment
+	// Timeline holds tracking events, newest first.
+	Timeline []services.ShipmentTimelineEntry
 }
 
 templ Detail(data DetailData) {
@@ -67,6 +71,24 @@ templ Detail(data DetailData) {
 					<span>{ services.FormatCents(data.Order.TotalCents) }</span>
 				</div>
 			</div>
+			if data.Shipment != nil {
+				<div class="order-box">
+					<h2>Tracking</h2>
+					<div class="order-kv">
+						<span><span class="k">Carrier: </span>{ data.Shipment.Carrier } · { data.Shipment.TrackingNo }</span>
+						<span><span class="k">Status: </span>{ data.Shipment.Status }</span>
+					</div>
+					if len(data.Timeline) > 0 {
+						<div style="margin-top: 12px; display: grid; gap: 6px;">
+							for _, e := range data.Timeline {
+								<div style="font-size: 12px; color: var(--sf-muted);">
+									{ e.Time } — <span style="color: var(--sf-ink);">{ e.Description }</span>
+								</div>
+							}
+						</div>
+					}
+				</div>
+			}
 			<div class="order-box">
 				<h2>Shipping & payment</h2>
 				<div class="order-kv">
