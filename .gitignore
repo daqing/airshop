@@ -1,4 +1,5 @@
 /bin
+/desktop
 /tmp
 
 .env

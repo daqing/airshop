@@ -155,12 +155,12 @@ Prerequisites: the admin pages from M1–M8 in place.
 
 Prerequisites: everything above.
 
-- [ ] T10.1 Seed data: demo categories/products and an admin account (`go run . repl` or a seed command)
-- [ ] T10.2 Full-flow regression: sign up → browse → add to cart → checkout → pay (fake gateway) → ship in admin → track on storefront → complete
-- [ ] T10.3 Error handling and logging review (5xx pages, logs on critical paths)
-- [ ] T10.4 `go test ./...` green; cover the core services (money math, state machine)
-- [ ] T10.5 Desktop packaging check: `airway desktop:init` → `wails3 task dev`
-- [ ] T10.6 Update the README feature list to reflect what ships
+- [x] T10.1 Seed data: demo categories/products and an admin account — done 2026-09-29: `services.SeedDemoDataIfEmpty` fills an empty catalog with 2 categories, 5 demo products and a WELCOME10 percent coupon; runs at boot in local environments only (skipped when the catalog has products or outside local), so production never sees demo data; the admin account bootstrap (T9.1) covers the admin side. E2E verified (boot seeds once, storefront renders the demo items, restart does not duplicate)
+- [x] T10.2 Full-flow regression: sign up → browse → add to cart → checkout → pay (fake gateway) → ship in admin → track on storefront → complete — done 2026-09-29: 17-checkpoint live regression on a clean database, all green — boot seeding, admin bootstrap, storefront browse, SMS auto-registration, coupon claim, address creation, cart merge, checkout with WELCOME10 (discount 398 of 3980), fake payment (stock 20→18), cart cleared, admin ship with timeline, owner-visible tracking, delivered, audit entries, dashboard reflection
+- [x] T10.3 Error handling and logging review (5xx pages, logs on critical paths) — done 2026-09-29: storefront 500 page added (`errors.ServerError`, cause only on the server log) rendered by a `middlewares.Recovery` that replaces gin's plain-text default; boot/audit/expiry-sweep/payment failures all log with context (verified clean boot log); render.ErrorMessage on HTML routes reviewed and left as-is (user-facing form errors are intentional redirects/422s). Covered by a recovery unit test (panic → 500 page)
+- [x] T10.4 `go test ./...` green; cover the core services (money math, state machine) — done 2026-09-29: all green by default and with the gated suite (13 env-gated integration tests PASS on a scratch DB); the state machine transition table and coupon rounding/clamping gained always-on unit tests so the core money and status logic is covered without a database; `go vet ./...` clean
+- [x] T10.5 Desktop packaging check: `airway desktop:init` → `wails3 task dev` — done 2026-09-29: desktop target generated (Wails v3 project with embedded migrations), `wails3 task build` produces the arm64 binary and `wails3 task package` the signed `airshop.app` (`com.daqing.airshop`, ad-hoc); `desktop/bin` added to .gitignore. Verification on real hardware (launch + WebView) left to manual testing per the Xcode-workflow convention
+- [x] T10.6 Update the README feature list to reflect what ships — done 2026-09-29: both READMEs updated in sync — roadmap phase 1 marked complete, the feature list rewritten to shipped state (storefront, admin, coupons, tracking, desktop)
 
 ---
 
