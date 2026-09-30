@@ -1,11 +1,14 @@
 package admin
 
-import "github.com/daqing/airshop/app/views/layouts"
+import (
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/views/layouts"
+)
 
 // Dashboard is the admin landing page. Real metrics arrive with M9 (T9.2);
 // until then it is a placeholder listing the upcoming sections.
-templ Dashboard() {
-	@layouts.Admin("Dashboard") {
+templ Dashboard(admin *models.AdminUser) {
+	@layouts.Admin(admin, "Dashboard") {
 		<h1>Dashboard</h1>
 		<p>Store overview will land here: orders, sales, and pending work.</p>
 		<ul>

@@ -53,7 +53,7 @@ func TestStorefrontLayoutRendersShell(t *testing.T) {
 }
 
 func TestAdminLayoutRendersShell(t *testing.T) {
-	html := renderToString(t, Admin("Admin Page"))
+	html := renderToString(t, Admin(nil, "Admin Page"))
 
 	for _, marker := range []string{
 		"<title>Admin Page</title>",

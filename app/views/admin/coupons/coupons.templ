@@ -89,8 +89,8 @@ func couponEnabled(c *models.Coupon) bool {
 	return c != nil && c.Enabled
 }
 
-templ List(data ListData) {
-	@layouts.Admin("Coupons") {
+templ List(admin *models.AdminUser, data ListData) {
+	@layouts.Admin(admin, "Coupons") {
 		<style>
 			.cpn-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 			.cpn-table th, .cpn-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8dae0; }
@@ -151,8 +151,8 @@ templ List(data ListData) {
 	}
 }
 
-templ CouponForm(title string, action string, c *models.Coupon, errMsg string) {
-	@layouts.Admin(title) {
+templ CouponForm(admin *models.AdminUser, title string, action string, c *models.Coupon, errMsg string) {
+	@layouts.Admin(admin, title) {
 		<style>
 			.cpn-form { max-width: 520px; display: grid; gap: 12px; }
 			.cpn-form h1 { font-size: 20px; margin: 0 0 4px; }

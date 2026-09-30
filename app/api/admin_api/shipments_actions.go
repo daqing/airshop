@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/daqing/airshop/app/middlewares"
 	"github.com/daqing/airshop/app/services"
 	"github.com/daqing/airshop/app/views/admin/shipments"
 	"github.com/daqing/airway/lib/render"
@@ -23,7 +24,7 @@ func ShipmentsPageAction(c *gin.Context) {
 		return
 	}
 
-	render.HTML(c, shipments.Page(shipments.PageData{
+	render.HTML(c, shipments.Page(middlewares.CurrentAdmin(c), shipments.PageData{
 		PaidOrders: paid,
 		Shipments:  list,
 		Flash:      c.Query("error"),

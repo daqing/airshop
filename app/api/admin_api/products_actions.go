@@ -7,6 +7,7 @@ import (
 
 	"github.com/daqing/airway/lib/render"
 
+	"github.com/daqing/airshop/app/middlewares"
 	"github.com/daqing/airshop/app/models"
 	"github.com/daqing/airshop/app/services"
 	productsviews "github.com/daqing/airshop/app/views/admin/products"
@@ -51,7 +52,7 @@ func NewProductAction(c *gin.Context) {
 		return
 	}
 
-	render.HTML(c, productsviews.Form("New product", "/admin/products", nil, cats, nil, ""))
+	render.HTML(c, productsviews.Form(middlewares.CurrentAdmin(c), "New product", "/admin/products", nil, cats, nil, ""))
 }
 
 func CreateProductAction(c *gin.Context) {
@@ -97,7 +98,7 @@ func EditProductAction(c *gin.Context) {
 		return
 	}
 
-	render.HTML(c, productsviews.Form("Edit product", action, p, cats, entries, ""))
+	render.HTML(c, productsviews.Form(middlewares.CurrentAdmin(c), "Edit product", action, p, cats, entries, ""))
 }
 
 func UpdateProductAction(c *gin.Context) {
@@ -209,7 +210,7 @@ func renderProductFormError(c *gin.Context, title, action string, p *models.Prod
 		}
 	}
 
-	render.HTMLStatus(c, 422, productsviews.Form(title, action, display, cats, nil, msg))
+	render.HTMLStatus(c, 422, productsviews.Form(middlewares.CurrentAdmin(c), title, action, display, cats, nil, msg))
 }
 
 func UploadProductImagesAction(c *gin.Context) {

@@ -8,6 +8,7 @@ import (
 
 	"github.com/daqing/airway/lib/render"
 
+	"github.com/daqing/airshop/app/middlewares"
 	"github.com/daqing/airshop/app/models"
 	"github.com/daqing/airshop/app/services"
 	"github.com/daqing/airshop/app/views/admin/coupons"
@@ -30,7 +31,7 @@ func CouponsPageAction(c *gin.Context) {
 		usage[int64(cp.ID)] = count
 	}
 
-	render.HTML(c, coupons.List(coupons.ListData{
+	render.HTML(c, coupons.List(middlewares.CurrentAdmin(c), coupons.ListData{
 		Coupons: list,
 		Usage:   usage,
 		Flash:   c.Query("error"),
@@ -38,7 +39,7 @@ func CouponsPageAction(c *gin.Context) {
 }
 
 func NewCouponAction(c *gin.Context) {
-	render.HTML(c, coupons.CouponForm("New coupon", "/admin/coupons", nil, ""))
+	render.HTML(c, coupons.CouponForm(middlewares.CurrentAdmin(c), "New coupon", "/admin/coupons", nil, ""))
 }
 
 func CreateCouponAction(c *gin.Context) {
@@ -71,7 +72,7 @@ func EditCouponAction(c *gin.Context) {
 	}
 
 	action := "/admin/coupons/" + strconv.FormatInt(int64(id), 10) + "/update"
-	render.HTML(c, coupons.CouponForm("Edit coupon", action, cp, ""))
+	render.HTML(c, coupons.CouponForm(middlewares.CurrentAdmin(c), "Edit coupon", action, cp, ""))
 }
 
 func UpdateCouponAction(c *gin.Context) {
@@ -157,5 +158,5 @@ func renderCouponFormError(c *gin.Context, title, action string, cp *models.Coup
 		}
 	}
 
-	render.HTMLStatus(c, 422, coupons.CouponForm(title, action, display, msg))
+	render.HTMLStatus(c, 422, coupons.CouponForm(middlewares.CurrentAdmin(c), title, action, display, msg))
 }

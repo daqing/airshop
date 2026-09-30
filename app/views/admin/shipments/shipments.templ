@@ -17,8 +17,8 @@ func shipID(id int64) string {
 	return strconv.FormatInt(id, 10)
 }
 
-templ Page(data PageData) {
-	@layouts.Admin("Shipments") {
+templ Page(admin *models.AdminUser, data PageData) {
+	@layouts.Admin(admin, "Shipments") {
 		<style>
 			.shp { max-width: 880px; margin: 32px auto 64px; padding: 0 24px; }
 			.shp h1 { font-size: 22px; margin: 0 0 6px; }

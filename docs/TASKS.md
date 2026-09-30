@@ -145,7 +145,7 @@ Prerequisites: M5 (shipments attach to orders).
 
 Prerequisites: the admin pages from M1–M8 in place.
 
-- [ ] T9.1 ❓ Admin accounts: separate `admin_users` table vs a role column on users; admin login and auth middleware
+- [x] T9.1 ❓ Admin accounts — settled 2026-09-29 by David Zhang: **separate `admin_users` + `admin_sessions` tables with their own username/password login** (bcrypt) at `/admin/login`, instead of a role column on users — the customer SMS-code login and the admin login stay fully isolated. Boot-time bootstrap creates the first admin from `ADMIN_USERNAME`/`ADMIN_PASSWORD` (local default admin/admin123 with a console warning); `LoadAdminUser` + `RequireAdmin` guard every `/admin` route except the login pair; the admin layout shows the signed-in admin with a logout button. Covered by the env-gated integration test (wrong credentials, login, session resolve, disabled rejection, sign-out) and E2E (guest bounce, wrong password, dashboard access, logout)
 - [ ] T9.2 Dashboard: orders and sales for today/recent, pending work (to ship, to refund)
 - [ ] T9.3 Order management: list (status filter, search), detail, ship action, refund action
 - [ ] T9.4 Unify admin UX across modules (pagination, filters, empty states, confirm dialogs)

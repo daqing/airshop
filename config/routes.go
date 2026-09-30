@@ -39,6 +39,7 @@ func init() {
 // is the full router used when the app is served without a URL_PREFIX.
 func Routes(r *gin.Engine) {
 	r.Use(middlewares.LoadUser())
+	r.Use(middlewares.LoadAdminUser())
 
 	PublicRoutes(r)
 	AdminRoutes(r)
@@ -94,39 +95,49 @@ func PublicRoutes(r *gin.Engine) {
 func AdminRoutes(r *gin.Engine) {
 	admin := r.Group("/admin")
 	{
-		admin.GET("", admin_api.DashboardAction)
+		admin.GET("/login", admin_api.LoginPageAction)
+		admin.POST("/login", admin_api.LoginAction)
+		admin.POST("/logout", admin_api.LogoutAction)
+	}
 
-		admin.GET("/categories", admin_api.CategoriesIndexAction)
-		admin.GET("/categories/new", admin_api.NewCategoryAction)
-		admin.POST("/categories", admin_api.CreateCategoryAction)
-		admin.GET("/categories/:id/edit", admin_api.EditCategoryAction)
-		admin.POST("/categories/:id/update", admin_api.UpdateCategoryAction)
-		admin.POST("/categories/:id/delete", admin_api.DestroyCategoryAction)
+	// Everything else under /admin requires a signed-in admin. LoadAdminUser
+	// runs globally (see Routes) so these handlers see the current admin.
+	protected := admin.Group("/")
+	protected.Use(middlewares.RequireAdmin())
+	{
+		protected.GET("", admin_api.DashboardAction)
 
-		admin.GET("/products", admin_api.ProductsIndexAction)
-		admin.GET("/products/new", admin_api.NewProductAction)
-		admin.POST("/products", admin_api.CreateProductAction)
-		admin.GET("/products/:id/edit", admin_api.EditProductAction)
-		admin.POST("/products/:id/update", admin_api.UpdateProductAction)
-		admin.POST("/products/:id/activate", admin_api.ActivateProductAction)
-		admin.POST("/products/:id/deactivate", admin_api.DeactivateProductAction)
-		admin.POST("/products/:id/images/upload", admin_api.UploadProductImagesAction)
-		admin.POST("/products/:id/images/:imageId/delete", admin_api.DeleteProductImageAction)
-		admin.POST("/products/:id/images/:imageId/main", admin_api.MakeProductImageMainAction)
+		protected.GET("/categories", admin_api.CategoriesIndexAction)
+		protected.GET("/categories/new", admin_api.NewCategoryAction)
+		protected.POST("/categories", admin_api.CreateCategoryAction)
+		protected.GET("/categories/:id/edit", admin_api.EditCategoryAction)
+		protected.POST("/categories/:id/update", admin_api.UpdateCategoryAction)
+		protected.POST("/categories/:id/delete", admin_api.DestroyCategoryAction)
 
-		admin.GET("/coupons", admin_api.CouponsPageAction)
-		admin.GET("/coupons/new", admin_api.NewCouponAction)
-		admin.POST("/coupons", admin_api.CreateCouponAction)
-		admin.GET("/coupons/:id/edit", admin_api.EditCouponAction)
-		admin.POST("/coupons/:id/update", admin_api.UpdateCouponAction)
-		admin.POST("/coupons/:id/enable", admin_api.EnableCouponAction)
-		admin.POST("/coupons/:id/disable", admin_api.DisableCouponAction)
+		protected.GET("/products", admin_api.ProductsIndexAction)
+		protected.GET("/products/new", admin_api.NewProductAction)
+		protected.POST("/products", admin_api.CreateProductAction)
+		protected.GET("/products/:id/edit", admin_api.EditProductAction)
+		protected.POST("/products/:id/update", admin_api.UpdateProductAction)
+		protected.POST("/products/:id/activate", admin_api.ActivateProductAction)
+		protected.POST("/products/:id/deactivate", admin_api.DeactivateProductAction)
+		protected.POST("/products/:id/images/upload", admin_api.UploadProductImagesAction)
+		protected.POST("/products/:id/images/:imageId/delete", admin_api.DeleteProductImageAction)
+		protected.POST("/products/:id/images/:imageId/main", admin_api.MakeProductImageMainAction)
 
-		admin.GET("/shipments", admin_api.ShipmentsPageAction)
-		admin.POST("/shipments/:id", admin_api.ShipOrderAction)
-		admin.POST("/shipments/:id/in_transit", admin_api.ShipmentInTransitAction)
-		admin.POST("/shipments/:id/delivered", admin_api.ShipmentDeliveredAction)
-		admin.POST("/shipments/:id/events", admin_api.AddShipmentEventAction)
+		protected.GET("/coupons", admin_api.CouponsPageAction)
+		protected.GET("/coupons/new", admin_api.NewCouponAction)
+		protected.POST("/coupons", admin_api.CreateCouponAction)
+		protected.GET("/coupons/:id/edit", admin_api.EditCouponAction)
+		protected.POST("/coupons/:id/update", admin_api.UpdateCouponAction)
+		protected.POST("/coupons/:id/enable", admin_api.EnableCouponAction)
+		protected.POST("/coupons/:id/disable", admin_api.DisableCouponAction)
+
+		protected.GET("/shipments", admin_api.ShipmentsPageAction)
+		protected.POST("/shipments/:id", admin_api.ShipOrderAction)
+		protected.POST("/shipments/:id/in_transit", admin_api.ShipmentInTransitAction)
+		protected.POST("/shipments/:id/delivered", admin_api.ShipmentDeliveredAction)
+		protected.POST("/shipments/:id/events", admin_api.AddShipmentEventAction)
 	}
 }
 

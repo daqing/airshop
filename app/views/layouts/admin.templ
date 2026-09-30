@@ -1,12 +1,16 @@
 package layouts
 
+import (
+	"github.com/daqing/airshop/app/models"
+)
+
 // Admin is the back-office layout: an admin topbar with management nav
 // around the page body. Admin pages wrap their content in this component:
 //
 //	@layouts.Admin("My Title") {
 //		<p>Admin page body…</p>
 //	}
-templ Admin(title string, description ...string) {
+templ Admin(admin *models.AdminUser, title string, description ...string) {
 	@Base(title, description...) {
 		<style>
 			.aw-admin {
@@ -40,7 +44,16 @@ templ Admin(title string, description ...string) {
 					<a href="/admin/products">Products</a>
 					<a href="/admin/orders">Orders</a>
 					<a href="/admin/coupons">Coupons</a>
+					<a href="/admin/shipments">Shipments</a>
 				</nav>
+				<div style="margin-left: auto; display: flex; gap: 12px; align-items: center; font-size: 13px;">
+					if admin != nil {
+						<span>{ admin.DisplayName }</span>
+						<form method="post" action="/admin/logout" style="display: contents;">
+							<button style="background: none; border: 1px solid #4a4f5a; border-radius: 6px; color: #9a9eaa; font-size: 12px; padding: 3px 10px; cursor: pointer;">Logout</button>
+						</form>
+					}
+				</div>
 			</header>
 			<main class="aw-admin-main">
 				{ children... }

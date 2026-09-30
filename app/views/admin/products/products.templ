@@ -11,6 +11,7 @@ import (
 )
 
 type IndexData struct {
+	Admin      *models.AdminUser
 	Products   []*models.Product
 	Categories []*models.Category
 	Query      string
@@ -46,7 +47,7 @@ func indexURL(query, status string, page int) string {
 }
 
 templ Index(data IndexData) {
-	@layouts.Admin("Products") {
+	@layouts.Admin(data.Admin, "Products") {
 		<style>
 			.adm-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 			.adm-table th, .adm-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8dae0; }
@@ -142,8 +143,8 @@ templ Index(data IndexData) {
 	}
 }
 
-templ Form(title string, action string, p *models.Product, cats []*models.Category, images []services.ProductImageEntry, errMsg string) {
-	@layouts.Admin(title) {
+templ Form(admin *models.AdminUser, title string, action string, p *models.Product, cats []*models.Category, images []services.ProductImageEntry, errMsg string) {
+	@layouts.Admin(admin, title) {
 		<style>
 			.adm-form { max-width: 520px; display: grid; gap: 14px; }
 			.adm-form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
