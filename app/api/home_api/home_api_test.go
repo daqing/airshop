@@ -1,43 +1,54 @@
 package home_api
 
 import (
-	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 
-	"github.com/gin-gonic/gin"
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/views/home"
 )
 
-func TestIndexActionRendersHomePage(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-
-	r := gin.New()
-	r.GET("/", IndexAction)
-
-	w := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	r.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Fatalf("expected status 200, got %d", w.Code)
+func TestIndexViewRendersEmptyStorefront(t *testing.T) {
+	var buf strings.Builder
+	if err := home.Index(nil, nil).Render(t.Context(), &buf); err != nil {
+		t.Fatalf("render failed: %v", err)
 	}
+	body := buf.String()
 
-	if ct := w.Header().Get("Content-Type"); !strings.HasPrefix(ct, "text/html") {
-		t.Fatalf("expected a text/html content type, got %q", ct)
-	}
-
-	body := w.Body.String()
 	for _, want := range []string{
-		"<title>Airway Works</title>",
-		"Airway works",
-		"Keep building",
-		"airway generate api posts",
-		"airway db:migrate",
-		"go run . repl",
+		"<title>AirShop</title>",
+		"Latest products",
+		"No products yet",
+		"aw-storefront-header",
+		"aw-storefront-footer",
 	} {
 		if !strings.Contains(body, want) {
-			t.Fatalf("expected body to contain %q, got %q", want, body)
+			t.Fatalf("expected home HTML to contain %q, got:\n%s", want, body)
+		}
+	}
+}
+
+func TestIndexViewShowsProductsAndHidesNothing(t *testing.T) {
+	var buf strings.Builder
+	if err := home.Index(nil, []*models.Product{
+		{ID: 1, Name: "Mug", Slug: "mug", PriceCents: 4500, Active: true},
+		{ID: 2, Name: "Tee", Slug: "tee", PriceCents: 1990, Active: true, MainImage: "products/202609/abc.png"},
+	}).Render(t.Context(), &buf); err != nil {
+		t.Fatalf("render failed: %v", err)
+	}
+	body := buf.String()
+
+	for _, want := range []string{
+		">Mug<",
+		"45.00",
+		">Tee<",
+		"19.90",
+		"/products/mug",
+		"/products/tee",
+		"/api/v1/storage/products/202609/abc.png",
+	} {
+		if !strings.Contains(body, want) {
+			t.Fatalf("expected home HTML to contain %q, got:\n%s", want, body)
 		}
 	}
 }

@@ -1,0 +1,34 @@
+package catalog
+
+import (
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/services"
+)
+
+templ Grid(products []*models.Product) {
+	<style>
+		.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 18px; }
+		.product-card { border: 1px solid var(--sf-line); border-radius: 10px; overflow: hidden; background: var(--sf-bg); display: block; color: inherit; text-decoration: none; }
+		.product-card:hover { border-color: var(--sf-muted); }
+		.product-card .thumb { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: var(--sf-line); }
+		.product-card .thumb-empty { display: flex; align-items: center; justify-content: center; color: var(--sf-muted); font-size: 13px; }
+		.product-card .body { padding: 10px 12px 14px; }
+		.product-card .name { font-size: 14px; font-weight: 600; line-height: 1.4; }
+		.product-card .price { margin-top: 6px; font-size: 15px; font-weight: 700; }
+	</style>
+	<div class="product-grid">
+		for _, p := range products {
+			<a class="product-card" href={ templ.URL("/products/" + p.Slug) }>
+				if p.MainImage != "" {
+					<img class="thumb" src={ templ.URL(services.ProductImageURL(p.MainImage)) } alt={ p.Name }/>
+				} else {
+					<div class="thumb thumb-empty">No image</div>
+				}
+				<div class="body">
+					<div class="name">{ p.Name }</div>
+					<div class="price">{ services.FormatCents(p.PriceCents) }</div>
+				</div>
+			</a>
+		}
+	</div>
+}

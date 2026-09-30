@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"time"
 
 	"github.com/daqing/airway/app/websocket"
 	"github.com/daqing/airway/cmd"
@@ -17,7 +18,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
+	// Blank import so app/models init() runs and every model registers
+	// itself for the REPL regardless of other import chains.
+	_ "github.com/daqing/airshop/app/models"
+
+	"github.com/daqing/airshop/app/services"
 	"github.com/daqing/airshop/config"
+
+	_ "github.com/daqing/airshop/db/migrate"
 )
 
 // The project binary starts the HTTP server by default (or via `server`).
@@ -101,6 +109,24 @@ func runServer() {
 		log.Printf("plugin boot failed: %v", err)
 		os.Exit(5)
 	}
+
+	// Bootstrap the first admin account (no-op when one exists).
+	if err := services.BootstrapAdminIfEmpty(); err != nil {
+		log.Printf("admin bootstrap: %v", err)
+	}
+
+	// Local installs start with a small demo catalog (skipped when the
+	// catalog already has products or outside local environments).
+	if appConfig.IsLocal {
+		if seeded, err := services.SeedDemoDataIfEmpty(); err != nil {
+			log.Printf("demo seed: %v", err)
+		} else if seeded {
+			log.Println("seeded demo catalog for the local environment")
+		}
+	}
+
+	// Cancel unpaid orders once at boot and then on a ticker.
+	go services.RunOrderExpirySweeper(services.UnpaidOrderExpiry, time.Minute)
 
 	runApp()
 }

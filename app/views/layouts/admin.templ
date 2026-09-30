@@ -1,0 +1,106 @@
+package layouts
+
+import (
+	"github.com/daqing/airshop/app/models"
+)
+
+// Admin is the back-office layout: an admin topbar with management nav
+// around the page body, plus the shared admin component styles (a-* classes)
+// that every management page builds on. Pages wrap their content in this
+// component:
+//
+//	@layouts.Admin(admin, "My Title") {
+//		<p>Admin page body…</p>
+//	}
+templ Admin(admin *models.AdminUser, title string, description ...string) {
+	@Base(title, description...) {
+		<style>
+			.aw-admin {
+				--a-line: #d8dae0; --a-muted: #6b7280;
+				--a-ink: #101319; --a-paper: #f3f4ef;
+				--a-danger: #b3423a; --a-ok-bg: #e7f0e7; --a-ok-ink: #2f6b2f;
+				--a-bad-bg: #f3e6e5; --a-bad-ink: #8f2f28;
+				color-scheme: light;
+				min-height: 100vh; display: flex; flex-direction: column;
+				background: #f7f7f8; color: var(--a-ink);
+			}
+			@media (prefers-color-scheme: dark) {
+				.aw-admin {
+					--a-line: #2b303a; --a-muted: #9a9eaa;
+					--a-ink: #f3f4ef; --a-paper: #101319;
+					--a-bad-bg: #3a2624; --a-bad-ink: #e8a9a4;
+					--a-ok-bg: #243224; --a-ok-ink: #a4d6a4;
+					background: #171b23;
+				}
+			}
+			.aw-admin-topbar {
+				display: flex; align-items: center; gap: 24px;
+				padding: 12px 24px; background: #101319; color: #f3f4ef;
+			}
+			.aw-admin-brand { font-weight: 700; font-size: 15px; color: inherit; text-decoration: none; white-space: nowrap; }
+			.aw-admin-nav { display: flex; gap: 16px; font-size: 13px; flex-wrap: wrap; }
+			.aw-admin-nav a { color: #9a9eaa; text-decoration: none; }
+			.aw-admin-nav a:hover { color: #f3f4ef; }
+			.aw-admin-main { flex: 1; padding: 24px; }
+
+			/* shared page components (a-*) */
+			.a-page { max-width: 920px; margin: 0 auto; }
+			.a-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+			.a-head h1 { font-size: 22px; margin: 0; }
+			.a-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+			.a-table th, .a-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--a-line); }
+			.a-btn { display: inline-block; padding: 6px 14px; border: 1px solid var(--a-ink); border-radius: 6px; background: var(--a-ink); color: var(--a-paper); font-size: 13px; cursor: pointer; text-decoration: none; }
+			.a-btn-ghost { background: transparent; color: inherit; border-color: #8a8f9c; }
+			.a-btn-danger { background: transparent; color: var(--a-danger); border-color: var(--a-danger); }
+			.a-flash { padding: 10px 14px; border-radius: 8px; background: var(--a-bad-bg); color: var(--a-bad-ink); font-size: 13px; margin-bottom: 14px; }
+			.a-error { padding: 10px 14px; border-radius: 8px; background: var(--a-bad-bg); color: var(--a-bad-ink); font-size: 13px; }
+			.a-badge-on { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--a-ok-bg); color: var(--a-ok-ink); }
+			.a-badge-off { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--a-bad-bg); color: var(--a-bad-ink); }
+			.a-badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--a-ink); color: var(--a-paper); }
+			.a-empty { color: var(--a-muted); text-align: center; padding: 28px 0; }
+			.a-pager { display: flex; gap: 12px; align-items: center; margin-top: 16px; font-size: 13px; color: var(--a-muted); }
+			.a-pager a { padding: 5px 12px; border: 1px solid var(--a-line); border-radius: 6px; color: inherit; text-decoration: none; }
+			.a-pager a:hover { border-color: var(--a-muted); }
+			.a-form { display: grid; gap: 12px; max-width: 520px; }
+			.a-form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
+			.a-form input, .a-form select, .a-form textarea { padding: 8px 10px; border: 1px solid #b8bcc6; border-radius: 6px; font-size: 14px; font-weight: 400; }
+			.a-form .check { display: flex; gap: 8px; align-items: center; }
+			.a-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+			.a-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+			.a-actions form { display: contents; }
+			.a-mini { padding: 5px 12px; border: 1px solid var(--a-line); border-radius: 6px; background: transparent; color: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
+			.a-hint { font-size: 12px; color: var(--a-muted); font-weight: 400; }
+			.a-box { border: 1px solid var(--a-line); border-radius: 10px; padding: 16px 18px; }
+			.a-box h2 { font-size: 14px; margin: 0 0 12px; }
+			.a-kv { display: grid; gap: 6px; font-size: 13px; }
+			.a-kv .k { color: var(--a-muted); }
+			.a-line-item { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; padding: 6px 0; border-bottom: 1px dashed var(--a-line); }
+			.a-line-item:last-child { border-bottom: 0; }
+			.a-total { display: flex; justify-content: flex-end; gap: 14px; font-weight: 700; padding-top: 8px; }
+		</style>
+		<div class="aw-admin">
+			<header class="aw-admin-topbar">
+				<a href="/admin" class="aw-admin-brand">AirShop Admin</a>
+				<nav class="aw-admin-nav" aria-label="Admin">
+					<a href="/admin">Dashboard</a>
+					<a href="/admin/categories">Categories</a>
+					<a href="/admin/products">Products</a>
+					<a href="/admin/orders">Orders</a>
+					<a href="/admin/coupons">Coupons</a>
+					<a href="/admin/shipments">Shipments</a>
+				</nav>
+				<div style="margin-left: auto; display: flex; gap: 12px; align-items: center; font-size: 13px;">
+					if admin != nil {
+						<span>{ admin.DisplayName }</span>
+						<form method="post" action="/admin/logout" style="display: contents;">
+							<button style="background: none; border: 1px solid #4a4f5a; border-radius: 6px; color: #9a9eaa; font-size: 12px; padding: 3px 10px; cursor: pointer;">Logout</button>
+						</form>
+					}
+				</div>
+			</header>
+			<main class="aw-admin-main">
+				{ children... }
+			</main>
+		</div>
+	}
+}

@@ -4,14 +4,27 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/daqing/airshop/app/assets"
+	"github.com/daqing/airshop/app/middlewares"
+	"github.com/daqing/airshop/app/views/errors"
 	"github.com/daqing/airway/lib/jsbuild"
 	"github.com/daqing/airway/lib/openapi"
+	"github.com/daqing/airway/lib/render"
 	"github.com/daqing/airway/lib/utils"
 
+	"github.com/daqing/airshop/app/api/account_api"
+	"github.com/daqing/airshop/app/api/admin_api"
+	"github.com/daqing/airshop/app/api/auth_api"
+	"github.com/daqing/airshop/app/api/cart_api"
+	"github.com/daqing/airshop/app/api/checkout_api"
+	"github.com/daqing/airshop/app/api/couponscenter_api"
 	"github.com/daqing/airshop/app/api/health_api"
 	"github.com/daqing/airshop/app/api/home_api"
 	"github.com/daqing/airshop/app/api/openapi_api"
+	"github.com/daqing/airshop/app/api/orders_api"
+	"github.com/daqing/airshop/app/api/payment_api"
+	"github.com/daqing/airshop/app/api/products_api"
 	"github.com/daqing/airshop/app/api/storage_api"
+	regions_api "github.com/daqing/airshop/app/regions"
 	"github.com/daqing/airway/app/websocket"
 	"github.com/daqing/airway/lib/plugin"
 )
@@ -25,15 +38,49 @@ func init() {
 // Routes registers every route — public and internal — at the root paths. This
 // is the full router used when the app is served without a URL_PREFIX.
 func Routes(r *gin.Engine) {
+	r.Use(middlewares.Recovery())
+	r.Use(middlewares.LoadUser())
+	r.Use(middlewares.LoadAdminUser())
+
 	PublicRoutes(r)
+	AdminRoutes(r)
 	HealthRoutes(r)
+	FallbackRoutes(r)
 }
 
-// PublicRoutes registers the user-facing routes: the home page, the WebSocket,
-// and the API. When a URL_PREFIX is configured these answer only under the
-// prefix; see App.Handler.
+// PublicRoutes registers the customer-facing routes: the home page, the
+// WebSocket, and the API. When a URL_PREFIX is configured these answer only
+// under the prefix; see App.Handler.
 func PublicRoutes(r *gin.Engine) {
 	r.GET("/", home_api.IndexAction)
+	r.GET("/products", products_api.ListAction)
+	r.GET("/products/:slug", products_api.ShowAction)
+	r.GET("/signin", auth_api.SignInPageAction)
+	r.POST("/signin/code", auth_api.SendCodeAction)
+	r.POST("/signin", auth_api.SignInAction)
+	r.POST("/signout", auth_api.SignOutAction)
+	r.GET("/account", middlewares.RequireUser(), account_api.PageAction)
+	r.GET("/cart", middlewares.RequireUser(), cart_api.CartPageAction)
+	r.POST("/cart/add", middlewares.RequireUser(), cart_api.AddAction)
+	r.POST("/cart/items/:id", middlewares.RequireUser(), cart_api.UpdateItemAction)
+	r.POST("/cart/items/:id/delete", middlewares.RequireUser(), cart_api.RemoveItemAction)
+	r.POST("/cart/clear", middlewares.RequireUser(), cart_api.ClearAction)
+	r.GET("/checkout", middlewares.RequireUser(), checkout_api.PageAction)
+	r.POST("/checkout", middlewares.RequireUser(), checkout_api.PlaceOrderAction)
+	r.GET("/orders/:orderNo", middlewares.RequireUser(), orders_api.DetailAction)
+	r.POST("/orders/:orderNo/cancel", middlewares.RequireUser(), orders_api.CancelAction)
+	r.GET("/orders", middlewares.RequireUser(), orders_api.ListAction)
+	r.GET("/coupons", middlewares.RequireUser(), couponscenter_api.CenterAction)
+	r.POST("/coupons/claim", middlewares.RequireUser(), couponscenter_api.ClaimAction)
+	r.GET("/pay/fake", middlewares.RequireUser(), payment_api.FakeCashierAction)
+	r.POST("/pay/fake/confirm", middlewares.RequireUser(), payment_api.FakeConfirmAction)
+	r.GET("/account/addresses", middlewares.RequireUser(), account_api.AddressesPageAction)
+	r.GET("/account/addresses/new", middlewares.RequireUser(), account_api.NewAddressAction)
+	r.POST("/account/addresses", middlewares.RequireUser(), account_api.CreateAddressAction)
+	r.GET("/account/addresses/:id/edit", middlewares.RequireUser(), account_api.EditAddressAction)
+	r.POST("/account/addresses/:id/update", middlewares.RequireUser(), account_api.UpdateAddressAction)
+	r.POST("/account/addresses/:id/delete", middlewares.RequireUser(), account_api.DeleteAddressAction)
+	r.POST("/account/addresses/:id/default", middlewares.RequireUser(), account_api.SetDefaultAddressAction)
 
 	assetRoutes(r)
 	websocketRoutes(r)
@@ -41,6 +88,76 @@ func PublicRoutes(r *gin.Engine) {
 	openapiRoutes(r)
 
 	plugin.MountAll(r)
+}
+
+// AdminRoutes registers the back-office routes under /admin. Admin pages
+// render inside the admin layout; access control arrives with the admin
+// auth work (T9.1).
+func AdminRoutes(r *gin.Engine) {
+	admin := r.Group("/admin")
+	{
+		admin.GET("/login", admin_api.LoginPageAction)
+		admin.POST("/login", admin_api.LoginAction)
+		admin.POST("/logout", admin_api.LogoutAction)
+	}
+
+	// Everything else under /admin requires a signed-in admin. LoadAdminUser
+	// runs globally (see Routes) so these handlers see the current admin.
+	protected := admin.Group("/")
+	protected.Use(middlewares.RequireAdmin())
+	{
+		protected.GET("", admin_api.DashboardAction)
+
+		protected.GET("/categories", admin_api.CategoriesIndexAction)
+		protected.GET("/categories/new", admin_api.NewCategoryAction)
+		protected.POST("/categories", admin_api.CreateCategoryAction)
+		protected.GET("/categories/:id/edit", admin_api.EditCategoryAction)
+		protected.POST("/categories/:id/update", admin_api.UpdateCategoryAction)
+		protected.POST("/categories/:id/delete", admin_api.DestroyCategoryAction)
+
+		protected.GET("/products", admin_api.ProductsIndexAction)
+		protected.GET("/products/new", admin_api.NewProductAction)
+		protected.POST("/products", admin_api.CreateProductAction)
+		protected.GET("/products/:id/edit", admin_api.EditProductAction)
+		protected.POST("/products/:id/update", admin_api.UpdateProductAction)
+		protected.POST("/products/:id/activate", admin_api.ActivateProductAction)
+		protected.POST("/products/:id/deactivate", admin_api.DeactivateProductAction)
+		protected.POST("/products/:id/images/upload", admin_api.UploadProductImagesAction)
+		protected.POST("/products/:id/images/:imageId/delete", admin_api.DeleteProductImageAction)
+		protected.POST("/products/:id/images/:imageId/main", admin_api.MakeProductImageMainAction)
+
+		protected.GET("/coupons", admin_api.CouponsPageAction)
+		protected.GET("/coupons/new", admin_api.NewCouponAction)
+		protected.POST("/coupons", admin_api.CreateCouponAction)
+		protected.GET("/coupons/:id/edit", admin_api.EditCouponAction)
+		protected.POST("/coupons/:id/update", admin_api.UpdateCouponAction)
+		protected.POST("/coupons/:id/enable", admin_api.EnableCouponAction)
+		protected.POST("/coupons/:id/disable", admin_api.DisableCouponAction)
+
+		protected.GET("/orders", admin_api.OrdersPageAction)
+		protected.GET("/orders/:orderNo", admin_api.OrderDetailAction)
+		protected.POST("/orders/:orderNo/refund", admin_api.RefundOrderAction)
+
+		protected.GET("/shipments", admin_api.ShipmentsPageAction)
+		protected.POST("/shipments/:id", admin_api.ShipOrderAction)
+		protected.POST("/shipments/:id/in_transit", admin_api.ShipmentInTransitAction)
+		protected.POST("/shipments/:id/delivered", admin_api.ShipmentDeliveredAction)
+		protected.POST("/shipments/:id/events", admin_api.AddShipmentEventAction)
+	}
+}
+
+// FallbackRoutes registers the no-route handler so unknown paths get the
+// storefront 404 page instead of gin's plain-text default.
+func FallbackRoutes(r *gin.Engine) {
+	r.NoRoute(func(c *gin.Context) {
+		render.HTMLStatus(c, 404, errors.NotFound(middlewares.CurrentUser(c)))
+	})
+}
+
+// ForbiddenHandler renders the 403 page. Future auth middleware (admin
+// accounts, T9.1) calls this to deny access.
+func ForbiddenHandler(c *gin.Context) {
+	render.HTMLStatus(c, 403, errors.Forbidden(middlewares.CurrentUser(c)))
 }
 
 // HealthRoutes registers the internal health-check route. It stays reachable at
@@ -54,6 +171,7 @@ func apiGroupRoutes(r *gin.Engine) {
 	v1 := r.Group("/api/v1")
 	{
 		storage_api.Routes(v1)
+		regions_api.Routes(v1)
 	}
 }
 

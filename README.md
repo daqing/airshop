@@ -1,8 +1,66 @@
-# github.com/daqing/airshop
+# AirShop
 
-An [Airway](https://github.com/daqing/airway) application.
+A complete open-source e-commerce platform built in Go, on top of the
+[Airway](https://github.com/daqing/airway) framework.
+For the Chinese edition, see [README.zh-CN.md](README.zh-CN.md).
 
-## Setup
+## About
+
+AirShop implements a complete e-commerce system in Go — server-rendered,
+database-backed, and packageable as a native desktop application. It is
+under active development.
+
+The current scope is the classic commerce essentials; AI-powered features
+will follow in a third phase (yet to be planned).
+
+## Roadmap
+
+- **Phase 1 — Core commerce** *(complete)*: the full core commerce feature
+  set is implemented — catalog, cart, checkout, orders, payments, coupons,
+  accounts with phone-number sign-in, addresses, shipment tracking and an
+  admin panel.
+- **Phase 2 — Beyond core**: development shifts to AirShop-specific
+  features.
+- **Phase 3 — AI features** *(to be planned)*: AI-powered capabilities will
+  be provided in this phase.
+
+## Features
+
+Storefront:
+
+- Homepage with latest products
+- Product catalog with category filtering and details
+- Shopping cart (merge on repeat adds, stock caps)
+- Checkout with address snapshot and server-side totals
+- Orders with a status machine and tracking timeline
+- Payments through a gateway registry (fake gateway included for local
+  testing; WeChat Pay and Alipay planned)
+- Coupons: claim at the coupon center, apply at checkout
+- Account center with phone-number (SMS code) sign-in
+- Address book with cascading region selects
+- Shipment tracking timeline
+- Also ships as a native desktop app (see below)
+
+Admin:
+
+- Isolated admin login (username/password)
+- Dashboard with sales and pending-work stats
+- Category, product (with images and variants) and coupon management
+- Order management with refund action
+- Shipping with manual tracking events
+- Audit trail for high-risk operations
+
+## Tech stack
+
+- **Go** with the [Airway](https://github.com/daqing/airway) framework — a
+  server-rendered web app with a CLI for migrations, scaffolding and a
+  project REPL.
+- **Databases**: PostgreSQL, MySQL or SQLite; optional Redis.
+- **File storage**: local disk, Amazon S3, Cloudflare R2 or Tencent COS.
+- **Desktop**: the same app packages as a native macOS / Windows / Linux
+  application via Wails v3.
+
+## Getting started
 
 `.env` is created for you at scaffold time — open it and set `AIRWAY_ENV`
 (e.g. `local`), a `DSN` and the `LISTEN` address (`host:port`, e.g. `:1900`):
@@ -133,3 +191,12 @@ After adding migrations or plugins to the project, re-run
 
 The framework's [desktop guide](https://github.com/daqing/airway/blob/main/docs/desktop.md)
 has the full background and troubleshooting notes.
+
+## Acknowledgments
+
+- [Airway](https://github.com/daqing/airway) — the Go web framework this
+  project is built on.
+
+## License
+
+AirShop is released under the [MIT license](LICENSE).

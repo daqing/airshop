@@ -1,0 +1,176 @@
+package products
+
+import (
+	"strconv"
+	"strings"
+
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/services"
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+type VariantEntry struct {
+	Variant  *models.ProductVariant
+	Price    string
+	Sellable bool
+}
+
+type DetailData struct {
+	Product      *models.Product
+	CategoryName string
+	Images       []services.ProductImageEntry
+	Variants     []VariantEntry
+	User         *models.User
+}
+
+func stockLabel(p *models.Product) string {
+	if p.Stock > 0 {
+		return "In stock"
+	}
+	return "Out of stock"
+}
+
+func joinImages(images []services.ProductImageEntry) string {
+	urls := make([]string, 0, len(images))
+	for _, e := range images {
+		urls = append(urls, e.URL)
+	}
+	return strings.Join(urls, "\n")
+}
+
+func fmtID(id int64) string {
+	return strconv.FormatInt(id, 10)
+}
+
+templ Detail(data DetailData) {
+	@layouts.Storefront(data.User, data.Product.Name, data.Product.Description) {
+		<style>
+			.detail { max-width: 1080px; margin: 0 auto; padding: 32px 24px 64px; }
+			.crumb { font-size: 13px; color: var(--sf-muted); margin-bottom: 20px; }
+			.crumb a { color: inherit; text-decoration: none; }
+			.crumb a:hover { color: var(--sf-ink); }
+			.detail-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+			@media (max-width: 720px) { .detail-layout { grid-template-columns: 1fr; } }
+			.gallery-main { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; border: 1px solid var(--sf-line); background: var(--sf-line); }
+			.gallery-empty { display: flex; align-items: center; justify-content: center; color: var(--sf-muted); font-size: 14px; }
+			.gallery-thumbs { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+			.gallery-thumbs img { width: 64px; height: 64px; object-fit: cover; border-radius: 6px; border: 1px solid var(--sf-line); }
+			.detail-info h1 { font-size: 26px; letter-spacing: -0.5px; margin: 0 0 8px; }
+			.detail-price { font-size: 22px; font-weight: 700; margin: 12px 0; }
+			.detail-stock { font-size: 14px; margin-bottom: 16px; }
+			.detail-stock.out { color: #b3423a; }
+			.detail-desc { line-height: 1.7; color: var(--sf-muted); margin-bottom: 24px; white-space: pre-line; }
+			.cart-button { display: inline-block; padding: 12px 28px; border-radius: 8px; border: 1px solid var(--sf-ink); background: var(--sf-ink); color: var(--sf-bg); font-size: 15px; font-weight: 600; cursor: pointer; }
+			.cart-button[disabled] { opacity: .55; cursor: not-allowed; }
+			.cart-note { font-size: 12px; color: var(--sf-muted); margin-top: 8px; }
+			.variants { display: grid; gap: 8px; margin: 12px 0 20px; }
+			.variant { display: flex; justify-content: space-between; gap: 12px; align-items: center; border: 1px solid var(--sf-line); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+			.variant label { display: flex; gap: 8px; align-items: center; }
+			.variant .v-price { font-weight: 700; }
+			.variant .v-out { color: #b3423a; font-size: 12px; }
+		</style>
+		<section class="detail">
+			<nav class="crumb">
+				<a href="/products">Products</a>
+				if data.CategoryName != "" {
+					{ " / " }
+					{ data.CategoryName }
+				}
+				{ " / " }
+				{ data.Product.Name }
+			</nav>
+			<div class="detail-layout">
+				<div class="gallery">
+					if len(data.Images) > 0 {
+						<img class="gallery-main" src={ templ.URL(data.Images[0].URL) } alt={ data.Product.Name }/>
+						if len(data.Images) > 1 {
+							<div class="gallery-thumbs">
+								for _, img := range data.Images[1:] {
+									<img src={ templ.URL(img.URL) } alt={ data.Product.Name }/>
+								}
+							</div>
+						}
+					} else {
+						<div class="gallery-main gallery-empty">No image</div>
+					}
+				</div>
+				<div class="detail-info">
+					<h1>{ data.Product.Name }</h1>
+					<form method="post" action="/cart/add">
+						<input type="hidden" name="product_id" value={ fmtID(int64(data.Product.ID)) }/>
+						<input type="hidden" name="back" value={ templ.URL("/products/" + data.Product.Slug) }/>
+						if services.SellsThroughVariants(viewVariants(data.Variants)) {
+							<fieldset class="variants">
+								for i, v := range data.Variants {
+									<div class="variant">
+										<label>
+											if v.Sellable {
+												if i == 0 {
+													<input type="radio" name="variant_id" value={ fmtID(int64(v.Variant.ID)) } checked/>
+												} else {
+													<input type="radio" name="variant_id" value={ fmtID(int64(v.Variant.ID)) }/>
+												}
+											}
+											{ v.Variant.Name }
+										</label>
+										<span>
+											if v.Sellable {
+												<span class="v-price">{ v.Price }</span>
+											} else {
+												<span class="v-out">Out of stock</span>
+											}
+										</span>
+									</div>
+								}
+							</fieldset>
+						} else {
+							<div class="detail-price">{ services.FormatCents(data.Product.PriceCents) }</div>
+						}
+						<div class={ "detail-stock", stockClass(data.Product) }>{ stockLabel(data.Product) }</div>
+						if data.Product.Description != "" {
+							<p class="detail-desc">{ data.Product.Description }</p>
+						}
+						<label style="display: inline-flex; gap: 8px; align-items: center; font-size: 13px; margin-bottom: 12px;">
+							Quantity
+							<input type="number" name="quantity" value="1" min="1" max="99" style="width: 72px; padding: 8px 10px; border: 1px solid var(--sf-line); border-radius: 6px; font-size: 14px;"/>
+						</label>
+						<div>
+							if cartButtonEnabled(data) {
+								<button class="cart-button" type="submit">Add to cart</button>
+							} else {
+								<button class="cart-button" type="button" disabled>Add to cart</button>
+							}
+						</div>
+					</form>
+				</div>
+			</div>
+		</section>
+	}
+}
+
+func cartButtonEnabled(data DetailData) bool {
+	if services.ProductSellable(data.Product) {
+		return true
+	}
+	for _, v := range data.Variants {
+		if v.Sellable {
+			return true
+		}
+	}
+	return false
+}
+
+func stockClass(p *models.Product) string {
+	if p.Stock > 0 {
+		return ""
+	}
+	return "out"
+}
+
+func viewVariants(entries []VariantEntry) []*models.ProductVariant {
+	out := make([]*models.ProductVariant, 0, len(entries))
+	for _, e := range entries {
+		out = append(out, e.Variant)
+	}
+	return out
+}

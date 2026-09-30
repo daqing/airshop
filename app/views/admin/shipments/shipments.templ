@@ -1,0 +1,90 @@
+package shipments
+
+import (
+	"strconv"
+
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+type PageData struct {
+	PaidOrders []*models.Order
+	Shipments  []*models.Shipment
+	Flash      string
+}
+
+func shipID(id int64) string {
+	return strconv.FormatInt(id, 10)
+}
+
+templ Page(admin *models.AdminUser, data PageData) {
+	@layouts.Admin(admin, "Shipments") {
+
+		<div class="shp">
+			<h1>Shipments</h1>
+			if data.Flash != "" {
+				<div class="a-flash">{ data.Flash }</div>
+			}
+			<h2>Paid orders waiting to ship</h2>
+			if len(data.PaidOrders) == 0 {
+				<p class="a-empty">Nothing to ship right now.</p>
+			} else {
+				<table class="a-table">
+					<thead>
+						<tr><th>Order</th><th>Carrier</th><th>Tracking number</th><th></th></tr>
+					</thead>
+					<tbody>
+						for _, o := range data.PaidOrders {
+							<tr>
+								<td>{ o.OrderNo }</td>
+								<form class="a-form" method="post" action={ templ.URL("/admin/shipments/" + shipID(int64(o.ID))) }>
+									<td><input type="text" name="carrier" placeholder="e.g. SF Express" required/></td>
+									<td><input type="text" name="tracking_no" placeholder="Tracking number" required/></td>
+									<td><button class="a-btn" type="submit">Ship</button></td>
+								</form>
+							</tr>
+						}
+					</tbody>
+				</table>
+			}
+			<h2>Shipped</h2>
+			if len(data.Shipments) == 0 {
+				<p class="a-empty">No shipments yet.</p>
+			} else {
+				<table class="a-table">
+					<thead>
+						<tr><th>Order ID</th><th>Carrier</th><th>Tracking number</th><th>Status</th><th></th></tr>
+					</thead>
+					<tbody>
+						for _, s := range data.Shipments {
+							<tr>
+								<td>{ shipID(s.OrderID) }</td>
+								<td>{ s.Carrier }</td>
+								<td>{ s.TrackingNo }</td>
+								<td><span class="a-badge">{ s.Status }</span></td>
+								<td>
+									<div style="display: flex; gap: 8px; align-items: center;">
+										if s.Status == "created" {
+											<form method="post" action={ templ.URL("/admin/shipments/" + shipID(int64(s.ID)) + "/in_transit") }>
+												<button class="a-mini" type="submit">In transit</button>
+											</form>
+										}
+										if s.Status != "delivered" {
+											<form method="post" action={ templ.URL("/admin/shipments/" + shipID(int64(s.ID)) + "/delivered") }>
+												<button class="a-mini" type="submit">Delivered</button>
+											</form>
+										}
+									</div>
+									<form class="a-form" style="margin-top: 8px;" method="post" action={ templ.URL("/admin/shipments/" + shipID(int64(s.ID)) + "/events") }>
+										<input type="text" name="description" placeholder="Add tracking event…" required/>
+										<button class="a-mini" type="submit">Add event</button>
+									</form>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			}
+		</div>
+	}
+}

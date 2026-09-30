@@ -1,0 +1,100 @@
+package categories
+
+import (
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+templ Index(admin *models.AdminUser, cats []*models.Category, flash string) {
+	@layouts.Admin(admin, "Categories") {
+		<div class="a-page">
+		<div class="a-head">
+			<h1>Categories</h1>
+			<a class="a-btn" href="/admin/categories/new">New category</a>
+		</div>
+		if flash != "" {
+			<div class="a-flash">{ flash }</div>
+		}
+		if len(cats) == 0 {
+			<p>No categories yet. Create the first one.</p>
+		} else {
+			<table class="a-table">
+				<thead>
+					<tr><th>Name</th><th>Slug</th><th>Parent</th><th>Sort</th><th>Enabled</th><th></th></tr>
+				</thead>
+				<tbody>
+					for _, c := range cats {
+						<tr>
+							<td>{ c.Name }</td>
+							<td><code>{ c.Slug }</code></td>
+							<td>
+								if c.ParentID != nil {
+									{ parentName(cats, *c.ParentID) }
+								} else {
+									—
+								}
+							</td>
+							<td>{ fmtInt(c.SortOrder) }</td>
+							<td>{ enabledBadge(c.Enabled) }</td>
+							<td>
+								<div class="a-actions">
+									<a class="a-btn a-btn-ghost" href={ templ.URL("/admin/categories/" + fmtID(int64(c.ID)) + "/edit") }>Edit</a>
+									<form method="post" action={ templ.URL("/admin/categories/" + fmtID(int64(c.ID)) + "/delete") }>
+										<button class="a-btn a-btn-danger" type="submit" onclick="return confirm('Delete this category?')">Delete</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
+		</div>
+	}
+}
+
+templ Form(admin *models.AdminUser, title string, action string, cat *models.Category, parents []*models.Category, errMsg string) {
+	@layouts.Admin(admin, title) {
+		<div class="a-page">
+		<h1>{ title }</h1>
+		if errMsg != "" {
+			<p class="a-error">{ errMsg }</p>
+		}
+		<form class="a-form" method="post" action={ templ.URL(action) }>
+			<label>
+				Name
+				<input type="text" name="name" value={ formValue(catName(cat)) } required/>
+			</label>
+			<label>
+				Slug
+				<input type="text" name="slug" value={ formValue(catSlug(cat)) } required/>
+			</label>
+			<label>
+				Parent
+				<select name="parent_id">
+					<option value="">— none —</option>
+					for _, p := range parents {
+						if cat != nil && cat.ParentID != nil && *cat.ParentID == int64(p.ID) {
+							<option value={ fmtID(int64(p.ID)) } selected>{ p.Name }</option>
+						} else {
+							<option value={ fmtID(int64(p.ID)) }>{ p.Name }</option>
+						}
+					}
+				</select>
+			</label>
+			<label>
+				Sort order
+				<input type="number" name="sort_order" value={ formValue(catSortOrder(cat)) }/>
+			</label>
+			<label class="check">
+				<input type="checkbox" name="enabled" value="true" checked?={ cat == nil || cat.Enabled }/>
+				Enabled
+			</label>
+			<div>
+				<button class="a-btn a-btn-ghost" type="submit">Save</button>
+				<a class="a-btn a-btn-ghost" href="/admin/categories">Cancel</a>
+			</div>
+		</form>
+		</div>
+	}
+}
