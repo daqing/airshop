@@ -36,3 +36,20 @@ templ Forbidden(user *models.User) {
 		</style>
 	}
 }
+
+// ServerError renders the 500 page inside the storefront shell. The real
+// cause is only written to the server log, never to the response.
+templ ServerError(user *models.User) {
+	@layouts.Storefront(user, "Something went wrong") {
+		<section class="aw-error">
+			<h1>500</h1>
+			<p>Something went wrong on our side. Please try again.</p>
+			<p><a href="/">Back to the store</a></p>
+		</section>
+		<style>
+			.aw-error { max-width: 560px; margin: 0 auto; padding: 80px 24px; text-align: center; }
+			.aw-error h1 { font-size: 56px; letter-spacing: -2px; margin: 0; }
+			.aw-error p { margin: 12px 0 0; }
+		</style>
+	}
+}

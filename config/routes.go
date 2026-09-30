@@ -38,6 +38,7 @@ func init() {
 // Routes registers every route — public and internal — at the root paths. This
 // is the full router used when the app is served without a URL_PREFIX.
 func Routes(r *gin.Engine) {
+	r.Use(middlewares.Recovery())
 	r.Use(middlewares.LoadUser())
 	r.Use(middlewares.LoadAdminUser())
 
