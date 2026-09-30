@@ -51,14 +51,14 @@ func Dashboard(admin *models.AdminUser, stats services.DashboardStats) templ.Com
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t\t.dash { max-width: 880px; margin: 32px auto 64px; padding: 0 24px; }\n\t\t\t.dash h1 { font-size: 22px; margin: 0 0 18px; }\n\t\t\t.dash h2 { font-size: 15px; margin: 24px 0 12px; }\n\t\t\t.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }\n\t\t\t.stat-card { border: 1px solid #d8dae0; border-radius: 10px; padding: 14px 16px; }\n\t\t\t.stat-card .k { font-size: 12px; color: #6b7280; }\n\t\t\t.stat-card .v { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-top: 4px; }\n\t\t\t.todo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }\n\t\t\t.todo-card { border: 1px solid #d8dae0; border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; }\n\t\t\t.todo-card .n { font-size: 22px; font-weight: 700; }\n\t\t\t.todo-card .k { font-size: 12px; color: #6b7280; }\n\t\t\t.todo-card a { font-size: 12px; }\n\t\t\t.links { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 24px; }\n\t\t\t.links a { border: 1px solid #d8dae0; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: inherit; text-decoration: none; }\n\t\t\t.links a:hover { border-color: #6b7280; }\n\t\t</style> <div class=\"dash\"><h1>Dashboard</h1><h2>Last 7 days</h2><div class=\"stat-grid\"><div class=\"stat-card\"><div class=\"k\">Orders (7d)</div><div class=\"v\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t\t.dash h1 { font-size: 22px; margin: 0 0 18px; }\n\t\t\t.dash h2 { font-size: 15px; margin: 24px 0 12px; }\n\t\t\t.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }\n\t\t\t.stat-card { border: 1px solid #d8dae0; border-radius: 10px; padding: 14px 16px; }\n\t\t\t.stat-card .k { font-size: 12px; color: #6b7280; }\n\t\t\t.stat-card .v { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-top: 4px; }\n\t\t\t.todo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }\n\t\t\t.todo-card { border: 1px solid #d8dae0; border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; }\n\t\t\t.todo-card .n { font-size: 22px; font-weight: 700; }\n\t\t\t.todo-card .k { font-size: 12px; color: #6b7280; }\n\t\t\t.todo-card a { font-size: 12px; }\n\t\t\t.links { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 24px; }\n\t\t\t.links a { border: 1px solid #d8dae0; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: inherit; text-decoration: none; }\n\t\t\t.links a:hover { border-color: #6b7280; }\n\t\t</style> <div class=\"a-page\"><h1>Dashboard</h1><h2>Last 7 days</h2><div class=\"stat-grid\"><div class=\"stat-card\"><div class=\"k\">Orders (7d)</div><div class=\"v\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(stats.OrdersWeek, 10))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 36, Col: 115}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 35, Col: 115}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -71,7 +71,7 @@ func Dashboard(admin *models.AdminUser, stats services.DashboardStats) templ.Com
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(services.FormatCents(stats.SalesWeek))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 37, Col: 112}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 36, Col: 112}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -84,7 +84,7 @@ func Dashboard(admin *models.AdminUser, stats services.DashboardStats) templ.Com
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(stats.OrdersToday, 10))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 38, Col: 117}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 37, Col: 117}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -97,7 +97,7 @@ func Dashboard(admin *models.AdminUser, stats services.DashboardStats) templ.Com
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(services.FormatCents(stats.SalesToday))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 39, Col: 114}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 38, Col: 114}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -110,7 +110,7 @@ func Dashboard(admin *models.AdminUser, stats services.DashboardStats) templ.Com
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(stats.ToShip, 10))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 44, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 43, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -123,7 +123,7 @@ func Dashboard(admin *models.AdminUser, stats services.DashboardStats) templ.Com
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(stats.AwaitingPayment, 10))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 49, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 48, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -136,7 +136,7 @@ func Dashboard(admin *models.AdminUser, stats services.DashboardStats) templ.Com
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(stats.Shipped, 10))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 54, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 53, Col: 59}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -149,7 +149,7 @@ func Dashboard(admin *models.AdminUser, stats services.DashboardStats) templ.Com
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(stats.Refunded, 10))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 59, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 58, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {

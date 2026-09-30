@@ -62,7 +62,7 @@ func TestAdminLayoutRendersShell(t *testing.T) {
 		">AirShop Admin</a>",
 		`href="/admin/products"`,
 		"aw-admin-main",
-		"--ad-bg",
+		"--a-ink",
 		"prefers-color-scheme: dark",
 	} {
 		if !strings.Contains(html, marker) {

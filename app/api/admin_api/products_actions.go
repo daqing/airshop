@@ -33,7 +33,7 @@ func ProductsIndexAction(c *gin.Context) {
 		totalPages = 1
 	}
 
-	render.HTML(c, productsviews.Index(productsviews.IndexData{
+	render.HTML(c, productsviews.Index(middlewares.CurrentAdmin(c), productsviews.IndexData{
 		Products:   products,
 		Categories: cats,
 		Query:      f.Query,

@@ -3,8 +3,6 @@ package products
 import (
 	"strconv"
 
-	airwaysql "github.com/daqing/airway/lib/sql"
-
 	"github.com/daqing/airshop/app/models"
 	"github.com/daqing/airshop/app/services"
 	"github.com/daqing/airshop/app/views/layouts"
@@ -22,6 +20,25 @@ type IndexData struct {
 	Flash      string
 }
 
+func indexURL(query, status string, page int) string {
+	u := "/admin/products?page=" + strconv.Itoa(page)
+	if query != "" {
+		u += "&q=" + query
+	}
+	if status != "" {
+		u += "&status=" + status
+	}
+	return u
+}
+
+func productAction(productID, imageID int64, verb string) string {
+	base := "/admin/products/" + strconv.FormatInt(productID, 10) + "/images"
+	if imageID == 0 {
+		return base + "/upload"
+	}
+	return base + "/" + strconv.FormatInt(int64(imageID), 10) + "/" + verb
+}
+
 func categoryName(cats []*models.Category, id int64) string {
 	for _, c := range cats {
 		if int64(c.ID) == id {
@@ -35,211 +52,189 @@ func fmtID(id int64) string {
 	return strconv.FormatInt(id, 10)
 }
 
-func indexURL(query, status string, page int) string {
-	u := "/admin/products?page=" + strconv.Itoa(page)
-	if query != "" {
-		u += "&q=" + query
-	}
-	if status != "" {
-		u += "&status=" + status
-	}
-	return u
-}
-
-templ Index(data IndexData) {
-	@layouts.Admin(data.Admin, "Products") {
-		<style>
-			.adm-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-			.adm-table th, .adm-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8dae0; }
-			.adm-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-			.adm-button { display: inline-block; padding: 5px 12px; border: 1px solid #8a8f9c; border-radius: 6px; background: transparent; color: inherit; font-size: 13px; cursor: pointer; text-decoration: none; }
-			.adm-button-danger { border-color: #b3423a; color: #b3423a; }
-			.adm-flash { padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; background: #f3e6e5; color: #8f2f28; }
-			.adm-filter { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; }
-			.adm-filter input, .adm-filter select { padding: 6px 8px; border: 1px solid #b8bcc6; border-radius: 6px; font-size: 13px; }
-			.adm-pager { display: flex; gap: 12px; align-items: center; margin-top: 16px; font-size: 13px; }
-		</style>
-		<div class="adm-head">
-			<h1>Products</h1>
-			<a class="adm-button" href="/admin/products/new">New product</a>
-		</div>
-		if data.Flash != "" {
-			<div class="adm-flash">{ data.Flash }</div>
-		}
-		<form class="adm-filter" method="get" action="/admin/products">
-			<input type="text" name="q" placeholder="Search by name" value={ data.Query }/>
-			<select name="status">
-				<option value="">All statuses</option>
-				if data.Status == "active" {
-					<option value="active" selected>Active</option>
-				} else {
-					<option value="active">Active</option>
-				}
-				if data.Status == "inactive" {
-					<option value="inactive" selected>Inactive</option>
-				} else {
-					<option value="inactive">Inactive</option>
-				}
-			</select>
-			<button class="adm-button" type="submit">Filter</button>
-		</form>
-		if len(data.Products) == 0 {
-			<p>No products match.</p>
-		} else {
-			<table class="adm-table">
-				<thead>
-					<tr><th>Name</th><th>Slug</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr>
-				</thead>
-				<tbody>
-					for _, p := range data.Products {
-						<tr>
-							<td>{ p.Name }</td>
-							<td><code>{ p.Slug }</code></td>
-							<td>
-								if p.CategoryID != nil {
-									{ categoryName(data.Categories, *p.CategoryID) }
-								} else {
-									—
-								}
-							</td>
-							<td>{ services.FormatCents(p.PriceCents) }</td>
-							<td>{ strconv.Itoa(p.Stock) }</td>
-							<td>
-								if p.Active {
-									active
-								} else {
-									inactive
-								}
-							</td>
-							<td>
-								<div style="display: flex; gap: 8px;">
-									<a class="adm-button" href={ templ.URL("/admin/products/" + fmtID(int64(p.ID)) + "/edit") }>Edit</a>
-									if p.Active {
-										<form method="post" action={ templ.URL("/admin/products/" + fmtID(int64(p.ID)) + "/deactivate") }>
-											<button class="adm-button" type="submit">Deactivate</button>
-										</form>
-									} else {
-										<form method="post" action={ templ.URL("/admin/products/" + fmtID(int64(p.ID)) + "/activate") }>
-											<button class="adm-button" type="submit">Activate</button>
-										</form>
-									}
-								</div>
-							</td>
-						</tr>
-					}
-				</tbody>
-			</table>
-			<div class="adm-pager">
-				<span>{ strconv.FormatInt(data.Total, 10) } product(s)</span>
-				if data.Page > 1 {
-									<a class="adm-button" href={ templ.URL(indexURL(data.Query, data.Status, data.Page-1)) }>Prev</a>
-				}
-				<span>Page { strconv.Itoa(data.Page) } of { strconv.Itoa(data.TotalPages) }</span>
-				if data.Page < data.TotalPages {
-									<a class="adm-button" href={ templ.URL(indexURL(data.Query, data.Status, data.Page+1)) }>Next</a>
-				}
+templ Index(admin *models.AdminUser, data IndexData) {
+	<style>
+		.a-filter { display: flex; gap: 8px; margin-bottom: 14px; }
+		.a-filter input, .a-filter select { padding: 7px 10px; border: 1px solid var(--a-line); border-radius: 6px; font-size: 13px; }
+	</style>
+	@layouts.Admin(admin, "Products") {
+		<div class="a-page">
+			<div class="a-head">
+				<h1>Products</h1>
+				<a class="a-btn" href="/admin/products/new">New product</a>
 			</div>
-		}
+			if data.Flash != "" {
+				<div class="a-flash">{ data.Flash }</div>
+			}
+			<form class="a-filter" method="get" action="/admin/products">
+				<input type="text" name="q" placeholder="Search by name" value={ data.Query }/>
+				<select name="status">
+					<option value="">All statuses</option>
+					if data.Status == "active" {
+						<option value="active" selected>Active</option>
+					} else {
+						<option value="active">Active</option>
+					}
+					if data.Status == "inactive" {
+						<option value="inactive" selected>Inactive</option>
+					} else {
+						<option value="inactive">Inactive</option>
+					}
+				</select>
+				<button class="a-btn" type="submit">Filter</button>
+			</form>
+			if len(data.Products) == 0 {
+				<p class="a-empty">No products match.</p>
+			} else {
+				<table class="a-table">
+					<thead>
+						<tr><th>Name</th><th>Slug</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr>
+					</thead>
+					<tbody>
+						for _, p := range data.Products {
+							<tr>
+								<td>{ p.Name }</td>
+								<td><code>{ p.Slug }</code></td>
+								<td>
+									if p.CategoryID != nil {
+										{ categoryName(data.Categories, *p.CategoryID) }
+									} else {
+										—
+									}
+								</td>
+								<td>{ services.FormatCents(p.PriceCents) }</td>
+								<td>{ strconv.Itoa(p.Stock) }</td>
+								<td>
+									if p.Active {
+										active
+									} else {
+										inactive
+									}
+								</td>
+								<td>
+									<div class="a-actions">
+										<a class="a-btn a-btn-ghost" href={ templ.URL("/admin/products/" + fmtID(int64(p.ID)) + "/edit") }>Edit</a>
+										if p.Active {
+											<form method="post" action={ templ.URL("/admin/products/" + fmtID(int64(p.ID)) + "/deactivate") }>
+												<button class="a-mini" type="submit">Deactivate</button>
+											</form>
+										} else {
+											<form method="post" action={ templ.URL("/admin/products/" + fmtID(int64(p.ID)) + "/activate") }>
+												<button class="a-mini" type="submit">Activate</button>
+											</form>
+										}
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+				<div class="a-pager">
+					<span>{ strconv.FormatInt(data.Total, 10) } product(s)</span>
+					if data.Page > 1 {
+						<a class="a-btn a-btn-ghost" href={ templ.URL(indexURL(data.Query, data.Status, data.Page-1)) }>Prev</a>
+					}
+					<span>Page { strconv.Itoa(data.Page) } of { strconv.Itoa(data.TotalPages) }</span>
+					if data.Page < data.TotalPages {
+						<a class="a-btn a-btn-ghost" href={ templ.URL(indexURL(data.Query, data.Status, data.Page+1)) }>Next</a>
+					}
+				</div>
+			}
+		</div>
 	}
 }
 
 templ Form(admin *models.AdminUser, title string, action string, p *models.Product, cats []*models.Category, images []services.ProductImageEntry, errMsg string) {
+	<style>
+		.a-images { display: flex; gap: 12px; flex-wrap: wrap; margin: 8px 0 16px; }
+		.a-image { width: 120px; display: grid; gap: 6px; justify-items: center; }
+		.a-image img { width: 120px; height: 120px; object-fit: cover; border-radius: 6px; border: 1px solid var(--a-line); }
+		.a-image .row { display: flex; gap: 6px; }
+		.a-image .a-mini { padding: 3px 8px; font-size: 12px; }
+		.a-main-badge { font-size: 11px; letter-spacing: 1px; color: #2f6b2f; }
+		.a-upload { display: flex; gap: 10px; align-items: center; margin-bottom: 24px; }
+	</style>
 	@layouts.Admin(admin, title) {
-		<style>
-			.adm-form { max-width: 520px; display: grid; gap: 14px; }
-			.adm-form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
-			.adm-form input[type="text"], .adm-form input[type="number"], .adm-form select, .adm-form textarea {
-				padding: 8px 10px; border: 1px solid #b8bcc6; border-radius: 6px; font-size: 14px; font-weight: 400;
+		<div class="a-page">
+			<h1>{ title }</h1>
+			if errMsg != "" {
+				<p class="a-error">{ errMsg }</p>
 			}
-			.adm-form .check { display: flex; align-items: center; gap: 8px; }
-			.adm-error { padding: 10px 14px; border-radius: 6px; background: #f3e6e5; color: #8f2f28; }
-			.adm-button { display: inline-block; padding: 8px 16px; border: 1px solid #8a8f9c; border-radius: 6px; background: transparent; color: inherit; font-size: 14px; cursor: pointer; text-decoration: none; }
-			.adm-images { display: flex; gap: 12px; flex-wrap: wrap; margin: 8px 0 16px; }
-			.adm-image { width: 120px; display: grid; gap: 6px; justify-items: center; }
-			.adm-image img { width: 120px; height: 120px; object-fit: cover; border-radius: 6px; border: 1px solid #d8dae0; }
-			.adm-image .row { display: flex; gap: 6px; }
-			.adm-image .adm-button { padding: 3px 8px; font-size: 12px; }
-			.adm-main-badge { font-size: 11px; letter-spacing: 1px; color: #2f6b2f; }
-			.adm-upload { max-width: 520px; display: flex; gap: 10px; align-items: center; margin-bottom: 24px; }
-		</style>
-		<h1>{ title }</h1>
-		if errMsg != "" {
-			<p class="adm-error">{ errMsg }</p>
-		}
-		if p != nil {
-			<h2>Images</h2>
-			if len(images) == 0 {
-				<p>No images yet — the first uploaded image becomes the main one.</p>
-			} else {
-				<div class="adm-images">
-					for _, entry := range images {
-						<div class="adm-image">
-							<img src={ templ.URL(entry.URL) } alt="product image"/>
-							if entry.IsMain {
-								<span class="adm-main-badge">MAIN</span>
-							}
-							<div class="row">
-								if !entry.IsMain {
-									<form method="post" action={ templ.URL(productAction(p.ID, entry.Image.ID, "main")) }>
-										<button class="adm-button" type="submit">Make main</button>
-									</form>
+			if p != nil {
+				<h2>Images</h2>
+				if len(images) == 0 {
+					<p>No images yet — the first uploaded image becomes the main one.</p>
+				} else {
+					<div class="a-images">
+						for _, entry := range images {
+							<div class="a-image">
+								<img src={ templ.URL(entry.URL) } alt="product image"/>
+								if entry.IsMain {
+									<span class="a-main-badge">MAIN</span>
 								}
-								<form method="post" action={ templ.URL(productAction(p.ID, entry.Image.ID, "delete")) }>
-									<button class="adm-button adm-button-danger" type="submit">Delete</button>
-								</form>
+								<div class="row">
+									if !entry.IsMain {
+										<form method="post" action={ templ.URL(productAction(int64(p.ID), int64(entry.Image.ID), "main")) }>
+											<button class="a-mini" type="submit">Make main</button>
+										</form>
+									}
+									<form method="post" action={ templ.URL(productAction(int64(p.ID), int64(entry.Image.ID), "delete")) }>
+										<button class="a-mini a-btn-danger" type="submit" onclick="return confirm('Delete this image?')">Delete</button>
+									</form>
+								</div>
 							</div>
-						</div>
-					}
-				</div>
-			}
-			<form class="adm-upload" method="post" encType="multipart/form-data" action={ templ.URL(productAction(p.ID, 0, "upload")) }>
-				<input type="file" name="images" multiple accept="image/jpeg,image/png,image/webp,image/gif"/>
-				<button class="adm-button" type="submit">Upload</button>
-			</form>
-		}
-		<form class="adm-form" method="post" action={ templ.URL(action) }>
-			<label>
-				Name
-				<input type="text" name="name" value={ productName(p) } required/>
-			</label>
-			<label>
-				Slug (auto-generated from name when left blank)
-				<input type="text" name="slug" value={ productSlug(p) }/>
-			</label>
-			<label>
-				Category
-				<select name="category_id">
-					<option value="">— none —</option>
-					for _, cat := range cats {
-						if p != nil && p.CategoryID != nil && *p.CategoryID == int64(cat.ID) {
-							<option value={ fmtID(int64(cat.ID)) } selected>{ cat.Name }</option>
-						} else {
-							<option value={ fmtID(int64(cat.ID)) }>{ cat.Name }</option>
 						}
-					}
-				</select>
-			</label>
-			<label>
-				Price
-				<input type="text" name="price" value={ productPrice(p) } required/>
-			</label>
-			<label>
-				Stock
-				<input type="number" name="stock" value={ productStock(p) } required/>
-			</label>
-			<label>
-				Description
-				<textarea name="description" rows="4">{ productDescription(p) }</textarea>
-			</label>
-			<label class="check">
-				<input type="checkbox" name="active" value="true" checked?={ p == nil || p.Active }/>
-				Active (visible on the storefront)
-			</label>
-			<div>
-				<button class="adm-button" type="submit">Save</button>
-				<a class="adm-button" href="/admin/products">Cancel</a>
-			</div>
-		</form>
+					</div>
+					<form class="a-upload" method="post" encType="multipart/form-data" action={ templ.URL(productAction(int64(p.ID), 0, "upload")) }>
+						<input type="file" name="images" multiple accept="image/jpeg,image/png,image/webp,image/gif"/>
+						<button class="a-btn a-btn-ghost" type="submit">Upload</button>
+					</form>
+				}
+			}
+			<form class="a-form" method="post" action={ templ.URL(action) }>
+				<label>
+					Name
+					<input type="text" name="name" value={ productName(p) } required/>
+				</label>
+				<label>
+					Slug (auto-generated from name when left blank)
+					<input type="text" name="slug" value={ productSlug(p) }/>
+				</label>
+				<label>
+					Category
+					<select name="category_id">
+						<option value="">— none —</option>
+						for _, cat := range cats {
+							if p != nil && p.CategoryID != nil && *p.CategoryID == int64(cat.ID) {
+								<option value={ fmtID(int64(cat.ID)) } selected>{ cat.Name }</option>
+							} else {
+								<option value={ fmtID(int64(cat.ID)) }>{ cat.Name }</option>
+							}
+						}
+					</select>
+				</label>
+				<label>
+					Price
+					<input type="text" name="price" value={ productPrice(p) } required/>
+				</label>
+				<label>
+					Stock
+					<input type="number" name="stock" value={ productStock(p) } required/>
+				</label>
+				<label>
+					Description
+					<textarea name="description" rows="4">{ productDescription(p) }</textarea>
+				</label>
+				<label class="check">
+					<input type="checkbox" name="active" value="true" checked?={ p == nil || p.Active }/>
+					Active (visible on the storefront)
+				</label>
+				<div>
+					<button class="a-btn" type="submit">Save</button>
+					<a class="a-btn a-btn-ghost" href="/admin/products">Cancel</a>
+				</div>
+			</form>
+		</div>
 	}
 }
 
@@ -283,12 +278,4 @@ func productMainImage(p *models.Product) string {
 		return ""
 	}
 	return p.MainImage
-}
-
-func productAction(productID, imageID airwaysql.IdType, verb string) string {
-	base := "/admin/products/" + strconv.FormatInt(int64(productID), 10) + "/images"
-	if imageID == 0 {
-		return base + "/upload"
-	}
-	return base + "/" + strconv.FormatInt(int64(imageID), 10) + "/" + verb
 }

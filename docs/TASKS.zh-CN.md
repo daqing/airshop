@@ -139,7 +139,7 @@ go run . repl                      # 带项目模型的 REPL
 - [x] T9.1 ❓ 管理员体系:独立 `admin_users` 表,还是 users 加角色字段;后台登录与鉴权中间件 —— 2026-09-29 由 David Zhang 拍板:**独立 `admin_users` + `admin_sessions` 表,独立用户名/密码登录(bcrypt)**,登录页 `/admin/login`——顾客短信登录与后台登录完全隔离。启动时引导首个管理员(`ADMIN_USERNAME`/`ADMIN_PASSWORD`,本地默认 admin/admin123 并打警告);`LoadAdminUser` + `RequireAdmin` 守卫登录对以外的全部 `/admin` 路由;后台布局显示当前管理员与登出按钮。环境门控集成测试(错误凭据、登录、会话解析、禁用拒绝、登出)与 E2E(访客弹登录、错误密码、后台访问、登出)覆盖
 - [x] T9.2 仪表盘:今日/近期订单数、销售额、待处理事项(待发货、待退款)—— 2026-09-29 完成:`services.DashboardData`(今日/近 7 天的订单数与销售额,统计口径为 paid+shipped+completed,时间阈值按 CURRENT_TIMESTAMP 规则用本地墙钟;按状态的待办计数),仪表盘页重写为统计卡片 + 待办卡片(链到发货/订单页) + 模块快捷入口。环境门控集成测试(今日/本周窗口、pending 与 refunded 不计、ToShip 不看时效)与 E2E(支付后数字联动)覆盖
 - [x] T9.3 订单管理:列表(状态筛选、搜索)、详情、发货入口、退款操作 —— 2026-09-29 完成:`services.AdminListOrders`(状态筛选、单号 ILIKE 搜索、分页)/`AdminFindOrderByNo`/`AdminRefundOrder`(状态机驱动库存与券回补);`/admin/orders` 列表(chip、搜索、分页)与 `/admin/orders/<单号>` 详情(摘要、明细、收货、追踪行、可退款时显示退款按钮、paid 时显示发货快捷入口)。E2E 已验证(列表/搜索/筛选、详情、支付 → 退款且库存与券回补)
-- [ ] T9.4 各模块 admin 页面体验统一(分页、筛选、空状态、确认弹窗)
+- [x] T9.4 各模块 admin 页面体验统一(分页、筛选、空状态、确认弹窗)—— 2026-09-29 完成:admin 布局持有共享的 `a-*` 组件样式(表格、按钮含 ghost/danger 变体、徽标、横幅/错误、分页、空态、表单、盒子、键值行、迷你按钮)与明暗变量;各 admin 页面删除重复样式块、统一改用共享类;破坏性操作(分类删除、商品图片删除)带确认对话框。layouts 测试与六个 admin 页面的 E2E 冒烟覆盖
 - [ ] T9.5 ❓ 需要的话加操作审计 `admin_logs`
 
 ## M10 打磨与发布
