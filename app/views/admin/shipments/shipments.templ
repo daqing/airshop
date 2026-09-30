@@ -1,0 +1,103 @@
+package shipments
+
+import (
+	"strconv"
+
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+type PageData struct {
+	PaidOrders []*models.Order
+	Shipments  []*models.Shipment
+	Flash      string
+}
+
+func shipID(id int64) string {
+	return strconv.FormatInt(id, 10)
+}
+
+templ Page(data PageData) {
+	@layouts.Admin("Shipments") {
+		<style>
+			.shp { max-width: 880px; margin: 32px auto 64px; padding: 0 24px; }
+			.shp h1 { font-size: 22px; margin: 0 0 6px; }
+			.shp h2 { font-size: 15px; margin: 24px 0 12px; }
+			.shp-flash { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; font-size: 13px; margin-bottom: 14px; }
+			.shp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+			.shp-table th, .shp-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8dae0; }
+			.shp-form { display: flex; gap: 8px; flex-wrap: wrap; }
+			.shp-form input { padding: 7px 10px; border: 1px solid #b8bcc6; border-radius: 6px; font-size: 13px; }
+			.shp-button { padding: 7px 14px; border: 1px solid #101319; border-radius: 6px; background: #101319; color: #f3f4ef; font-size: 13px; cursor: pointer; }
+			.shp-mini { padding: 5px 12px; border: 1px solid #8a8f9c; border-radius: 6px; background: transparent; color: inherit; font-size: 12px; cursor: pointer; }
+			.shp-empty { color: #6b7280; padding: 16px 0; }
+			.shp-badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #101319; color: #f3f4ef; }
+		</style>
+		<div class="shp">
+			<h1>Shipments</h1>
+			if data.Flash != "" {
+				<div class="shp-flash">{ data.Flash }</div>
+			}
+			<h2>Paid orders waiting to ship</h2>
+			if len(data.PaidOrders) == 0 {
+				<p class="shp-empty">Nothing to ship right now.</p>
+			} else {
+				<table class="shp-table">
+					<thead>
+						<tr><th>Order</th><th>Carrier</th><th>Tracking number</th><th></th></tr>
+					</thead>
+					<tbody>
+						for _, o := range data.PaidOrders {
+							<tr>
+								<td>{ o.OrderNo }</td>
+								<form class="shp-form" method="post" action={ templ.URL("/admin/shipments/" + shipID(int64(o.ID))) }>
+									<td><input type="text" name="carrier" placeholder="e.g. SF Express" required/></td>
+									<td><input type="text" name="tracking_no" placeholder="Tracking number" required/></td>
+									<td><button class="shp-button" type="submit">Ship</button></td>
+								</form>
+							</tr>
+						}
+					</tbody>
+				</table>
+			}
+			<h2>Shipped</h2>
+			if len(data.Shipments) == 0 {
+				<p class="shp-empty">No shipments yet.</p>
+			} else {
+				<table class="shp-table">
+					<thead>
+						<tr><th>Order ID</th><th>Carrier</th><th>Tracking number</th><th>Status</th><th></th></tr>
+					</thead>
+					<tbody>
+						for _, s := range data.Shipments {
+							<tr>
+								<td>{ shipID(s.OrderID) }</td>
+								<td>{ s.Carrier }</td>
+								<td>{ s.TrackingNo }</td>
+								<td><span class="shp-badge">{ s.Status }</span></td>
+								<td>
+									<div style="display: flex; gap: 8px; align-items: center;">
+										if s.Status == "created" {
+											<form method="post" action={ templ.URL("/admin/shipments/" + shipID(int64(s.ID)) + "/in_transit") }>
+												<button class="shp-mini" type="submit">In transit</button>
+											</form>
+										}
+										if s.Status != "delivered" {
+											<form method="post" action={ templ.URL("/admin/shipments/" + shipID(int64(s.ID)) + "/delivered") }>
+												<button class="shp-mini" type="submit">Delivered</button>
+											</form>
+										}
+									</div>
+									<form class="shp-form" style="margin-top: 8px;" method="post" action={ templ.URL("/admin/shipments/" + shipID(int64(s.ID)) + "/events") }>
+										<input type="text" name="description" placeholder="Add tracking event…" required/>
+										<button class="shp-mini" type="submit">Add event</button>
+									</form>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			}
+		</div>
+	}
+}

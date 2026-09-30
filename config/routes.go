@@ -121,6 +121,12 @@ func AdminRoutes(r *gin.Engine) {
 		admin.POST("/coupons/:id/update", admin_api.UpdateCouponAction)
 		admin.POST("/coupons/:id/enable", admin_api.EnableCouponAction)
 		admin.POST("/coupons/:id/disable", admin_api.DisableCouponAction)
+
+		admin.GET("/shipments", admin_api.ShipmentsPageAction)
+		admin.POST("/shipments/:id", admin_api.ShipOrderAction)
+		admin.POST("/shipments/:id/in_transit", admin_api.ShipmentInTransitAction)
+		admin.POST("/shipments/:id/delivered", admin_api.ShipmentDeliveredAction)
+		admin.POST("/shipments/:id/events", admin_api.AddShipmentEventAction)
 	}
 }
 
