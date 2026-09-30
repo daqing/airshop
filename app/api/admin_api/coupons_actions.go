@@ -106,6 +106,7 @@ func DisableCouponAction(c *gin.Context) {
 }
 
 func toggleCouponEnabled(c *gin.Context, enabled bool) {
+	admin := middlewares.CurrentAdmin(c)
 	id, err := parseID(c)
 	if err != nil {
 		render.ErrorMessage(c, "invalid id")
@@ -117,6 +118,11 @@ func toggleCouponEnabled(c *gin.Context, enabled bool) {
 		return
 	}
 
+	verb := "coupon.enable"
+	if !enabled {
+		verb = "coupon.disable"
+	}
+	services.Audit(int64(admin.ID), verb, "coupon", strconv.FormatInt(int64(id), 10), "")
 	render.Found(c, "/admin/coupons")
 }
 

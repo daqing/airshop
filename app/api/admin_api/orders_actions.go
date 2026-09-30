@@ -76,6 +76,7 @@ func OrderDetailAction(c *gin.Context) {
 }
 
 func RefundOrderAction(c *gin.Context) {
+	admin := middlewares.CurrentAdmin(c)
 	orderNo := c.Param("orderNo")
 
 	if err := services.AdminRefundOrder(orderNo); err != nil {
@@ -83,5 +84,6 @@ func RefundOrderAction(c *gin.Context) {
 		return
 	}
 
+	services.Audit(int64(admin.ID), "order.refund", "order", orderNo, "")
 	render.Found(c, "/admin/orders/"+orderNo)
 }

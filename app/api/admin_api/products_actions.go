@@ -102,6 +102,8 @@ func EditProductAction(c *gin.Context) {
 }
 
 func UpdateProductAction(c *gin.Context) {
+	admin := middlewares.CurrentAdmin(c)
+
 	id, err := parseID(c)
 	if err != nil {
 		render.ErrorMessage(c, "invalid id")
@@ -109,6 +111,15 @@ func UpdateProductAction(c *gin.Context) {
 	}
 
 	in := productInputFromForm(c)
+
+	// Audit only real price changes; the previous price is needed for the
+	// detail trail.
+	existing, err := services.FindProduct(id)
+	if err != nil {
+		render.ErrorMessage(c, err.Error())
+		return
+	}
+
 	if err := services.UpdateProduct(id, in); err != nil {
 		display := &models.Product{
 			ID: id, CategoryID: in.CategoryID, Name: in.Name, Slug: in.Slug,
@@ -118,6 +129,12 @@ func UpdateProductAction(c *gin.Context) {
 		action := "/admin/products/" + strconv.FormatInt(int64(id), 10) + "/update"
 		renderProductFormError(c, "Edit product", action, display, in, err.Error())
 		return
+	}
+
+	if existing != nil && existing.PriceCents != in.PriceCents {
+		services.Audit(int64(admin.ID), "product.price", "product",
+			strconv.FormatInt(int64(id), 10),
+			services.FormatCents(existing.PriceCents)+" -> "+services.FormatCents(in.PriceCents))
 	}
 
 	render.Found(c, "/admin/products")
@@ -132,6 +149,7 @@ func DeactivateProductAction(c *gin.Context) {
 }
 
 func toggleProductActive(c *gin.Context, active bool) {
+	admin := middlewares.CurrentAdmin(c)
 	id, err := parseID(c)
 	if err != nil {
 		render.ErrorMessage(c, "invalid id")
@@ -143,6 +161,11 @@ func toggleProductActive(c *gin.Context, active bool) {
 		return
 	}
 
+	verb := "product.deactivate"
+	if active {
+		verb = "product.activate"
+	}
+	services.Audit(int64(admin.ID), verb, "product", strconv.FormatInt(int64(id), 10), "")
 	render.Found(c, "/admin/products")
 }
 

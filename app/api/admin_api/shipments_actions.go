@@ -32,17 +32,21 @@ func ShipmentsPageAction(c *gin.Context) {
 }
 
 func ShipOrderAction(c *gin.Context) {
+	admin := middlewares.CurrentAdmin(c)
 	orderID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		render.Found(c, "/admin/shipments?error=invalid+order")
 		return
 	}
 
-	if err := services.ShipOrder(orderID, c.PostForm("carrier"), c.PostForm("tracking_no")); err != nil {
+	carrier := c.PostForm("carrier")
+	trackingNo := c.PostForm("tracking_no")
+	if err := services.ShipOrder(orderID, carrier, trackingNo); err != nil {
 		render.Found(c, "/admin/shipments?error="+err.Error())
 		return
 	}
 
+	services.Audit(int64(admin.ID), "order.ship", "order", strconv.FormatInt(orderID, 10), carrier+" "+trackingNo)
 	render.Found(c, "/admin/shipments")
 }
 
@@ -70,6 +74,7 @@ func AddShipmentEventAction(c *gin.Context) {
 }
 
 func shipmentStatusAction(c *gin.Context, status string) {
+	admin := middlewares.CurrentAdmin(c)
 	shipmentID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		render.Found(c, "/admin/shipments?error=invalid+shipment")
@@ -81,5 +86,6 @@ func shipmentStatusAction(c *gin.Context, status string) {
 		return
 	}
 
+	services.Audit(int64(admin.ID), "shipment."+status, "shipment", strconv.FormatInt(shipmentID, 10), "")
 	render.Found(c, "/admin/shipments")
 }
