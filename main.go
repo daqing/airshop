@@ -115,6 +115,16 @@ func runServer() {
 		log.Printf("admin bootstrap: %v", err)
 	}
 
+	// Local installs start with a small demo catalog (skipped when the
+	// catalog already has products or outside local environments).
+	if appConfig.IsLocal {
+		if seeded, err := services.SeedDemoDataIfEmpty(); err != nil {
+			log.Printf("demo seed: %v", err)
+		} else if seeded {
+			log.Println("seeded demo catalog for the local environment")
+		}
+	}
+
 	// Cancel unpaid orders once at boot and then on a ticker.
 	go services.RunOrderExpirySweeper(services.UnpaidOrderExpiry, time.Minute)
 

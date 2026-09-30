@@ -155,7 +155,7 @@ Prerequisites: the admin pages from M1–M8 in place.
 
 Prerequisites: everything above.
 
-- [ ] T10.1 Seed data: demo categories/products and an admin account (`go run . repl` or a seed command)
+- [x] T10.1 Seed data: demo categories/products and an admin account — done 2026-09-29: `services.SeedDemoDataIfEmpty` fills an empty catalog with 2 categories, 5 demo products and a WELCOME10 percent coupon; runs at boot in local environments only (skipped when the catalog has products or outside local), so production never sees demo data; the admin account bootstrap (T9.1) covers the admin side. E2E verified (boot seeds once, storefront renders the demo items, restart does not duplicate)
 - [ ] T10.2 Full-flow regression: sign up → browse → add to cart → checkout → pay (fake gateway) → ship in admin → track on storefront → complete
 - [ ] T10.3 Error handling and logging review (5xx pages, logs on critical paths)
 - [ ] T10.4 `go test ./...` green; cover the core services (money math, state machine)
