@@ -8,13 +8,19 @@ package layouts
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import (
+	"github.com/daqing/airshop/app/models"
+)
+
 // Admin is the back-office layout: an admin topbar with management nav
-// around the page body. Admin pages wrap their content in this component:
+// around the page body, plus the shared admin component styles (a-* classes)
+// that every management page builds on. Pages wrap their content in this
+// component:
 //
-//	@layouts.Admin("My Title") {
+//	@layouts.Admin(admin, "My Title") {
 //		<p>Admin page body…</p>
 //	}
-func Admin(title string, description ...string) templ.Component {
+func Admin(admin *models.AdminUser, title string, description ...string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -47,7 +53,30 @@ func Admin(title string, description ...string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t\t.aw-admin {\n\t\t\t\t--ad-bg: #f7f7f8; --ad-ink: #232820;\n\t\t\t\tcolor-scheme: light;\n\t\t\t\tmin-height: 100vh; display: flex; flex-direction: column;\n\t\t\t\tbackground: var(--ad-bg); color: var(--ad-ink);\n\t\t\t}\n\t\t\t@media (prefers-color-scheme: dark) {\n\t\t\t\t.aw-admin {\n\t\t\t\t\t--ad-bg: #171b23; --ad-ink: #f3f4ef;\n\t\t\t\t\tcolor-scheme: dark;\n\t\t\t\t}\n\t\t\t}\n\t\t\t.aw-admin-topbar {\n\t\t\t\tdisplay: flex; align-items: center; gap: 24px;\n\t\t\t\tpadding: 12px 24px; background: #101319; color: #f3f4ef;\n\t\t\t}\n\t\t\t.aw-admin-brand { font-weight: 700; font-size: 15px; color: inherit; text-decoration: none; white-space: nowrap; }\n\t\t\t.aw-admin-nav { display: flex; gap: 16px; font-size: 13px; flex-wrap: wrap; }\n\t\t\t.aw-admin-nav a { color: #9a9eaa; text-decoration: none; }\n\t\t\t.aw-admin-nav a:hover { color: #f3f4ef; }\n\t\t\t.aw-admin-main { flex: 1; padding: 24px; }\n\t\t</style> <div class=\"aw-admin\"><header class=\"aw-admin-topbar\"><a href=\"/admin\" class=\"aw-admin-brand\">AirShop Admin</a><nav class=\"aw-admin-nav\" aria-label=\"Admin\"><a href=\"/admin\">Dashboard</a> <a href=\"/admin/categories\">Categories</a> <a href=\"/admin/products\">Products</a> <a href=\"/admin/orders\">Orders</a> <a href=\"/admin/coupons\">Coupons</a></nav></header><main class=\"aw-admin-main\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t\t.aw-admin {\n\t\t\t\t--a-line: #d8dae0; --a-muted: #6b7280;\n\t\t\t\t--a-ink: #101319; --a-paper: #f3f4ef;\n\t\t\t\t--a-danger: #b3423a; --a-ok-bg: #e7f0e7; --a-ok-ink: #2f6b2f;\n\t\t\t\t--a-bad-bg: #f3e6e5; --a-bad-ink: #8f2f28;\n\t\t\t\tcolor-scheme: light;\n\t\t\t\tmin-height: 100vh; display: flex; flex-direction: column;\n\t\t\t\tbackground: #f7f7f8; color: var(--a-ink);\n\t\t\t}\n\t\t\t@media (prefers-color-scheme: dark) {\n\t\t\t\t.aw-admin {\n\t\t\t\t\t--a-line: #2b303a; --a-muted: #9a9eaa;\n\t\t\t\t\t--a-ink: #f3f4ef; --a-paper: #101319;\n\t\t\t\t\t--a-bad-bg: #3a2624; --a-bad-ink: #e8a9a4;\n\t\t\t\t\t--a-ok-bg: #243224; --a-ok-ink: #a4d6a4;\n\t\t\t\t\tbackground: #171b23;\n\t\t\t\t}\n\t\t\t}\n\t\t\t.aw-admin-topbar {\n\t\t\t\tdisplay: flex; align-items: center; gap: 24px;\n\t\t\t\tpadding: 12px 24px; background: #101319; color: #f3f4ef;\n\t\t\t}\n\t\t\t.aw-admin-brand { font-weight: 700; font-size: 15px; color: inherit; text-decoration: none; white-space: nowrap; }\n\t\t\t.aw-admin-nav { display: flex; gap: 16px; font-size: 13px; flex-wrap: wrap; }\n\t\t\t.aw-admin-nav a { color: #9a9eaa; text-decoration: none; }\n\t\t\t.aw-admin-nav a:hover { color: #f3f4ef; }\n\t\t\t.aw-admin-main { flex: 1; padding: 24px; }\n\n\t\t\t/* shared page components (a-*) */\n\t\t\t.a-page { max-width: 920px; margin: 0 auto; }\n\t\t\t.a-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }\n\t\t\t.a-head h1 { font-size: 22px; margin: 0; }\n\t\t\t.a-table { width: 100%; border-collapse: collapse; font-size: 14px; }\n\t\t\t.a-table th, .a-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--a-line); }\n\t\t\t.a-btn { display: inline-block; padding: 6px 14px; border: 1px solid var(--a-ink); border-radius: 6px; background: var(--a-ink); color: var(--a-paper); font-size: 13px; cursor: pointer; text-decoration: none; }\n\t\t\t.a-btn-ghost { background: transparent; color: inherit; border-color: #8a8f9c; }\n\t\t\t.a-btn-danger { background: transparent; color: var(--a-danger); border-color: var(--a-danger); }\n\t\t\t.a-flash { padding: 10px 14px; border-radius: 8px; background: var(--a-bad-bg); color: var(--a-bad-ink); font-size: 13px; margin-bottom: 14px; }\n\t\t\t.a-error { padding: 10px 14px; border-radius: 8px; background: var(--a-bad-bg); color: var(--a-bad-ink); font-size: 13px; }\n\t\t\t.a-badge-on { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--a-ok-bg); color: var(--a-ok-ink); }\n\t\t\t.a-badge-off { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--a-bad-bg); color: var(--a-bad-ink); }\n\t\t\t.a-badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--a-ink); color: var(--a-paper); }\n\t\t\t.a-empty { color: var(--a-muted); text-align: center; padding: 28px 0; }\n\t\t\t.a-pager { display: flex; gap: 12px; align-items: center; margin-top: 16px; font-size: 13px; color: var(--a-muted); }\n\t\t\t.a-pager a { padding: 5px 12px; border: 1px solid var(--a-line); border-radius: 6px; color: inherit; text-decoration: none; }\n\t\t\t.a-pager a:hover { border-color: var(--a-muted); }\n\t\t\t.a-form { display: grid; gap: 12px; max-width: 520px; }\n\t\t\t.a-form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }\n\t\t\t.a-form input, .a-form select, .a-form textarea { padding: 8px 10px; border: 1px solid #b8bcc6; border-radius: 6px; font-size: 14px; font-weight: 400; }\n\t\t\t.a-form .check { display: flex; gap: 8px; align-items: center; }\n\t\t\t.a-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }\n\t\t\t.a-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }\n\t\t\t.a-actions form { display: contents; }\n\t\t\t.a-mini { padding: 5px 12px; border: 1px solid var(--a-line); border-radius: 6px; background: transparent; color: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }\n\t\t\t.a-hint { font-size: 12px; color: var(--a-muted); font-weight: 400; }\n\t\t\t.a-box { border: 1px solid var(--a-line); border-radius: 10px; padding: 16px 18px; }\n\t\t\t.a-box h2 { font-size: 14px; margin: 0 0 12px; }\n\t\t\t.a-kv { display: grid; gap: 6px; font-size: 13px; }\n\t\t\t.a-kv .k { color: var(--a-muted); }\n\t\t\t.a-line-item { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; padding: 6px 0; border-bottom: 1px dashed var(--a-line); }\n\t\t\t.a-line-item:last-child { border-bottom: 0; }\n\t\t\t.a-total { display: flex; justify-content: flex-end; gap: 14px; font-weight: 700; padding-top: 8px; }\n\t\t</style> <div class=\"aw-admin\"><header class=\"aw-admin-topbar\"><a href=\"/admin\" class=\"aw-admin-brand\">AirShop Admin</a><nav class=\"aw-admin-nav\" aria-label=\"Admin\"><a href=\"/admin\">Dashboard</a> <a href=\"/admin/categories\">Categories</a> <a href=\"/admin/products\">Products</a> <a href=\"/admin/orders\">Orders</a> <a href=\"/admin/coupons\">Coupons</a> <a href=\"/admin/shipments\">Shipments</a></nav><div style=\"margin-left: auto; display: flex; gap: 12px; align-items: center; font-size: 13px;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if admin != nil {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var3 string
+				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(admin.DisplayName)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `layouts/admin.templ`, Line: 94, Col: 31}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</span><form method=\"post\" action=\"/admin/logout\" style=\"display: contents;\"><button style=\"background: none; border: 1px solid #4a4f5a; border-radius: 6px; color: #9a9eaa; font-size: 12px; padding: 3px 10px; cursor: pointer;\">Logout</button></form>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></header><main class=\"aw-admin-main\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -55,7 +84,7 @@ func Admin(title string, description ...string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</main></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</main></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

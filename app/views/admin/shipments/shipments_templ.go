@@ -25,7 +25,7 @@ func shipID(id int64) string {
 	return strconv.FormatInt(id, 10)
 }
 
-func Page(data PageData) templ.Component {
+func Page(admin *models.AdminUser, data PageData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -58,19 +58,19 @@ func Page(data PageData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t\t.shp { max-width: 880px; margin: 32px auto 64px; padding: 0 24px; }\n\t\t\t.shp h1 { font-size: 22px; margin: 0 0 6px; }\n\t\t\t.shp h2 { font-size: 15px; margin: 24px 0 12px; }\n\t\t\t.shp-flash { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; font-size: 13px; margin-bottom: 14px; }\n\t\t\t.shp-table { width: 100%; border-collapse: collapse; font-size: 13px; }\n\t\t\t.shp-table th, .shp-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8dae0; }\n\t\t\t.shp-form { display: flex; gap: 8px; flex-wrap: wrap; }\n\t\t\t.shp-form input { padding: 7px 10px; border: 1px solid #b8bcc6; border-radius: 6px; font-size: 13px; }\n\t\t\t.shp-button { padding: 7px 14px; border: 1px solid #101319; border-radius: 6px; background: #101319; color: #f3f4ef; font-size: 13px; cursor: pointer; }\n\t\t\t.shp-mini { padding: 5px 12px; border: 1px solid #8a8f9c; border-radius: 6px; background: transparent; color: inherit; font-size: 12px; cursor: pointer; }\n\t\t\t.shp-empty { color: #6b7280; padding: 16px 0; }\n\t\t\t.shp-badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #101319; color: #f3f4ef; }\n\t\t</style> <div class=\"shp\"><h1>Shipments</h1>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"shp\"><h1>Shipments</h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.Flash != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"shp-flash\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"a-flash\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.Flash)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 39, Col: 39}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 26, Col: 37}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -86,12 +86,12 @@ func Page(data PageData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if len(data.PaidOrders) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<p class=\"shp-empty\">Nothing to ship right now.</p>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<p class=\"a-empty\">Nothing to ship right now.</p>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<table class=\"shp-table\"><thead><tr><th>Order</th><th>Carrier</th><th>Tracking number</th><th></th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<table class=\"a-table\"><thead><tr><th>Order</th><th>Carrier</th><th>Tracking number</th><th></th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -103,26 +103,26 @@ func Page(data PageData) templ.Component {
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(o.OrderNo)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 52, Col: 23}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 39, Col: 23}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</td><form class=\"shp-form\" method=\"post\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</td><form class=\"a-form\" method=\"post\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var5 templ.SafeURL
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("/admin/shipments/" + shipID(int64(o.ID))))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 53, Col: 106}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 40, Col: 104}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\"><td><input type=\"text\" name=\"carrier\" placeholder=\"e.g. SF Express\" required></td><td><input type=\"text\" name=\"tracking_no\" placeholder=\"Tracking number\" required></td><td><button class=\"shp-button\" type=\"submit\">Ship</button></td></form></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\"><td><input type=\"text\" name=\"carrier\" placeholder=\"e.g. SF Express\" required></td><td><input type=\"text\" name=\"tracking_no\" placeholder=\"Tracking number\" required></td><td><button class=\"a-btn\" type=\"submit\">Ship</button></td></form></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -137,12 +137,12 @@ func Page(data PageData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Shipments) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<p class=\"shp-empty\">No shipments yet.</p>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<p class=\"a-empty\">No shipments yet.</p>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<table class=\"shp-table\"><thead><tr><th>Order ID</th><th>Carrier</th><th>Tracking number</th><th>Status</th><th></th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<table class=\"a-table\"><thead><tr><th>Order ID</th><th>Carrier</th><th>Tracking number</th><th>Status</th><th></th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -154,7 +154,7 @@ func Page(data PageData) templ.Component {
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(shipID(s.OrderID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 74, Col: 31}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 61, Col: 31}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -167,7 +167,7 @@ func Page(data PageData) templ.Component {
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(s.Carrier)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 75, Col: 23}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 62, Col: 23}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -180,20 +180,20 @@ func Page(data PageData) templ.Component {
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(s.TrackingNo)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 76, Col: 26}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 63, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</td><td><span class=\"shp-badge\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</td><td><span class=\"a-badge\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(s.Status)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 77, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 64, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -211,13 +211,13 @@ func Page(data PageData) templ.Component {
 						var templ_7745c5c3_Var10 templ.SafeURL
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("/admin/shipments/" + shipID(int64(s.ID)) + "/in_transit"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 81, Col: 108}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 68, Col: 108}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\"><button class=\"shp-mini\" type=\"submit\">In transit</button></form>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\"><button class=\"a-mini\" type=\"submit\">In transit</button></form>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -230,31 +230,31 @@ func Page(data PageData) templ.Component {
 						var templ_7745c5c3_Var11 templ.SafeURL
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("/admin/shipments/" + shipID(int64(s.ID)) + "/delivered"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 86, Col: 107}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 73, Col: 107}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"><button class=\"shp-mini\" type=\"submit\">Delivered</button></form>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"><button class=\"a-mini\" type=\"submit\">Delivered</button></form>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><form class=\"shp-form\" style=\"margin-top: 8px;\" method=\"post\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><form class=\"a-form\" style=\"margin-top: 8px;\" method=\"post\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var12 templ.SafeURL
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("/admin/shipments/" + shipID(int64(s.ID)) + "/events"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 91, Col: 144}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/shipments/shipments.templ`, Line: 78, Col: 142}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\"><input type=\"text\" name=\"description\" placeholder=\"Add tracking event…\" required> <button class=\"shp-mini\" type=\"submit\">Add event</button></form></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\"><input type=\"text\" name=\"description\" placeholder=\"Add tracking event…\" required> <button class=\"a-mini\" type=\"submit\">Add event</button></form></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -270,7 +270,7 @@ func Page(data PageData) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Admin("Shipments").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Admin(admin, "Shipments").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

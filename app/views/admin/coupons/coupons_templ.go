@@ -97,7 +97,7 @@ func couponEnabled(c *models.Coupon) bool {
 	return c != nil && c.Enabled
 }
 
-func List(data ListData) templ.Component {
+func List(admin *models.AdminUser, data ListData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -130,19 +130,19 @@ func List(data ListData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t\t.cpn-table { width: 100%; border-collapse: collapse; font-size: 14px; }\n\t\t\t.cpn-table th, .cpn-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8dae0; }\n\t\t\t.cpn-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }\n\t\t\t.cpn-head h1 { margin: 0; font-size: 22px; }\n\t\t\t.cpn-button { display: inline-block; padding: 5px 12px; border: 1px solid #8a8f9c; border-radius: 6px; background: transparent; color: inherit; font-size: 13px; cursor: pointer; text-decoration: none; }\n\t\t\t.cpn-button-danger { border-color: #b3423a; color: #b3423a; }\n\t\t\t.cpn-badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; }\n\t\t\t.cpn-on { background: #e7f0e7; color: #2f6b2f; }\n\t\t\t.cpn-off { background: #f3e6e5; color: #8f2f28; }\n\t\t\t.cpn-flash { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; font-size: 13px; margin-bottom: 14px; }\n\t\t\t.cpn-actions { display: flex; gap: 8px; }\n\t\t\t.cpn-actions form { display: contents; }\n\t\t\t.cpn-code { font-weight: 600; }\n\t\t</style> <div class=\"cpn-head\"><h1>Coupons</h1><a class=\"cpn-button\" href=\"/admin/coupons/new\">New coupon</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"a-head\"><h1>Coupons</h1><a class=\"a-btn\" href=\"/admin/coupons/new\">New coupon</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.Flash != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"cpn-flash\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"a-flash\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.Flash)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 114, Col: 38}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 100, Col: 36}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -163,19 +163,19 @@ func List(data ListData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<table class=\"cpn-table\"><thead><tr><th>Code</th><th>Discount</th><th>Min spend</th><th>Usage</th><th>Window</th><th>Status</th><th></th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<table class=\"a-table\"><thead><tr><th>Code</th><th>Discount</th><th>Min spend</th><th>Usage</th><th>Window</th><th>Status</th><th></th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, c := range data.Coupons {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<tr><td class=\"cpn-code\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<tr><td class=\"a-code\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(c.Code)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 126, Col: 36}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 112, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -188,7 +188,7 @@ func List(data ListData) templ.Component {
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(couponDiscount(c))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 127, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 113, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -201,7 +201,7 @@ func List(data ListData) templ.Component {
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(couponThreshold(c))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 128, Col: 31}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 114, Col: 31}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -214,7 +214,7 @@ func List(data ListData) templ.Component {
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(couponLimit(c, data.Usage[int64(c.ID)]))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 129, Col: 52}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 115, Col: 52}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -227,7 +227,7 @@ func List(data ListData) templ.Component {
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(couponWindow(c))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 130, Col: 28}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 116, Col: 28}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -248,14 +248,14 @@ func List(data ListData) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</td><td><div class=\"cpn-actions\"><a class=\"cpn-button\" href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</td><td><div class=\"a-actions\"><a class=\"a-btn\" href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var9 templ.SafeURL
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("/admin/coupons/" + couponID(int64(c.ID)) + "/edit"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 140, Col: 100}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 126, Col: 95}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -268,20 +268,20 @@ func List(data ListData) templ.Component {
 					var templ_7745c5c3_Var10 templ.SafeURL
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("/admin/coupons/" + couponID(int64(c.ID)) + "/" + toggleVerb(c.Enabled)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 141, Col: 120}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 127, Col: 120}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\"><button class=\"cpn-button\" type=\"submit\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\"><button class=\"a-btn\" type=\"submit\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(toggleLabel(c.Enabled))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 142, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 128, Col: 70}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
@@ -299,7 +299,7 @@ func List(data ListData) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Admin("Coupons").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Admin(admin, "Coupons").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -307,7 +307,7 @@ func List(data ListData) templ.Component {
 	})
 }
 
-func CouponForm(title string, action string, c *models.Coupon, errMsg string) templ.Component {
+func CouponForm(admin *models.AdminUser, title string, action string, c *models.Coupon, errMsg string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -340,14 +340,14 @@ func CouponForm(title string, action string, c *models.Coupon, errMsg string) te
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<style>\n\t\t\t.cpn-form { max-width: 520px; display: grid; gap: 12px; }\n\t\t\t.cpn-form h1 { font-size: 20px; margin: 0 0 4px; }\n\t\t\t.cpn-form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }\n\t\t\t.cpn-form input[type=\"text\"], .cpn-form input[type=\"number\"], .cpn-form input[type=\"datetime-local\"], .cpn-form select {\n\t\t\t\tpadding: 8px 10px; border: 1px solid #b8bcc6; border-radius: 6px; font-size: 14px; font-weight: 400;\n\t\t\t}\n\t\t\t.cpn-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }\n\t\t\t.cpn-form .check { display: flex; gap: 8px; align-items: center; }\n\t\t\t.cpn-error { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; }\n\t\t\t.cpn-submit { padding: 10px 18px; border-radius: 8px; border: 1px solid #101319; background: #101319; color: #f3f4ef; font-size: 14px; font-weight: 600; cursor: pointer; }\n\t\t\t.cpn-cancel { padding: 10px 18px; border-radius: 8px; border: 1px solid #8a8f9c; color: inherit; font-size: 14px; text-decoration: none; text-align: center; }\n\t\t\t.cpn-buttons { display: flex; gap: 10px; }\n\t\t\t.cpn-hint { font-size: 12px; color: #6b7280; font-weight: 400; }\n\t\t</style> <h1>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 171, Col: 13}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 143, Col: 13}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -358,14 +358,14 @@ func CouponForm(title string, action string, c *models.Coupon, errMsg string) te
 				return templ_7745c5c3_Err
 			}
 			if errMsg != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<p class=\"cpn-error\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<p class=\"a-error\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(errMsg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 173, Col: 32}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 145, Col: 30}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
@@ -376,14 +376,14 @@ func CouponForm(title string, action string, c *models.Coupon, errMsg string) te
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, " <form class=\"cpn-form\" method=\"post\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, " <form class=\"a-form\" method=\"post\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var16 templ.SafeURL
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL(action))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 175, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 147, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -396,7 +396,7 @@ func CouponForm(title string, action string, c *models.Coupon, errMsg string) te
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(strings.TrimSpace(codeOf(c)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 178, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 150, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 			if templ_7745c5c3_Err != nil {
@@ -424,7 +424,7 @@ func CouponForm(title string, action string, c *models.Coupon, errMsg string) te
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(couponValue(c))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 195, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 167, Col: 59}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 			if templ_7745c5c3_Err != nil {
@@ -437,7 +437,7 @@ func CouponForm(title string, action string, c *models.Coupon, errMsg string) te
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(percentOf(c))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 199, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 171, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 			if templ_7745c5c3_Err != nil {
@@ -450,7 +450,7 @@ func CouponForm(title string, action string, c *models.Coupon, errMsg string) te
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(couponThreshold(c))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 204, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 176, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 			if templ_7745c5c3_Err != nil {
@@ -463,7 +463,7 @@ func CouponForm(title string, action string, c *models.Coupon, errMsg string) te
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(couponTotal(c))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 208, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 180, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 			if templ_7745c5c3_Err != nil {
@@ -476,7 +476,7 @@ func CouponForm(title string, action string, c *models.Coupon, errMsg string) te
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(formTime(startTime(c)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 213, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 185, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 			if templ_7745c5c3_Err != nil {
@@ -489,7 +489,7 @@ func CouponForm(title string, action string, c *models.Coupon, errMsg string) te
 			var templ_7745c5c3_Var23 string
 			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(formTime(expiryTime(c)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 217, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/coupons/coupons.templ`, Line: 189, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 			if templ_7745c5c3_Err != nil {
@@ -505,13 +505,13 @@ func CouponForm(title string, action string, c *models.Coupon, errMsg string) te
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "> Enabled</label><p class=\"cpn-hint\">Fill only the field matching the chosen type; the other stays 0.</p><div class=\"cpn-buttons\"><button class=\"cpn-submit\" type=\"submit\">Save</button> <a class=\"cpn-cancel\" href=\"/admin/coupons\">Cancel</a></div></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "> Enabled</label><p class=\"a-hint\">Fill only the field matching the chosen type; the other stays 0.</p><div class=\"a-actions\"><button class=\"a-btn\" type=\"submit\">Save</button> <a class=\"a-btn a-btn-ghost\" href=\"/admin/coupons\">Cancel</a></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Admin(title).Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Admin(admin, title).Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -50,7 +50,7 @@ func TestRoutesRegistersCoreEndpoints(t *testing.T) {
 		"POST /account/addresses/:id/update",
 		"POST /account/addresses/:id/delete",
 		"POST /account/addresses/:id/default",
-		"GET /admin",
+		"GET /admin/",
 		"GET /admin/categories",
 		"GET /admin/categories/new",
 		"POST /admin/categories",

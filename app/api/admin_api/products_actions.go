@@ -7,6 +7,7 @@ import (
 
 	"github.com/daqing/airway/lib/render"
 
+	"github.com/daqing/airshop/app/middlewares"
 	"github.com/daqing/airshop/app/models"
 	"github.com/daqing/airshop/app/services"
 	productsviews "github.com/daqing/airshop/app/views/admin/products"
@@ -32,7 +33,7 @@ func ProductsIndexAction(c *gin.Context) {
 		totalPages = 1
 	}
 
-	render.HTML(c, productsviews.Index(productsviews.IndexData{
+	render.HTML(c, productsviews.Index(middlewares.CurrentAdmin(c), productsviews.IndexData{
 		Products:   products,
 		Categories: cats,
 		Query:      f.Query,
@@ -51,7 +52,7 @@ func NewProductAction(c *gin.Context) {
 		return
 	}
 
-	render.HTML(c, productsviews.Form("New product", "/admin/products", nil, cats, nil, ""))
+	render.HTML(c, productsviews.Form(middlewares.CurrentAdmin(c), "New product", "/admin/products", nil, cats, nil, ""))
 }
 
 func CreateProductAction(c *gin.Context) {
@@ -97,10 +98,12 @@ func EditProductAction(c *gin.Context) {
 		return
 	}
 
-	render.HTML(c, productsviews.Form("Edit product", action, p, cats, entries, ""))
+	render.HTML(c, productsviews.Form(middlewares.CurrentAdmin(c), "Edit product", action, p, cats, entries, ""))
 }
 
 func UpdateProductAction(c *gin.Context) {
+	admin := middlewares.CurrentAdmin(c)
+
 	id, err := parseID(c)
 	if err != nil {
 		render.ErrorMessage(c, "invalid id")
@@ -108,6 +111,15 @@ func UpdateProductAction(c *gin.Context) {
 	}
 
 	in := productInputFromForm(c)
+
+	// Audit only real price changes; the previous price is needed for the
+	// detail trail.
+	existing, err := services.FindProduct(id)
+	if err != nil {
+		render.ErrorMessage(c, err.Error())
+		return
+	}
+
 	if err := services.UpdateProduct(id, in); err != nil {
 		display := &models.Product{
 			ID: id, CategoryID: in.CategoryID, Name: in.Name, Slug: in.Slug,
@@ -117,6 +129,12 @@ func UpdateProductAction(c *gin.Context) {
 		action := "/admin/products/" + strconv.FormatInt(int64(id), 10) + "/update"
 		renderProductFormError(c, "Edit product", action, display, in, err.Error())
 		return
+	}
+
+	if existing != nil && existing.PriceCents != in.PriceCents {
+		services.Audit(int64(admin.ID), "product.price", "product",
+			strconv.FormatInt(int64(id), 10),
+			services.FormatCents(existing.PriceCents)+" -> "+services.FormatCents(in.PriceCents))
 	}
 
 	render.Found(c, "/admin/products")
@@ -131,6 +149,7 @@ func DeactivateProductAction(c *gin.Context) {
 }
 
 func toggleProductActive(c *gin.Context, active bool) {
+	admin := middlewares.CurrentAdmin(c)
 	id, err := parseID(c)
 	if err != nil {
 		render.ErrorMessage(c, "invalid id")
@@ -142,6 +161,11 @@ func toggleProductActive(c *gin.Context, active bool) {
 		return
 	}
 
+	verb := "product.deactivate"
+	if active {
+		verb = "product.activate"
+	}
+	services.Audit(int64(admin.ID), verb, "product", strconv.FormatInt(int64(id), 10), "")
 	render.Found(c, "/admin/products")
 }
 
@@ -209,7 +233,7 @@ func renderProductFormError(c *gin.Context, title, action string, p *models.Prod
 		}
 	}
 
-	render.HTMLStatus(c, 422, productsviews.Form(title, action, display, cats, nil, msg))
+	render.HTMLStatus(c, 422, productsviews.Form(middlewares.CurrentAdmin(c), title, action, display, cats, nil, msg))
 }
 
 func UploadProductImagesAction(c *gin.Context) {

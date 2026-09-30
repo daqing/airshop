@@ -1,0 +1,43 @@
+package admin
+
+import (
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+templ Login(data LoginData) {
+	@layouts.Admin(nil, "Admin sign in") {
+		<style>
+			.admin-login { max-width: 380px; margin: 64px auto; padding: 28px; border: 1px solid #d8dae0; border-radius: 12px; }
+			.admin-login h1 { font-size: 20px; margin: 0 0 6px; }
+			.admin-sub { font-size: 13px; color: #6b7280; margin: 0 0 20px; }
+			.admin-form { display: grid; gap: 12px; }
+			.admin-form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
+			.admin-form input { padding: 9px 12px; border: 1px solid #b8bcc6; border-radius: 8px; font-size: 14px; }
+			.admin-submit { padding: 10px 16px; border-radius: 8px; border: 1px solid #101319; background: #101319; color: #f3f4ef; font-size: 14px; font-weight: 600; cursor: pointer; }
+			.admin-error { padding: 10px 14px; border-radius: 8px; background: #f3e6e5; color: #8f2f28; font-size: 13px; }
+		</style>
+		<div class="admin-login">
+			<h1>Admin sign in</h1>
+			<p class="admin-sub">Staff access only.</p>
+			if data.Error != "" {
+				<div class="admin-error">{ data.Error }</div>
+			}
+			<form class="admin-form" method="post" action="/admin/login">
+				<label>
+					Username
+					<input type="text" name="username" value={ data.Username } required/>
+				</label>
+				<label>
+					Password
+					<input type="password" name="password" required/>
+				</label>
+				<button class="admin-submit" type="submit">Sign in</button>
+			</form>
+		</div>
+	}
+}
+
+type LoginData struct {
+	Username string
+	Error    string
+}

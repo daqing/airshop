@@ -110,6 +110,11 @@ func runServer() {
 		os.Exit(5)
 	}
 
+	// Bootstrap the first admin account (no-op when one exists).
+	if err := services.BootstrapAdminIfEmpty(); err != nil {
+		log.Printf("admin bootstrap: %v", err)
+	}
+
 	// Cancel unpaid orders once at boot and then on a ticker.
 	go services.RunOrderExpirySweeper(services.UnpaidOrderExpiry, time.Minute)
 

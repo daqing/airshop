@@ -53,7 +53,7 @@ func TestStorefrontLayoutRendersShell(t *testing.T) {
 }
 
 func TestAdminLayoutRendersShell(t *testing.T) {
-	html := renderToString(t, Admin("Admin Page"))
+	html := renderToString(t, Admin(nil, "Admin Page"))
 
 	for _, marker := range []string{
 		"<title>Admin Page</title>",
@@ -62,7 +62,7 @@ func TestAdminLayoutRendersShell(t *testing.T) {
 		">AirShop Admin</a>",
 		`href="/admin/products"`,
 		"aw-admin-main",
-		"--ad-bg",
+		"--a-ink",
 		"prefers-color-scheme: dark",
 	} {
 		if !strings.Contains(html, marker) {

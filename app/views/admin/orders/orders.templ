@@ -1,0 +1,175 @@
+package orders
+
+import (
+	"strconv"
+
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/services"
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+type ListData struct {
+	Admin      *models.AdminUser
+	Orders     []*models.Order
+	Status     string
+	Search     string
+	Page       int
+	TotalPages int
+	Total      int64
+}
+
+var adminStatusFilters = []string{
+	services.OrderStatusPending,
+	services.OrderStatusPaid,
+	services.OrderStatusShipped,
+	services.OrderStatusCompleted,
+	services.OrderStatusCancelled,
+	services.OrderStatusRefunded,
+}
+
+func listURL(status, search string, page int) string {
+	u := "/admin/orders?page=" + strconv.Itoa(page)
+	if status != "" {
+		u += "&status=" + status
+	}
+	if search != "" {
+		u += "&q=" + search
+	}
+	return u
+}
+
+func orderID(id int64) string {
+	return strconv.FormatInt(id, 10)
+}
+
+templ List(data ListData) {
+	@layouts.Admin(data.Admin, "Orders") {
+
+		<div class="ao">
+			<h1>Orders</h1>
+			<form class="a-filter" method="get" action="/admin/orders">
+				if data.Status != "" {
+					<input type="hidden" name="status" value={ data.Status }/>
+				}
+				<input type="text" name="q" placeholder="Search order number" value={ data.Search }/>
+				<button type="submit">Search</button>
+			</form>
+			<nav class="a-chips">
+				<a class="a-chip" href="/admin/orders">All</a>
+				for _, s := range adminStatusFilters {
+					if data.Status == s {
+						<a class="a-chip active" href={ templ.URL(listURL(s, data.Search, 1)) }>{ s }</a>
+					} else {
+						<a class="a-chip" href={ templ.URL(listURL(s, data.Search, 1)) }>{ s }</a>
+					}
+				}
+			</nav>
+			if len(data.Orders) == 0 {
+				<p class="a-empty">No orders match.</p>
+			} else {
+				<table class="a-table">
+					<thead>
+						<tr><th>Order</th><th>Created</th><th>Total</th><th>Status</th><th></th></tr>
+					</thead>
+					<tbody>
+						for _, o := range data.Orders {
+							<tr>
+								<td class="a-code">{ o.OrderNo }</td>
+								<td>{ o.CreatedAt.Format("2006-01-02 15:04") }</td>
+								<td>{ services.FormatCents(o.TotalCents) }</td>
+								<td><span class="a-badge">{ o.Status }</span></td>
+								<td><a class="a-mini" href={ templ.URL("/admin/orders/" + o.OrderNo) }>View →</a></td>
+							</tr>
+						}
+					</tbody>
+				</table>
+				<div class="a-pager">
+					<span>{ strconv.FormatInt(data.Total, 10) } order(s)</span>
+					if data.Page > 1 {
+						<a href={ templ.URL(listURL(data.Status, data.Search, data.Page-1)) }>Prev</a>
+					}
+					<span>Page { strconv.Itoa(data.Page) } of { strconv.Itoa(data.TotalPages) }</span>
+					if data.Page < data.TotalPages {
+						<a href={ templ.URL(listURL(data.Status, data.Search, data.Page+1)) }>Next</a>
+					}
+				</div>
+			}
+		</div>
+	}
+}
+
+type DetailData struct {
+	Admin    *models.AdminUser
+	Order    *models.Order
+	Items    []*models.OrderItem
+	Flash    string
+	Tracking string
+}
+
+func refundable(status string) bool {
+	return status == services.OrderStatusPaid ||
+		status == services.OrderStatusShipped ||
+		status == services.OrderStatusCompleted
+}
+
+templ Detail(data DetailData) {
+	@layouts.Admin(data.Admin, "Order "+data.Order.OrderNo) {
+
+		<div class="aod">
+			<h1>Order { data.Order.OrderNo }</h1>
+			if data.Flash != "" {
+				<div class="aod-flash">{ data.Flash }</div>
+			}
+			<div class="aod-box">
+				<h2>Summary</h2>
+				<div class="aod-kv">
+					<span><span class="aod-badge">{ data.Order.Status }</span></span>
+					<span><span class="k">Placed: </span>{ data.Order.CreatedAt.Format("2006-01-02 15:04") }</span>
+					<span><span class="k">Payment: </span>{ data.Order.PaymentMethod }</span>
+				</div>
+			</div>
+			<div class="aod-box">
+				<h2>Items</h2>
+				for _, item := range data.Items {
+					<div class="aod-line">
+						<span>
+							{ item.ProductName }
+							if item.VariantName != "" {
+								{ " (" }{ item.VariantName }{ ")" }
+							}
+							{ " × " }{ strconv.Itoa(item.Quantity) }
+						</span>
+						<span class="sum">{ services.FormatCents(item.UnitPriceCents * int64(item.Quantity)) }</span>
+					</div>
+				}
+				<div class="aod-total">
+					<span>Total</span>
+					<span>{ services.FormatCents(data.Order.TotalCents) }</span>
+				</div>
+			</div>
+			<div class="aod-box">
+				<h2>Shipping</h2>
+				<div class="aod-kv">
+					<span><span class="k">Recipient: </span>{ data.Order.ShipRecipient } · { data.Order.ShipPhone }</span>
+					<span><span class="k">Address: </span>{ data.Order.ShipAddress }</span>
+				</div>
+			</div>
+			if data.Tracking != "" {
+				<div class="aod-box">
+					<h2>Tracking</h2>
+					<div class="aod-kv">{ data.Tracking }</div>
+				</div>
+			}
+			<div class="aod-actions">
+				if data.Order.Status == "paid" {
+					<a class="aod-link" href="/admin/shipments">Ship via shipments →</a>
+				}
+				if refundable(data.Order.Status) {
+					<form method="post" action={ templ.URL("/admin/orders/" + data.Order.OrderNo + "/refund") }>
+						<button class="aod-refund" type="submit">Mark refunded</button>
+					</form>
+				}
+			</div>
+		</div>
+	}
+}

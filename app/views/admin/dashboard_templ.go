@@ -8,11 +8,17 @@ package admin
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/daqing/airshop/app/views/layouts"
+import (
+	"strconv"
 
-// Dashboard is the admin landing page. Real metrics arrive with M9 (T9.2);
-// until then it is a placeholder listing the upcoming sections.
-func Dashboard() templ.Component {
+	"github.com/daqing/airshop/app/models"
+	"github.com/daqing/airshop/app/services"
+	"github.com/daqing/airshop/app/views/layouts"
+)
+
+// Dashboard is the admin landing page: live numbers plus shortcuts into the
+// management modules.
+func Dashboard(admin *models.AdminUser, stats services.DashboardStats) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -45,13 +51,117 @@ func Dashboard() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<h1>Dashboard</h1><p>Store overview will land here: orders, sales, and pending work.</p><ul><li><a href=\"/admin/products\">Products</a> — manage catalog (M1)</li><li><a href=\"/admin/orders\">Orders</a> — review and ship orders (M5/M9)</li><li><a href=\"/admin/coupons\">Coupons</a> — create and disable coupons (M7)</li></ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t\t.dash h1 { font-size: 22px; margin: 0 0 18px; }\n\t\t\t.dash h2 { font-size: 15px; margin: 24px 0 12px; }\n\t\t\t.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }\n\t\t\t.stat-card { border: 1px solid #d8dae0; border-radius: 10px; padding: 14px 16px; }\n\t\t\t.stat-card .k { font-size: 12px; color: #6b7280; }\n\t\t\t.stat-card .v { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-top: 4px; }\n\t\t\t.todo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }\n\t\t\t.todo-card { border: 1px solid #d8dae0; border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; }\n\t\t\t.todo-card .n { font-size: 22px; font-weight: 700; }\n\t\t\t.todo-card .k { font-size: 12px; color: #6b7280; }\n\t\t\t.todo-card a { font-size: 12px; }\n\t\t\t.links { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 24px; }\n\t\t\t.links a { border: 1px solid #d8dae0; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: inherit; text-decoration: none; }\n\t\t\t.links a:hover { border-color: #6b7280; }\n\t\t</style> <div class=\"a-page\"><h1>Dashboard</h1><h2>Last 7 days</h2><div class=\"stat-grid\"><div class=\"stat-card\"><div class=\"k\">Orders (7d)</div><div class=\"v\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(stats.OrdersWeek, 10))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 35, Col: 115}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div></div><div class=\"stat-card\"><div class=\"k\">Sales (7d)</div><div class=\"v\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(services.FormatCents(stats.SalesWeek))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 36, Col: 112}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div></div><div class=\"stat-card\"><div class=\"k\">Orders today</div><div class=\"v\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(stats.OrdersToday, 10))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 37, Col: 117}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></div><div class=\"stat-card\"><div class=\"k\">Sales today</div><div class=\"v\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(services.FormatCents(stats.SalesToday))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 38, Col: 114}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div></div></div><h2>Pending work</h2><div class=\"todo-grid\"><div class=\"todo-card\"><span class=\"n\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(stats.ToShip, 10))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 43, Col: 58}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span> <span class=\"k\">Paid orders to ship</span> <a href=\"/admin/shipments\">Ship now →</a></div><div class=\"todo-card\"><span class=\"n\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(stats.AwaitingPayment, 10))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 48, Col: 67}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</span> <span class=\"k\">Awaiting payment</span> <a href=\"/orders?status=pending\">View orders →</a></div><div class=\"todo-card\"><span class=\"n\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(stats.Shipped, 10))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 53, Col: 59}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span> <span class=\"k\">In transit</span> <a href=\"/admin/shipments\">Track →</a></div><div class=\"todo-card\"><span class=\"n\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(stats.Refunded, 10))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin/dashboard.templ`, Line: 58, Col: 60}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span> <span class=\"k\">Refunded</span> <a href=\"/orders?status=refunded\">View →</a></div></div><h2>Manage</h2><div class=\"links\"><a href=\"/admin/categories\">Categories</a> <a href=\"/admin/products\">Products</a> <a href=\"/admin/coupons\">Coupons</a> <a href=\"/admin/shipments\">Shipments</a></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Admin("Dashboard").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Admin(admin, "Dashboard").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

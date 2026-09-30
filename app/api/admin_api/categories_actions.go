@@ -8,6 +8,7 @@ import (
 	"github.com/daqing/airway/lib/render"
 	sql "github.com/daqing/airway/lib/sql"
 
+	"github.com/daqing/airshop/app/middlewares"
 	"github.com/daqing/airshop/app/models"
 	"github.com/daqing/airshop/app/services"
 	"github.com/daqing/airshop/app/views/admin/categories"
@@ -20,7 +21,7 @@ func CategoriesIndexAction(c *gin.Context) {
 		return
 	}
 
-	render.HTML(c, categories.Index(cats, c.Query("error")))
+	render.HTML(c, categories.Index(middlewares.CurrentAdmin(c), cats, c.Query("error")))
 }
 
 func NewCategoryAction(c *gin.Context) {
@@ -30,7 +31,7 @@ func NewCategoryAction(c *gin.Context) {
 		return
 	}
 
-	render.HTML(c, categories.Form("New category", "/admin/categories", nil, parents, ""))
+	render.HTML(c, categories.Form(middlewares.CurrentAdmin(c), "New category", "/admin/categories", nil, parents, ""))
 }
 
 func CreateCategoryAction(c *gin.Context) {
@@ -69,7 +70,7 @@ func EditCategoryAction(c *gin.Context) {
 	}
 
 	action := "/admin/categories/" + strconv.FormatInt(int64(id), 10) + "/update"
-	render.HTML(c, categories.Form("Edit category", action, cat, excludeCategory(parents, id), ""))
+	render.HTML(c, categories.Form(middlewares.CurrentAdmin(c), "Edit category", action, cat, excludeCategory(parents, id), ""))
 }
 
 func UpdateCategoryAction(c *gin.Context) {
@@ -149,7 +150,7 @@ func renderCategoryFormError(c *gin.Context, title, action string, cat *models.C
 		display = &models.Category{Name: in.Name, Slug: in.Slug, ParentID: in.ParentID, SortOrder: in.SortOrder, Enabled: in.Enabled}
 	}
 
-	render.HTMLStatus(c, 422, categories.Form(title, action, display, excludeCategory(parents, display.ID), msg))
+	render.HTMLStatus(c, 422, categories.Form(middlewares.CurrentAdmin(c), title, action, display, excludeCategory(parents, display.ID), msg))
 }
 
 func excludeCategory(cats []*models.Category, id sql.IdType) []*models.Category {
