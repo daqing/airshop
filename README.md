@@ -15,31 +15,40 @@ will follow in a third phase (yet to be planned).
 
 ## Roadmap
 
-- **Phase 1 — Core commerce** *(current)*: implement the complete core
-  commerce feature set.
-- **Phase 2 — Beyond core**: once the core system is complete, development
-  shifts to AirShop-specific features.
+- **Phase 1 — Core commerce** *(complete)*: the full core commerce feature
+  set is implemented — catalog, cart, checkout, orders, payments, coupons,
+  accounts with phone-number sign-in, addresses, shipment tracking and an
+  admin panel.
+- **Phase 2 — Beyond core**: development shifts to AirShop-specific
+  features.
 - **Phase 3 — AI features** *(to be planned)*: AI-powered capabilities will
   be provided in this phase.
 
-## Feature scope
+## Features
 
 Storefront:
 
-- Homepage
-- Product catalog and details
-- Shopping cart
-- Orders and checkout
-- Payments
-- Coupons
-- Account center
-- Sign-up and login via phone number
-- Address book
-- Shipment tracking
+- Homepage with latest products
+- Product catalog with category filtering and details
+- Shopping cart (merge on repeat adds, stock caps)
+- Checkout with address snapshot and server-side totals
+- Orders with a status machine and tracking timeline
+- Payments through a gateway registry (fake gateway included for local
+  testing; WeChat Pay and Alipay planned)
+- Coupons: claim at the coupon center, apply at checkout
+- Account center with phone-number (SMS code) sign-in
+- Address book with cascading region selects
+- Shipment tracking timeline
+- Also ships as a native desktop app (see below)
 
 Admin:
 
-- Admin panel for managing the store
+- Isolated admin login (username/password)
+- Dashboard with sales and pending-work stats
+- Category, product (with images and variants) and coupon management
+- Order management with refund action
+- Shipping with manual tracking events
+- Audit trail for high-risk operations
 
 ## Tech stack
 
