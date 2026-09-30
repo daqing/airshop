@@ -133,6 +133,10 @@ func AdminRoutes(r *gin.Engine) {
 		protected.POST("/coupons/:id/enable", admin_api.EnableCouponAction)
 		protected.POST("/coupons/:id/disable", admin_api.DisableCouponAction)
 
+		protected.GET("/orders", admin_api.OrdersPageAction)
+		protected.GET("/orders/:orderNo", admin_api.OrderDetailAction)
+		protected.POST("/orders/:orderNo/refund", admin_api.RefundOrderAction)
+
 		protected.GET("/shipments", admin_api.ShipmentsPageAction)
 		protected.POST("/shipments/:id", admin_api.ShipOrderAction)
 		protected.POST("/shipments/:id/in_transit", admin_api.ShipmentInTransitAction)

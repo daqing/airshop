@@ -207,6 +207,66 @@ func ListOrders(userID int64, status string, page, size int) ([]*models.Order, i
 	return orders, total, nil
 }
 
+const AdminOrdersPageSize = 20
+
+// AdminListOrders returns one page of all orders for the admin console,
+// newest first, optionally filtered by status and searched by order number.
+func AdminListOrders(status, search string, page, size int) ([]*models.Order, int64, error) {
+	conds := []sql.CondBuilder{}
+	if KnownOrderStatus(status) {
+		conds = append(conds, sql.Eq("status", status))
+	}
+	if trimmed := strings.TrimSpace(search); trimmed != "" {
+		conds = append(conds, sql.ILike("order_no", "%"+trimmed+"%"))
+	}
+
+	var b *sql.Builder
+	if len(conds) == 0 {
+		b = sql.Select("*").From("orders")
+	} else {
+		b = sql.Select("*").From("orders").Where(sql.AllOf(conds...))
+	}
+	b = b.OrderBy("id DESC").Limit(size).Offset((page - 1) * size)
+
+	orders, err := repo.Find[models.Order](repo.CurrentDB(), b)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	cb := sql.SelectColumns("count(*)").From("orders")
+	if len(conds) > 0 {
+		cb = cb.Where(sql.AllOf(conds...))
+	}
+	total, err := repo.Count(repo.CurrentDB(), cb)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return orders, total, nil
+}
+
+// AdminFindOrderByNo returns any order by number without user scoping.
+func AdminFindOrderByNo(orderNo string) (*models.Order, error) {
+	order, err := repo.FindOneBy[models.Order](sql.H{"order_no": orderNo})
+	if err != nil {
+		return nil, err
+	}
+	if order == nil {
+		return nil, ErrOrderNotFound
+	}
+	return order, nil
+}
+
+// AdminRefundOrder moves an order to refunded through the state machine;
+// stock and coupon restore happen inside the transition.
+func AdminRefundOrder(orderNo string) error {
+	order, err := AdminFindOrderByNo(orderNo)
+	if err != nil {
+		return err
+	}
+	return TransitionOrder(int64(order.ID), OrderStatusRefunded)
+}
+
 // OrderItems returns the lines of an order.
 func OrderItems(orderID int64) ([]*models.OrderItem, error) {
 	b := sql.Select("*").From("order_items").Where(sql.Eq("order_id", orderID)).OrderBy("id ASC")
